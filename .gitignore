@@ -1,0 +1,14 @@
+.dub
+docs.json
+__dummy.html
+docs/
+cpublit.so
+cpublit.dylib
+cpublit.dll
+cpublit.a
+cpublit.lib
+cpublit-test-*
+*.exe
+*.o
+*.obj
+*.lst

@@ -1,0 +1,6 @@
+name "CPUblit"
+description "Drawing and image composing library."
+authors "Laszlo Szeremi"
+copyright "Copyright © 2018, Laszlo Szeremi"
+license "Boost"
+targetType "library"
