@@ -1,4 +1,5 @@
-name "CPUblit"
+name "cpublit"
+targetName "CPUblit"
 description "Drawing and image composing library."
 authors "Laszlo Szeremi"
 copyright "Copyright © 2018, Laszlo Szeremi"
