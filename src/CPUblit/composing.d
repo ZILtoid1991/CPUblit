@@ -17,7 +17,7 @@ import CPUblit.colorspaces;
 
 //import core.simd;
 //package immutable ubyte[16] NULLVECT_SSE2;
-package immutable uint[4] BLT32BITTESTER_SSE2 = [0x01000000,0x01000000,0x01000000,0x01000000];
+package immutable uint[16] BLT32BITTESTER_SSE2 = [0,0,0,0];
 package immutable ushort[8] ALPHABLEND_SSE2_CONST1 = [1,1,1,1,1,1,1,1];
 package immutable ushort[8] ALPHABLEND_SSE2_CONST256 = [256,256,256,256,256,256,256,256];
 package immutable ubyte[16] ALPHABLEND_SSE2_MASK = [255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0];
@@ -712,17 +712,18 @@ public @nogc void blitter32bit(uint* src, uint* dest, size_t length){
 				mov		EDI, dest[EBP];
 				mov		ECX, length;
 				movups	XMM6, ALPHABLEND_SSE2_MASK;
+				//movups	XMM7, BLT32BITTESTER_SSE2;
 				pxor	XMM7, XMM7;
-				cmp		ECX, 8;
+				cmp		ECX, 4;
 				jl		twopixel;
 			fourpixelloop:
 				movups	XMM0, [ESI];
 				movups	XMM1, [EDI];
 				movups	XMM2, XMM0;
-				pand	XMM2, XMM6;
-				pcmpeqd	XMM2, XMM7;
-				pand	XMM1, XMM2;
-				por		XMM1, XMM0;
+				pand	XMM2, XMM6;		// get alpha from source
+				pcmpeqd	XMM2, XMM7;		// mask = alpha == 0 ? 255 : 0
+				pand	XMM1, XMM2;		// dest & mask
+				por		XMM1, XMM0;		// src | (dest & mask)
 				movups	[EDI], XMM1;
 				add		ESI, 16;
 				add		EDI, 16;
@@ -755,6 +756,7 @@ public @nogc void blitter32bit(uint* src, uint* dest, size_t length){
 				por		XMM1, XMM0;
 				movd	[EDI], XMM1;
 			end:
+				pxor	XMM2, XMM2;
 				;
 			}
 		}
@@ -1221,7 +1223,7 @@ public @nogc void copy32bit(uint* src, uint* dest, size_t length){
 				mov		ECX, length;
 				movups	XMM6, ALPHABLEND_SSE2_MASK;
 				pxor	XMM7, XMM7;
-				cmp		ECX, 8;
+				cmp		ECX, 4;
 				jl		twopixel;
 			eigthpixelloop:
 				movups	XMM0, [ESI];
@@ -1255,7 +1257,7 @@ public @nogc void copy32bit(uint* src, uint* dest, size_t length){
 			mov		RCX, length;
 			movups	XMM6, ALPHABLEND_SSE2_MASK;
 			pxor	XMM7, XMM7;
-			cmp		ECX, 8;
+			cmp		ECX, 4;
 			jl		twopixel;
 		eigthpixelloop:
 			movups	XMM0, [RSI];
@@ -2659,7 +2661,7 @@ public @nogc void blitter32bit(uint* src, uint* dest, uint* dest1, size_t length
 				mov		ECX, length;
 				movups	XMM6, ALPHABLEND_SSE2_MASK;
 				pxor	XMM7, XMM7;
-				cmp		ECX, 8;
+				cmp		ECX, 4;
 				jl		twopixel;
 			fourpixelloop:
 				movups	XMM0, [ESI];
@@ -2714,7 +2716,7 @@ public @nogc void blitter32bit(uint* src, uint* dest, uint* dest1, size_t length
 			mov		RCX, length;
 			movups	XMM6, ALPHABLEND_SSE2_MASK;
 			pxor	XMM7, XMM7;
-			cmp		ECX, 8;
+			cmp		ECX, 4;
 			jl		twopixel;
 		fourpixelloop:
 			movups	XMM0, [RSI];
