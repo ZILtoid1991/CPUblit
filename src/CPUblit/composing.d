@@ -16,22 +16,68 @@ import CPUblit.colorspaces;
  */
 
 //import core.simd;
-//package immutable ubyte[16] NULLVECT_SSE2;
-package immutable uint[16] BLT32BITTESTER_SSE2 = [0,0,0,0];
-package immutable ushort[8] ALPHABLEND_SSE2_CONST1 = [1,1,1,1,1,1,1,1];
-package immutable ushort[8] ALPHABLEND_SSE2_CONST256 = [256,256,256,256,256,256,256,256];
-package immutable ubyte[16] ALPHABLEND_SSE2_MASK = [255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0];
-//package immutable ubyte[8] NULLVECT_MMX;
-package immutable uint[2] BLT32BITTESTER_MMX = [0x01000000,0x01000000];
-package immutable ushort[4] ALPHABLEND_MMX_CONST1 = [1,1,1,1];
-package immutable ushort[4] ALPHABLEND_MMX_CONST256 = [256,256,256,256];
-package immutable ubyte[8] ALPHABLEND_MMX_MASK = [255,0,0,0,255,0,0,0];
+version(LDC){
+	import inteli.emmintrin;
+	import ldc.simd;
+	package immutable __m128i SSE2_NULLVECT;
+	package immutable __vector(ushort[8]) ALPHABLEND_SSE2_CONST1 = [1,1,1,1,1,1,1,1];
+	package immutable __vector(ushort[8]) ALPHABLEND_SSE2_CONST256 = [256,256,256,256,256,256,256,256];
+	package immutable __vector(ubyte[16]) ALPHABLEND_SSE2_MASK = [255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0];
+}else{
+
+	//package immutable ubyte[16] NULLVECT_SSE2;
+	package immutable uint[16] BLT32BITTESTER_SSE2 = [0,0,0,0];
+	package immutable ushort[8] ALPHABLEND_SSE2_CONST1 = [1,1,1,1,1,1,1,1];
+	package immutable ushort[8] ALPHABLEND_SSE2_CONST256 = [256,256,256,256,256,256,256,256];
+	package immutable ubyte[16] ALPHABLEND_SSE2_MASK = [255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0];
+	//package immutable ubyte[8] NULLVECT_MMX;
+	package immutable uint[2] BLT32BITTESTER_MMX = [0x01000000,0x01000000];
+	package immutable ushort[4] ALPHABLEND_MMX_CONST1 = [1,1,1,1];
+	package immutable ushort[4] ALPHABLEND_MMX_CONST256 = [256,256,256,256];
+	package immutable ubyte[8] ALPHABLEND_MMX_MASK = [255,0,0,0,255,0,0,0];}
 /**
  * Two plus one operand blitter for 8 bit values. Automatic mask-generation is used from the source's color index with the following formula:
  * mask = src == 0x00 ? 0xFF : 0x00
  */
 public @nogc void blitter8bit(ubyte* src, ubyte* dest, size_t length){
-	version(X86){
+	version(LDC){
+		while(length > 15){
+			__m128i src0 = _mm_loadu_si128(cast(int4*)src);
+			__m128i dest0 = _mm_loadu_si128(cast(int4*)dest);
+			__m128i mask = _mm_cmpeq_epi8(src0, SSE2_NULLVECT);
+			dest0 = (dest0 & mask) | src0;
+			_mm_storeu_si128(cast(int4*)dest, dest0);
+			src += 16;
+			dest += 16;
+			length -= 16;
+		}
+		if(length > 7){
+			__m128i src0 = _mm_loadl_epi64(cast(int4*)src);
+			__m128i dest0 = _mm_loadl_epi64(cast(int4*)dest);
+			__m128i mask = _mm_cmpeq_epi8(src0, SSE2_NULLVECT);
+			dest0 = (dest0 & mask) | src0;
+			_mm_storel_epi64(cast(int4*)dest, dest0);
+			src += 8;
+			dest += 8;
+			length -= 8;
+		}
+		if(length > 3){
+			__m128i src0 = _mm_cvtsi32_si128((*cast(int*)src));
+			__m128i dest0 = _mm_cvtsi32_si128((*cast(int*)dest));
+			__m128i mask = _mm_cmpeq_epi8(src0, SSE2_NULLVECT);
+			dest0 = (dest0 & mask) | src0;
+			*cast(int*)dest = _mm_cvtsi128_si32(dest0);
+			src += 4;
+			dest += 4;
+			length -= 4;
+		}
+		while(length > 0){
+			*dest = *src ? *dest : *src;
+			src++;
+			dest++;
+			length--;
+		}
+	}else version(X86){
 		version(MMX){
 			asm @nogc{
 				pxor	MM7, MM7;
@@ -70,7 +116,7 @@ public @nogc void blitter8bit(ubyte* src, ubyte* dest, size_t length){
 				jecxz	end;
 				mov		AL, [ESI];
 				cmp		AL, 0;
-				jz		step;
+				je		step;
 				mov		AL, [EDI];
 			step:
 				mov		[EDI], AL;
@@ -134,7 +180,7 @@ public @nogc void blitter8bit(ubyte* src, ubyte* dest, size_t length){
 				jecxz	end;
 				mov		AL, [ESI];
 				cmp		AL, 0;
-				jz		step;
+				je		step;
 				mov		AL, [EDI];
 			step:
 				mov		[EDI], AL;
@@ -144,7 +190,7 @@ public @nogc void blitter8bit(ubyte* src, ubyte* dest, size_t length){
 				dec		ECX;
 				jmp		singlepixelloop;
 			end:
-				;
+				nop;
 			}
 		}
 	}else version(X86_64){
@@ -196,10 +242,10 @@ public @nogc void blitter8bit(ubyte* src, ubyte* dest, size_t length){
 			sub		RCX, 4;
 		singlepixelloop:
 			cmp		RCX, 0;
-			jz		end;
+			je		end;
 			mov		AL, [RSI];
 			cmp		AL, 0;
-			jz		step;
+			je		step;
 			mov		AL, [EDI];
 		step:
 			mov		[RDI], AL;
@@ -225,151 +271,49 @@ public @nogc void blitter8bit(ubyte* src, ubyte* dest, size_t length){
  * Copies an 8bit image onto another without blitter. No transparency is used.
  */
 public @nogc void copy8bit(ubyte* src, ubyte* dest, size_t length){
-	version(X86){
-		version(MMX){
-			asm @nogc{
-				mov		ESI, src[EBP];
-				mov		EDI, dest[EBP];
-				mov		ECX, length;
-				cmp		ECX, 8;
-				jl		fourpixel;
-			eigthpixelloop:
-				movq	MM0, [ESI];
-				movq	[EDI], MM0;
-				add		ESI, 8;
-				add		EDI, 8;
-				sub		ECX, 8;
-				jge		eigthpixelloop;
-			fourpixel:
-				cmp		ECX, 4;
-				jl		singlepixelloop;
-				movd	MM0, [ESI];
-				movd	[EDI], MM0;
-				add		ESI, 4;
-				add		EDI, 4;
-				sub		ECX, 4;
-			singlepixelloop:
-				//cmp		ECX, 0;
-				jecxz		end;
-				mov		AL, [ESI];
-				mov		[EDI], AL;
-				cmp		ECX, 0;
-				inc		ESI;
-				inc		EDI;
-				dec		ECX;
-				jnz		singlepixelloop;
-			end:
-				;
-			}
-		}else{
-			asm @nogc{
-				mov		ESI, src[EBP];
-				mov		EDI, dest[EBP];
-				mov		ECX, length;
-				cmp		ECX, 16;
-				jl		eightpixel;
-			sixteenpixelloop:
-				movups	XMM0, [ESI];
-				movups	[EDI], XMM0;
-				add		ESI, 16;
-				add		EDI, 16;
-				sub		ECX, 16;
-				cmp		ECX, 16;
-				jge		sixteenpixelloop;
-			eightpixel:
-				cmp		ECX, 8;
-				jl		fourpixel;
-				movq	XMM0, [ESI];
-				movq	[EDI], XMM0;
-				add		ESI, 8;
-				add		EDI, 8;
-				sub		ECX, 8;
-			fourpixel:
-				cmp		ECX, 4;
-				jl		singlepixelloop;
-				movd	XMM0, [ESI];
-				movd	XMM1, [EDI];
-				movups	XMM2, XMM7;
-				pcmpeqb	XMM2, XMM0;
-				pand	XMM1, XMM2;
-				por		XMM1, XMM0;
-				movd	[EDI], XMM1;
-				add		ESI, 4;
-				add		EDI, 4;
-				sub		ECX, 4;
-			singlepixelloop:
-				//cmp		ECX, 0;
-				jecxz		end;
-				mov		AL, [ESI];
-				mov		[EDI], AL;
-				cmp		ECX, 0;
-				inc		ESI;
-				inc		EDI;
-				dec		ECX;
-				jnz		singlepixelloop;
-			end:
-				;
-			}
-		}
-	}else version(X86_64){
-		asm @nogc{
-			mov		RSI, src[RBP];
-			mov		RDI, dest[RBP];
-			mov		RCX, length;
-			cmp		RCX, 16;
-			jl		eightpixel;
-		sixteenpixelloop:
-			movups	XMM0, [RSI];
-			movups	[RDI], XMM0;
-			add		RSI, 16;
-			add		RDI, 16;
-			sub		RCX, 16;
-			cmp		RCX, 16;
-			jge		sixteenpixelloop;
-		eightpixel:
-			cmp		RCX, 8;
-			jl		fourpixel;
-			movq	XMM0, [RSI];
-			movq	[RDI], XMM0;
-			add		RSI, 8;
-			add		RDI, 8;
-			sub		RCX, 8;
-		fourpixel:
-			cmp		RCX, 4;
-			jl		singlepixelloop;
-			movd	XMM1, [RSI];
-			movd	[RDI], XMM1;
-			add		RSI, 4;
-			add		RDI, 4;
-			sub		RCX, 4;
-		singlepixelloop:
-			cmp		RCX, 0;
-			jz		end;
-			mov		AL, [RSI];
-			mov		[RDI], AL;
-			cmp		RCX, 0;
-			inc		RSI;
-			inc		RDI;
-			dec		RCX;
-			jmp		singlepixelloop;
-		end:
-			;
-		}
-	}else{
-		while(length){
-			*dest = *src;
-			src++;
-			dest++;
-			length--;
-		}
-	}
+	import core.stdc.string;
+	memcpy(dest, src, length);
 }
 /**
  * Two plus one operand blitter for 8 bit values. Automatic mask-generation is used from the source's color index with the following formula:
  * mask = src == 0x0000 ? 0xFFFF : 0x0000
  */
 public @nogc void blitter16bit(ushort* src, ushort* dest, size_t length){
-	version(X86){
+	version(LDC){
+		while(length >= 8){
+			__m128i src0 = _mm_loadu_si128(cast(__m128i*)src);
+			__m128i dest0 = _mm_loadu_si128(cast(__m128i*)dest);
+			__m128i mask = _mm_cmpeq_epi16(src0, SSE2_NULLVECT);
+			dest0 = (dest0 & mask) | src0;
+			_mm_storeu_si128(cast(int4*)dest, dest0);
+			src += 8;
+			dest += 8;
+			length -= 8;
+		}
+		if(length >= 4){
+			__m128i src0 = _mm_loadl_epi64(cast(__m128i*)src);
+			__m128i dest0 = _mm_loadl_epi64(cast(__m128i*)dest);
+			__m128i mask = _mm_cmpeq_epi16(src0, SSE2_NULLVECT);
+			dest0 = (dest0 & mask) | src0;
+			_mm_storel_epi64(cast(int4*)dest, dest0);
+			src += 4;
+			dest += 4;
+			length -= 4;
+		}
+		if(length >= 2){
+			__m128i src0 = _mm_cvtsi32_si128((*cast(int*)src));
+			__m128i dest0 = _mm_cvtsi32_si128((*cast(int*)dest));
+			__m128i mask = _mm_cmpeq_epi16(src0, SSE2_NULLVECT);
+			dest0 = (dest0 & mask) | src0;
+			*cast(int*)dest = _mm_cvtsi128_si32(dest0);
+			src += 2;
+			dest += 2;
+			length -= 2;
+		}
+		if(length){
+			*dest = *src == 0 ? *dest : *src;
+		}
+	}else version(X86){
 		version(MMX){
 			asm @nogc{
 				pxor	MM7, MM7;
@@ -542,134 +486,43 @@ public @nogc void blitter16bit(ushort* src, ushort* dest, size_t length){
  * Copies a 16bit image onto another without blitter. No transparency is used.
  */
 public @nogc void copy16bit(ushort* src, ushort* dest, size_t length){
-	version(X86){
-		version(MMX){
-				asm @nogc{
-				mov		ESI, src[EBP];
-				mov		EDI, dest[EBP];
-				mov		ECX, length;
-				cmp		ECX, 4;
-				//pxor	MM7, MM7;
-				jl		twopixel;
-			fourpixelloop:
-				movq	MM0, [ESI];
-				movq	[EDI], MM0;
-				add		ESI, 8;
-				add		EDI, 8;
-				sub		ECX, 4;
-				jge		fourpixelloop;
-			twopixel:
-				cmp		ECX, 4;
-				jl		singlepixel;
-				movd	MM0, [ESI];
-				movd	[EDI], MM0;
-				add		ESI, 4;
-				add		EDI, 4;
-				sub		ECX, 2;
-			singlepixel:
-				cmp		ECX, 0;
-				jz		end;
-				mov		AX, [ESI];
-				mov		[EDI], AL;
-			end:
-				emms;
-			}
-		}else{
-			asm @nogc{
-				mov		ESI, src[EBP];
-				mov		EDI, dest[EBP];
-				mov		ECX, length;
-				cmp		ECX, 8;
-				//pxor	XMM7, XMM7;
-				jl		fourpixel;
-			eigthpixelloop:
-				movups	XMM0, [ESI];
-				movups	[EDI], XMM0;
-				add		ESI, 16;
-				add		EDI, 16;
-				sub		ECX, 8;
-				cmp		ECX, 8;
-				jge		eigthpixelloop;
-			fourpixel:
-				cmp		ECX, 4;
-				jl		twopixel;
-				movq	XMM0, [ESI];
-				movq	[EDI], XMM0;
-				add		ESI, 8;
-				add		EDI, 8;
-				sub		ECX, 4;
-			twopixel:
-				cmp		ECX, 2;
-				jl		singlepixel;
-				movd	XMM0, [ESI];
-				movd	[EDI], XMM0;
-				add		ESI, 4;
-				add		EDI, 4;
-				sub		ECX, 2;
-			singlepixel:
-				cmp		ECX, 0;
-				jz		end;
-				mov		AL, [ESI];
-				mov		[EDI], AL;
-			end:
-				;
-			}
-		}
-	}else version(X86_64){
-		asm @nogc{
-			mov		RSI, src[RBP];
-			mov		RDI, dest[RBP];
-			mov		RCX, length;
-			cmp		RCX, 8;
-			//pxor	XMM7, XMM7;
-			jl		fourpixel;
-		eigthpixelloop:
-			movups	XMM0, [RSI];
-			movups	[RDI], XMM0;
-			add		RSI, 8;
-			add		RDI, 8;
-			sub		RCX, 8;
-			cmp		RCX, 8;
-			jge		eigthpixelloop;
-		fourpixel:
-			cmp		RCX, 4;
-			jl		twopixel;
-			movq	XMM0, [RSI];
-			movq	[RDI], XMM0;
-			add		RSI, 4;
-			add		RDI, 4;
-			sub		RCX, 4;
-		twopixel:
-			cmp		RCX, 2;
-			jl		singlepixel;
-			movd	XMM0, [RSI];
-			movd	[RDI], XMM0;
-			add		RSI, 2;
-			add		RDI, 2;
-			sub		RCX, 2;
-		singlepixel:
-			cmp		RCX, 0;
-			jz		end;
-			mov		AL, [RSI];;
-			mov		[RDI], AL;
-		end:
-			;
-		}
-	}else{
-		while(length){
-			*dest = *src;
-			src++;
-			dest++;
-			length--;
-		}
-	}
+	import core.stdc.string;
+	memcpy(cast(void*)dest, cast(void*)src, length * 2);
 }
 /**
  * Two plus one operand blitter for 32 bit values. Automatic mask-generation is used from the source's alpha channel with the following formula:
  * mask = src.alpha == 0x00 ? 0xFFFFFFFF : 0x00000000
  */
 public @nogc void blitter32bit(uint* src, uint* dest, size_t length){
-	version(X86){
+	version(LDC){
+		while(length >= 4){
+			__m128i src0 = _mm_loadu_si128(cast(__m128i*)src);
+			__m128i dest0 = _mm_loadu_si128(cast(__m128i*)dest);
+			__m128i mask = _mm_cmpeq_epi32(src0 & cast(__m128i)ALPHABLEND_SSE2_MASK, SSE2_NULLVECT);
+			dest0 = (dest0 & mask) | src0;
+			_mm_storeu_si128(cast(__m128i*)dest, dest0);
+			src += 4;
+			dest += 4;
+			length -= 4;
+		}
+		if(length >= 2){
+			__m128i src0 = _mm_loadl_epi64(cast(__m128i*)src);
+			__m128i dest0 = _mm_loadl_epi64(cast(__m128i*)dest);
+			__m128i mask = _mm_cmpeq_epi32(src0 & cast(__m128i)ALPHABLEND_SSE2_MASK, SSE2_NULLVECT);
+			dest0 = (dest0 & mask) | src0;
+			_mm_storel_epi64(cast(__m128i*)dest, dest0);
+			src += 2;
+			dest += 2;
+			length -= 2;
+		}
+		if(length){
+			__m128i src0 = _mm_cvtsi32_si128(*cast(int*)src);
+			__m128i dest0 = _mm_cvtsi32_si128(*cast(int*)dest);
+			__m128i mask = _mm_cmpeq_epi32(src0 & cast(__m128i)ALPHABLEND_SSE2_MASK, SSE2_NULLVECT);
+			dest0 = (dest0 & mask) | src0;
+			*cast(int*)dest = _mm_cvtsi128_si32(dest0);
+		}
+	}else version(X86){
 		version(MMX){
 			asm @nogc{
 				mov		ESI, src[EBP];
@@ -826,7 +679,62 @@ public @nogc void blitter32bit(uint* src, uint* dest, size_t length){
  * src[B,G,R,A] --> mask [A,A,A,A]
  */
 public @nogc void alphaBlend32bit(uint* src, uint* dest, size_t length){
-	version(X86){
+	version(LDC){
+		while(length >= 4){
+			__m128i src0 = _mm_loadu_si128(cast(__m128i*)src);
+			__m128i dest0 = _mm_loadu_si128(cast(__m128i*)dest);
+			__m128i mask = src0 & cast(__m128i)ALPHABLEND_SSE2_MASK;
+			mask |= _mm_slli_epi32(mask, 8);
+			mask |= _mm_slli_epi32(mask, 16);//[A,A,A,A]
+			__m128i mask_lo = _mm_unpacklo_epi8(mask, SSE2_NULLVECT);
+			__m128i mask_hi = _mm_unpackhi_epi8(mask, SSE2_NULLVECT);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
+			__m128i mask0_hi = _mm_adds_epu16(mask_hi, ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			mask_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_hi);
+			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(src0, SSE2_NULLVECT), mask0_lo);
+			__m128i src_hi = _mm_mullo_epi16(_mm_unpackhi_epi8(src0, SSE2_NULLVECT), mask0_hi);
+			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(dest0, SSE2_NULLVECT), mask_lo);
+			__m128i dest_hi = _mm_mullo_epi16(_mm_unpackhi_epi8(dest0, SSE2_NULLVECT), mask_hi);
+			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
+			src_hi = _mm_srli_epi16(_mm_adds_epu16(src_hi, dest_hi), 8);
+			_mm_storeu_si128(cast(__m128i*)dest, _mm_packus_epi16(src_lo, src_hi));
+			src += 4;
+			dest += 4;
+			length -= 4;
+		}
+		if(length >= 2){
+			__m128i src0 = _mm_loadl_epi64(cast(__m128i*)src);
+			__m128i dest0 = _mm_loadl_epi64(cast(__m128i*)dest);
+			__m128i mask = src0 & cast(__m128i)ALPHABLEND_SSE2_MASK;
+			mask |= _mm_slli_epi32(mask, 8);
+			mask |= _mm_slli_epi32(mask, 16);//[A,A,A,A]
+			__m128i mask_lo = _mm_unpacklo_epi8(mask, SSE2_NULLVECT);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(src0, SSE2_NULLVECT), mask0_lo);
+			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(dest0, SSE2_NULLVECT), mask_lo);
+			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
+			_mm_storel_epi64(cast(__m128i*)dest, _mm_packus_epi16(src_lo, SSE2_NULLVECT));
+			src += 2;
+			dest += 2;
+			length -= 2;
+		}
+		if(length){
+			__m128i src0 = _mm_cvtsi32_si128(*cast(int*)src);
+			__m128i dest0 = _mm_cvtsi32_si128(*cast(int*)dest);
+			__m128i mask = src0 & cast(__m128i)ALPHABLEND_SSE2_MASK;
+			mask |= _mm_slli_epi32(mask, 8);
+			mask |= _mm_slli_epi32(mask, 16);//[A,A,A,A]
+			__m128i mask_lo = _mm_unpacklo_epi8(mask, SSE2_NULLVECT);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(src0, SSE2_NULLVECT), mask0_lo);
+			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(dest0, SSE2_NULLVECT), mask_lo);
+			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
+			*cast(int*)dest = _mm_cvtsi128_si32(_mm_packus_epi16(src_lo, SSE2_NULLVECT));
+		}
+	}else version(X86){
 		version(MMX){
 			int target8 = length/8, target4 = length%2;
 			asm @nogc {
@@ -930,26 +838,25 @@ public @nogc void alphaBlend32bit(uint* src, uint* dest, size_t length){
 				emms;
 			}
 		}else{
-			int target16 = length/4, target4 = length%4;
 			asm @nogc {
-				//setting up the pointer registers and the counter register
 				//mov		EBX, alpha[EBP];
 				mov		ESI, src[EBP];
 				mov		EDI, dest[EBP];
-				mov		ECX, target16;
-				cmp		ECX, 0;
-				jz		fourpixelblend; //skip 16 byte operations if not needed
+				mov		ECX, length;
+				cmp		ECX, 04;
+				jz		endofalgorithm;
+				jl		onepixelblend; //skip 16 byte operations if not needed
 				//iteration cycle entry point
-			sixteenpixelblend:
+			fourpixelblend:
 				//create alpha mask on the fly
 				movups	XMM3, [ESI];
 				movups	XMM1, XMM3;
-				pand	XMM1, ALPHABLEND_SSE2_MASK;	//pixel & 0x000000FF,0x000000FF,0x000000FF,0x000000FF
+				//pand	XMM1, ALPHABLEND_SSE2_MASK;	//pixel & 0x000000FF,0x000000FF,0x000000FF,0x000000FF
 				movups	XMM0, XMM1;
 				pslld	XMM0, 8;
 				por		XMM1, XMM0;	//mask is ready for RA
 				pslld	XMM1, 16;
-				por		XMM0, XMM1; //mask is ready for BGRA/**/
+				por		XMM0, XMM1; //mask is ready for BGRA
 				movups	XMM1, XMM0;
 				
 				punpcklbw	XMM0, XMM2;
@@ -991,17 +898,12 @@ public @nogc void alphaBlend32bit(uint* src, uint* dest, size_t length){
 				//add		EBX, 16;
 				add		ESI, 16;
 				add		EDI, 16;
-				dec		ECX;
-				cmp		ECX, 0;
-				jnz		sixteenpixelblend;
+				sub		ECX, 4;
+				cmp		ECX, 4;
+				jge		fourpixelblend;
+				jecxz	endofalgorithm;
 
-			fourpixelblend:
-
-				mov		ECX, target4;
-				cmp		ECX, 0;
-				jz		endofalgorithm;
-
-			fourpixelblendloop:
+			onepixelblend:
 
 				//movd	XMM6, [EBX];//alpha
 				
@@ -1011,7 +913,7 @@ public @nogc void alphaBlend32bit(uint* src, uint* dest, size_t length){
 				punpcklbw	XMM0, XMM2;//dest
 				punpcklbw	XMM1, XMM2;//src
 				movups	XMM6, XMM1;
-				pand	XMM6, ALPHABLEND_SSE2_MASK;	//pixel & 0x000000FF,0x000000FF,0x000000FF,0x000000FF
+				//pand	XMM6, ALPHABLEND_SSE2_MASK;	//pixel & 0x000000FF,0x000000FF,0x000000FF,0x000000FF
 				movups	XMM7, XMM6;
 				pslld	XMM6, 8;
 				por		XMM7, XMM6;	//mask is ready for RA
@@ -1036,13 +938,14 @@ public @nogc void alphaBlend32bit(uint* src, uint* dest, size_t length){
 				movd	[EDI], XMM0;
 				
 				add		ESI, 4;
-				add		EDI, 4;/**/
+				add		EDI, 4;
 				dec		ECX;
 				cmp		ECX, 0;
-				jnz		fourpixelblendloop;
+				jg		onepixelblend;
+				//loop	onepixelblend;
 
 			endofalgorithm:
-				;
+				nop		;
 			}
 		}
 	}else version(X86_64){
@@ -1188,116 +1091,55 @@ public @nogc void alphaBlend32bit(uint* src, uint* dest, size_t length){
  * Copies a 32bit image onto another without blitter. No transparency is used.
  */
 public @nogc void copy32bit(uint* src, uint* dest, size_t length){
-	version(X86){
-		version(MMX){
-			asm @nogc{
-				mov		ESI, src[EBP];
-				mov		EDI, dest[EBP];
-				mov		ECX, length;
-				movq	MM6, ALPHABLEND_MMX_MASK;
-				pxor	MM7, MM7;
-				cmp		ECX, 2;
-				jl		twopixel;
-			twopixelloop:
-				movq	MM0, [ESI];
-				movq	[EDI], MM0;
-				add		ESI, 8;
-				add		EDI, 8;
-				sub		ECX, 2;
-				jge		fourpixelloop;
-			onepixel:
-				cmp		ECX, 1;
-				jl		end;
-				movd	MM0, [ESI];;
-				movd	[EDI], MM0;
-				add		ESI, 2;
-				add		EDI, 2;
-				sub		ECX, 2;
-			end:
-				emms;
-			}
-		}else{
-			asm @nogc{
-				mov		ESI, src[EBP];
-				mov		EDI, dest[EBP];
-				mov		ECX, length;
-				movups	XMM6, ALPHABLEND_SSE2_MASK;
-				pxor	XMM7, XMM7;
-				cmp		ECX, 4;
-				jl		twopixel;
-			eigthpixelloop:
-				movups	XMM0, [ESI];
-				movups	[EDI], XMM0;
-				add		ESI, 16;
-				add		EDI, 16;
-				sub		ECX, 4;
-				cmp		ECX, 4;
-				jge		eigthpixelloop;
-			twopixel:
-				cmp		ECX, 2;
-				jl		onepixel;
-				movq	XMM0, [ESI];
-				movq	[EDI], XMM0;
-				add		ESI, 8;
-				add		EDI, 8;
-				sub		ECX, 2;
-			onepixel:
-				cmp		ECX, 1;
-				jl		end;
-				movd	XMM0, [ESI];
-				movd	[EDI], XMM0;
-			end:
-				;
-			}
-		}
-	}else version(X86_64){
-		asm @nogc{
-			mov		RSI, src[RBP];
-			mov		RDI, dest[RBP];
-			mov		RCX, length;
-			movups	XMM6, ALPHABLEND_SSE2_MASK;
-			pxor	XMM7, XMM7;
-			cmp		ECX, 4;
-			jl		twopixel;
-		eigthpixelloop:
-			movups	XMM0, [RSI];
-			movups	[RDI], XMM0;
-			add		RSI, 16;
-			add		RDI, 16;
-			sub		RCX, 4;
-			cmp		RCX, 4;
-			jge		eigthpixelloop;
-		twopixel:
-			cmp		RCX, 2;
-			jl		onepixel;
-			movq	XMM0, [RSI];
-			movq	[RDI], XMM0;
-			add		RSI, 8;
-			add		RDI, 8;
-			sub		RCX, 2;
-		onepixel:
-			cmp		RCX, 1;
-			jl		end;
-			movd	XMM0, [RSI];
-			movd	[RDI], XMM0;
-		end:
-			;
-		}
-	}else{
-		while(length){
-			if(*src.ColorSpaceARGB.alpha)
-				*dest = *src;
-			src++;
-			dest++;
-			length--;
-		}
-	}
+	import core.stdc.string;
+	memcpy(dest, src, length * 4);
 }
 /**
  * Three plus one operand blitter for 8 bit values. Uses an external mask.
  */
 public @nogc void blitter8bit(ubyte* src, ubyte* dest, size_t length, ubyte* mask){
-	version(X86){
+	version(LDC){
+		while(length > 15){
+			__m128i src0 = _mm_loadu_si128(cast(int4*)src);
+			__m128i dest0 = _mm_loadu_si128(cast(int4*)dest);
+			__m128i mask0 = _mm_loadu_si128(cast(int4*)mask);
+			dest0 = (dest0 & mask0) | src0;
+			_mm_storeu_si128(cast(int4*)dest, dest0);
+			src += 16;
+			dest += 16;
+			mask += 16;
+			length -= 16;
+		}
+		if(length > 7){
+			__m128i src0 = _mm_loadl_epi64(cast(int4*)src);
+			__m128i dest0 = _mm_loadl_epi64(cast(int4*)dest);
+			__m128i mask0 = _mm_loadl_epi64(cast(int4*)mask);
+			dest0 = (dest0 & mask0) | src0;
+			_mm_storel_epi64(cast(int4*)dest, dest0);
+			src += 8;
+			dest += 8;
+			mask += 8;
+			length -= 8;
+		}
+		if(length > 3){
+			__m128i src0 = _mm_cvtsi32_si128((*cast(int*)src));
+			__m128i dest0 = _mm_cvtsi32_si128((*cast(int*)dest));
+			__m128i mask0 = _mm_cvtsi32_si128((*cast(int*)dest));
+			dest0 = (dest0 & mask0) | src0;
+			*cast(int*)dest = _mm_cvtsi128_si32(dest0);
+			src += 4;
+			dest += 4;
+			mask  += 4;
+			length -= 4;
+		}
+		while(length > 0){
+			*dest = (*dest & *mask) | *src;
+			src++;
+			dest++;
+			mask++;
+			length--;
+		}
+	}else version(X86){
 		version(MMX){
 			asm @nogc{
 				mov		ESI, src[EBP];
@@ -1497,7 +1339,44 @@ public @nogc void copy8bit(ubyte* src, ubyte* dest, size_t length, ubyte* mask){
  * Three plus one operand blitter for 8 bit values. An external mask is used for this operation.
  */
 public @nogc void blitter16bit(ushort* src, ushort* dest, size_t length, ushort* mask){
-	version(X86){
+	version(LDC){
+		while(length >= 8){
+			__m128i src0 = _mm_loadu_si128(cast(__m128i*)src);
+			__m128i dest0 = _mm_loadu_si128(cast(__m128i*)dest);
+			__m128i mask0 = _mm_loadu_si128(cast(__m128i*)mask);
+			dest0 = (dest0 & mask0) | src0;
+			_mm_storeu_si128(cast(int4*)dest, dest0);
+			src += 8;
+			dest += 8;
+			mask += 8;
+			length -= 8;
+		}
+		if(length >= 4){
+			__m128i src0 = _mm_loadl_epi64(cast(__m128i*)src);
+			__m128i dest0 = _mm_loadl_epi64(cast(__m128i*)dest);
+			__m128i mask0 = _mm_loadl_epi64(cast(__m128i*)mask);
+			dest0 = (dest0 & mask0) | src0;
+			_mm_storel_epi64(cast(int4*)dest, dest0);
+			src += 4;
+			dest += 4;
+			mask += 4;
+			length -= 4;
+		}
+		if(length >= 2){
+			__m128i src0 = _mm_cvtsi32_si128((*cast(int*)src));
+			__m128i dest0 = _mm_cvtsi32_si128((*cast(int*)dest));
+			__m128i mask0 = _mm_cvtsi32_si128((*cast(int*)mask));
+			dest0 = (dest0 & mask0) | src0;
+			*cast(int*)dest = _mm_cvtsi128_si32(dest0);
+			src += 2;
+			dest += 2;
+			mask += 2;
+			length -= 2;
+		}
+		if(length){
+			*dest = (*dest & *mask) | *src;
+		}
+	}else version(X86){
 		version(MMX){
 			asm @nogc{
 				pxor	MM7, MM7;
@@ -1679,7 +1558,37 @@ public @nogc void copy16bit(ushort* src, ushort* dest, size_t length, ushort* ma
  * Two plus one operand blitter for 32 bit values. A separate mask is used for the operation.
  */
 public @nogc void blitter32bit(uint* src, uint* dest, size_t length, uint* mask){
-	version(X86){
+	version(LDC){
+		while(length >= 4){
+			__m128i src0 = _mm_loadu_si128(cast(__m128i*)src);
+			__m128i dest0 = _mm_loadu_si128(cast(__m128i*)dest);
+			__m128i mask0 = _mm_loadu_si128(cast(__m128i*)mask);
+			dest0 = (dest0 & mask0) | src0;
+			_mm_storeu_si128(cast(__m128i*)dest, dest0);
+			src += 4;
+			dest += 4;
+			mask += 4;
+			length -= 4;
+		}
+		if(length >= 2){
+			__m128i src0 = _mm_loadl_epi64(cast(__m128i*)src);
+			__m128i dest0 = _mm_loadl_epi64(cast(__m128i*)dest);
+			__m128i mask0 = _mm_loadl_epi64(cast(__m128i*)mask);
+			dest0 = (dest0 & mask0) | src0;
+			_mm_storel_epi64(cast(__m128i*)dest, dest0);
+			src += 2;
+			dest += 2;
+			mask += 2;
+			length -= 2;
+		}
+		if(length){
+			__m128i src0 = _mm_cvtsi32_si128(*cast(int*)src);
+			__m128i dest0 = _mm_cvtsi32_si128(*cast(int*)dest);
+			__m128i mask0 = _mm_cvtsi32_si128(*cast(int*)mask);
+			dest0 = (dest0 & mask0) | src0;
+			*cast(int*)dest = _mm_cvtsi128_si32(dest0);
+		}
+	}else version(X86){
 		version(MMX){
 			asm @nogc{
 				mov		ESI, src[EBP];
@@ -1823,7 +1732,58 @@ public @nogc void blitter32bit(uint* src, uint* dest, size_t length, uint* mask)
  * Implements a three plus one operand alpha-blending algorithm for 32bit bitmaps. For masking, use Pixel32Bit.AlphaMask from CPUblit.colorspaces.
  */
 public @nogc void alphaBlend32bit(uint* src, uint* dest, size_t length, uint* mask){
-	version(X86){
+	version(LDC){
+		while(length >= 4){
+			__m128i src0 = _mm_loadu_si128(cast(__m128i*)src);
+			__m128i dest0 = _mm_loadu_si128(cast(__m128i*)dest);
+			__m128i mask0 = _mm_loadu_si128(cast(__m128i*)mask);
+			__m128i mask_lo = _mm_unpacklo_epi8(mask0, SSE2_NULLVECT);
+			__m128i mask_hi = _mm_unpackhi_epi8(mask0, SSE2_NULLVECT);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
+			__m128i mask0_hi = _mm_adds_epu16(mask_hi, ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			mask_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_hi);
+			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(src0, SSE2_NULLVECT), mask0_lo);
+			__m128i src_hi = _mm_mullo_epi16(_mm_unpackhi_epi8(src0, SSE2_NULLVECT), mask0_hi);
+			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(dest0, SSE2_NULLVECT), mask_lo);
+			__m128i dest_hi = _mm_mullo_epi16(_mm_unpackhi_epi8(dest0, SSE2_NULLVECT), mask_hi);
+			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
+			src_hi = _mm_srli_epi16(_mm_adds_epu16(src_hi, dest_hi), 8);
+			_mm_storeu_si128(cast(__m128i*)dest, _mm_packus_epi16(src_lo, src_hi));
+			src += 4;
+			dest += 4;
+			mask += 4;
+			length -= 4;
+		}
+		if(length >= 2){
+			__m128i src0 = _mm_loadl_epi64(cast(__m128i*)src);
+			__m128i dest0 = _mm_loadl_epi64(cast(__m128i*)dest);
+			__m128i mask0 = _mm_loadl_epi64(cast(__m128i*)mask);
+			__m128i mask_lo = _mm_unpacklo_epi8(mask0, SSE2_NULLVECT);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(src0, SSE2_NULLVECT), mask0_lo);
+			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(dest0, SSE2_NULLVECT), mask_lo);
+			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
+			_mm_storel_epi64(cast(__m128i*)dest, _mm_packus_epi16(src_lo, SSE2_NULLVECT));
+			src += 2;
+			dest += 2;
+			mask += 2;
+			length -= 2;
+		}
+		if(length){
+			__m128i src0 = _mm_cvtsi32_si128(*cast(int*)src);
+			__m128i dest0 = _mm_cvtsi32_si128(*cast(int*)dest);
+			__m128i mask0 = _mm_cvtsi32_si128(*cast(int*)mask);
+			__m128i mask_lo = _mm_unpacklo_epi8(mask0, SSE2_NULLVECT);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(src0, SSE2_NULLVECT), mask0_lo);
+			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(dest0, SSE2_NULLVECT), mask_lo);
+			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
+			*cast(int*)dest = _mm_cvtsi128_si32(_mm_packus_epi16(src_lo, SSE2_NULLVECT));
+		}
+	}else version(X86){
 		version(MMX){
 			int target8 = length/8, target4 = length%2;
 			asm @nogc {
@@ -2204,7 +2164,48 @@ public @nogc void copy32bit(uint* src, uint* dest, size_t length, uint* mask){
  * Final values are copied into memory location specified by dest1.
  */
 public @nogc void blitter8bit(ubyte* src, ubyte* dest, ubyte* dest1, size_t length){
-	version(X86){
+	version(LDC){
+		while(length > 15){
+			__m128i src0 = _mm_loadu_si128(cast(int4*)src);
+			__m128i dest0 = _mm_loadu_si128(cast(int4*)dest);
+			__m128i mask = _mm_cmpeq_epi8(src0, SSE2_NULLVECT);
+			dest0 = (dest0 & mask) | src0;
+			_mm_storeu_si128(cast(int4*)dest1, dest0);
+			src += 16;
+			dest += 16;
+			dest1 += 16;
+			length -= 16;
+		}
+		if(length > 7){
+			__m128i src0 = _mm_loadl_epi64(cast(int4*)src);
+			__m128i dest0 = _mm_loadl_epi64(cast(int4*)dest);
+			__m128i mask = _mm_cmpeq_epi8(src0, SSE2_NULLVECT);
+			dest0 = (dest0 & mask) | src0;
+			_mm_storel_epi64(cast(int4*)dest1, dest0);
+			src += 8;
+			dest += 8;
+			dest1 += 8;
+			length -= 8;
+		}
+		if(length > 3){
+			__m128i src0 = _mm_cvtsi32_si128((*cast(int*)src));
+			__m128i dest0 = _mm_cvtsi32_si128((*cast(int*)dest));
+			__m128i mask = _mm_cmpeq_epi8(src0, SSE2_NULLVECT);
+			dest0 = (dest0 & mask) | src0;
+			*cast(int*)dest1 = _mm_cvtsi128_si32(dest0);
+			src += 4;
+			dest += 4;
+			dest1 += 4;
+			length -= 4;
+		}
+		while(length > 0){
+			*dest1 = *src ? *dest : *src;
+			src++;
+			dest++;
+			dest1++;
+			length--;
+		}
+	}else version(X86){
 		version(MMX){
 			asm @nogc{
 				pxor	MM7, MM7;
@@ -2420,7 +2421,44 @@ public @nogc void copy8bit(ubyte* src, ubyte* dest, ubyte* dest1, size_t length)
  * Result is copied into memory location specified by dest1.
  */
 public @nogc void blitter16bit(ushort* src, ushort* dest, ushort* dest1, size_t length){
-		version(X86){
+	version(LDC){
+		while(length >= 8){
+			__m128i src0 = _mm_loadu_si128(cast(__m128i*)src);
+			__m128i dest0 = _mm_loadu_si128(cast(__m128i*)dest);
+			__m128i mask = _mm_cmpeq_epi16(src0, SSE2_NULLVECT);
+			dest0 = (dest0 & mask) | src0;
+			_mm_storeu_si128(cast(int4*)dest1, dest0);
+			src += 8;
+			dest += 8;
+			dest1 += 8;
+			length -= 8;
+		}
+		if(length >= 4){
+			__m128i src0 = _mm_loadl_epi64(cast(__m128i*)src);
+			__m128i dest0 = _mm_loadl_epi64(cast(__m128i*)dest);
+			__m128i mask = _mm_cmpeq_epi16(src0, SSE2_NULLVECT);
+			dest0 = (dest0 & mask) | src0;
+			_mm_storel_epi64(cast(int4*)dest1, dest0);
+			src += 4;
+			dest += 4;
+			dest1 += 4;
+			length -= 4;
+		}
+		if(length >= 2){
+			__m128i src0 = _mm_cvtsi32_si128((*cast(int*)src));
+			__m128i dest0 = _mm_cvtsi32_si128((*cast(int*)dest));
+			__m128i mask = _mm_cmpeq_epi16(src0, SSE2_NULLVECT);
+			dest0 = (dest0 & mask) | src0;
+			*cast(int*)dest1 = _mm_cvtsi128_si32(dest0);
+			src += 2;
+			dest += 2;
+			dest1 += 2;
+			length -= 2;
+		}
+		if(length){
+			*dest1 = *src == 0 ? *dest : *src;
+		}
+	}else version(X86){
 		version(MMX){
 			asm @nogc{
 				pxor	MM7, MM7;
@@ -2614,7 +2652,37 @@ public @nogc void copy16bit(ushort* src, ushort* dest, ushort* dest1, size_t len
  * The result is copied into the memory location specified by dest1
  */
 public @nogc void blitter32bit(uint* src, uint* dest, uint* dest1, size_t length){
-	version(X86){
+	version(LDC){
+		while(length >= 4){
+			__m128i src0 = _mm_loadu_si128(cast(__m128i*)src);
+			__m128i dest0 = _mm_loadu_si128(cast(__m128i*)dest);
+			__m128i mask = _mm_cmpeq_epi32(src0 & cast(__m128i)ALPHABLEND_SSE2_MASK, SSE2_NULLVECT);
+			dest0 = (dest0 & mask) | src0;
+			_mm_storeu_si128(cast(__m128i*)dest1, dest0);
+			src += 4;
+			dest += 4;
+			dest1 += 4;
+			length -= 4;
+		}
+		if(length >= 2){
+			__m128i src0 = _mm_loadl_epi64(cast(__m128i*)src);
+			__m128i dest0 = _mm_loadl_epi64(cast(__m128i*)dest);
+			__m128i mask = _mm_cmpeq_epi32(src0 & cast(__m128i)ALPHABLEND_SSE2_MASK, SSE2_NULLVECT);
+			dest0 = (dest0 & mask) | src0;
+			_mm_storel_epi64(cast(__m128i*)dest1, dest0);
+			src += 2;
+			dest += 2;
+			dest1 += 2;
+			length -= 2;
+		}
+		if(length){
+			__m128i src0 = _mm_cvtsi32_si128(*cast(int*)src);
+			__m128i dest0 = _mm_cvtsi32_si128(*cast(int*)dest);
+			__m128i mask = _mm_cmpeq_epi32(src0 & cast(__m128i)ALPHABLEND_SSE2_MASK, SSE2_NULLVECT);
+			dest0 = (dest0 & mask) | src0;
+			*cast(int*)dest1 = _mm_cvtsi128_si32(dest0);
+		}
+	}else version(X86){
 		version(MMX){
 			asm @nogc{
 				mov		ESI, src[EBP];
@@ -2780,7 +2848,64 @@ public @nogc void blitter32bit(uint* src, uint* dest, uint* dest1, size_t length
  * src[B,G,R,A] --> mask [A,A,A,A]
  */
 public @nogc void alphaBlend32bit(uint* src, uint* dest, uint* dest1, size_t length){
-	version(X86){
+	version(LDC){
+		while(length >= 4){
+			__m128i src0 = _mm_loadu_si128(cast(__m128i*)src);
+			__m128i dest0 = _mm_loadu_si128(cast(__m128i*)dest);
+			__m128i mask = src0 | cast(__m128i)ALPHABLEND_SSE2_MASK;
+			mask |= _mm_slli_epi32(mask, 8);
+			mask |= _mm_slli_epi32(mask, 16);//[A,A,A,A]
+			__m128i mask_lo = _mm_unpacklo_epi8(mask, SSE2_NULLVECT);
+			__m128i mask_hi = _mm_unpackhi_epi8(mask, SSE2_NULLVECT);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
+			__m128i mask0_hi = _mm_adds_epu16(mask_hi, ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			mask_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_hi);
+			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(src0, SSE2_NULLVECT), mask0_lo);
+			__m128i src_hi = _mm_mullo_epi16(_mm_unpackhi_epi8(src0, SSE2_NULLVECT), mask0_hi);
+			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(dest0, SSE2_NULLVECT), mask_lo);
+			__m128i dest_hi = _mm_mullo_epi16(_mm_unpackhi_epi8(dest0, SSE2_NULLVECT), mask_hi);
+			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
+			src_hi = _mm_srli_epi16(_mm_adds_epu16(src_hi, dest_hi), 8);
+			_mm_storeu_si128(cast(__m128i*)dest1, _mm_packus_epi16(src_lo, src_hi));
+			src += 4;
+			dest += 4;
+			dest1 += 4;
+			length -= 4;
+		}
+		if(length >= 2){
+			__m128i src0 = _mm_loadl_epi64(cast(__m128i*)src);
+			__m128i dest0 = _mm_loadl_epi64(cast(__m128i*)dest);
+			__m128i mask = src0 | cast(__m128i)ALPHABLEND_SSE2_MASK;
+			mask |= _mm_slli_epi32(mask, 8);
+			mask |= _mm_slli_epi32(mask, 16);//[A,A,A,A]
+			__m128i mask_lo = _mm_unpacklo_epi8(mask, SSE2_NULLVECT);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(src0, SSE2_NULLVECT), mask0_lo);
+			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(dest0, SSE2_NULLVECT), mask_lo);
+			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
+			_mm_storel_epi64(cast(__m128i*)dest1, _mm_packus_epi16(src_lo, SSE2_NULLVECT));
+			src += 2;
+			dest += 2;
+			dest1 += 2;
+			length -= 2;
+		}
+		if(length){
+			__m128i src0 = _mm_cvtsi32_si128(*cast(int*)src);
+			__m128i dest0 = _mm_cvtsi32_si128(*cast(int*)dest);
+			__m128i mask = src0 | cast(__m128i)ALPHABLEND_SSE2_MASK;
+			mask |= _mm_slli_epi32(mask, 8);
+			mask |= _mm_slli_epi32(mask, 16);//[A,A,A,A]
+			__m128i mask_lo = _mm_unpacklo_epi8(mask, SSE2_NULLVECT);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(src0, SSE2_NULLVECT), mask0_lo);
+			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(dest0, SSE2_NULLVECT), mask_lo);
+			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
+			*cast(int*)dest1 = _mm_cvtsi128_si32(_mm_packus_epi16(src_lo, SSE2_NULLVECT));
+		}
+	}else version(X86){
 		version(MMX){
 			int target8 = length/8, target4 = length%2;
 			asm @nogc {
@@ -3156,7 +3281,52 @@ public @nogc void copy32bit(uint* src, uint* dest, uint* dest1, size_t length){
  * Four plus one operand blitter for 8 bit values. Uses an external mask. Final values are copied into memory location specified by dest1;
  */
 public @nogc void blitter8bit(ubyte* src, ubyte* dest, ubyte* dest1, size_t length, ubyte* mask){
-	version(X86){
+	version(LDC){
+		while(length > 15){
+			__m128i src0 = _mm_loadu_si128(cast(int4*)src);
+			__m128i dest0 = _mm_loadu_si128(cast(int4*)dest);
+			__m128i mask0 = _mm_loadu_si128(cast(int4*)mask);
+			dest0 = (dest0 & mask0) | src0;
+			_mm_storeu_si128(cast(int4*)dest1, dest0);
+			src += 16;
+			dest += 16;
+			dest1 += 16;
+			mask += 16;
+			length -= 16;
+		}
+		if(length > 7){
+			__m128i src0 = _mm_loadl_epi64(cast(int4*)src);
+			__m128i dest0 = _mm_loadl_epi64(cast(int4*)dest);
+			__m128i mask0 = _mm_loadl_epi64(cast(int4*)mask);
+			dest0 = (dest0 & mask0) | src0;
+			_mm_storel_epi64(cast(int4*)dest1, dest0);
+			src += 8;
+			dest += 8;
+			dest1 += 8;
+			mask += 8;
+			length -= 8;
+		}
+		if(length > 3){
+			__m128i src0 = _mm_cvtsi32_si128((*cast(int*)src));
+			__m128i dest0 = _mm_cvtsi32_si128((*cast(int*)dest));
+			__m128i mask0 = _mm_cvtsi32_si128((*cast(int*)dest));
+			dest0 = (dest0 & mask0) | src0;
+			*cast(int*)dest1 = _mm_cvtsi128_si32(dest0);
+			src += 4;
+			dest += 4;
+			dest1 += 4;
+			mask += 4;
+			length -= 4;
+		}
+		while(length > 0){
+			*dest1 = (*dest & *mask) | *src;
+			src++;
+			dest++;
+			dest1++;
+			mask++;
+			length--;
+		}
+	}else version(X86){
 		version(MMX){
 			asm @nogc{
 				mov		ESI, src[EBP];
@@ -3371,7 +3541,47 @@ public @nogc void copy8bit(ubyte* src, ubyte* dest, ubyte* dest1, size_t length,
  * Four plus one operand blitter for 8 bit values. Uses external mask. Copies the result to the memory location specified by dest1.
  */
 public @nogc void blitter16bit(ushort* src, ushort* dest, ushort* dest1, size_t length, ushort* mask){
-	version(X86){
+	version(LDC){
+		while(length >= 8){
+			__m128i src0 = _mm_loadu_si128(cast(__m128i*)src);
+			__m128i dest0 = _mm_loadu_si128(cast(__m128i*)dest);
+			__m128i mask0 = _mm_loadu_si128(cast(__m128i*)mask);
+			dest0 = (dest0 & mask0) | src0;
+			_mm_storeu_si128(cast(int4*)dest1, dest0);
+			src += 8;
+			dest += 8;
+			dest1 += 8;
+			mask += 8;
+			length -= 8;
+		}
+		if(length >= 4){
+			__m128i src0 = _mm_loadl_epi64(cast(__m128i*)src);
+			__m128i dest0 = _mm_loadl_epi64(cast(__m128i*)dest);
+			__m128i mask0 = _mm_loadl_epi64(cast(__m128i*)mask);
+			dest0 = (dest0 & mask0) | src0;
+			_mm_storel_epi64(cast(int4*)dest1, dest0);
+			src += 4;
+			dest += 4;
+			dest1 += 4;
+			mask += 4;
+			length -= 4;
+		}
+		if(length >= 2){
+			__m128i src0 = _mm_cvtsi32_si128((*cast(int*)src));
+			__m128i dest0 = _mm_cvtsi32_si128((*cast(int*)dest));
+			__m128i mask0 = _mm_cvtsi32_si128((*cast(int*)mask));
+			dest0 = (dest0 & mask0) | src0;
+			*cast(int*)dest1 = _mm_cvtsi128_si32(dest0);
+			src += 2;
+			dest += 2;
+			dest1 += 2;
+			mask += 2;
+			length -= 2;
+		}
+		if(length){
+			*dest = (*dest & *mask) | *src;
+		}
+	}else version(X86){
 		version(MMX){
 			asm @nogc{
 				pxor	MM7, MM7;
@@ -3567,7 +3777,39 @@ public @nogc void copy16bit(ushort* src, ushort* dest, ushort* dest1, size_t len
  * Two plus one operand blitter for 32 bit values. Uses a separate mask. Copies the result into location specified by dest1.
  */
 public @nogc void blitter32bit(uint* src, uint* dest, uint* dest1, size_t length, uint* mask){
-	version(X86){
+	version(LDC){
+		while(length >= 4){
+			__m128i src0 = _mm_loadu_si128(cast(__m128i*)src);
+			__m128i dest0 = _mm_loadu_si128(cast(__m128i*)dest);
+			__m128i mask0 = _mm_loadu_si128(cast(__m128i*)mask);
+			dest0 = (dest0 & mask0) | src0;
+			_mm_storeu_si128(cast(__m128i*)dest1, dest0);
+			src += 4;
+			dest += 4;
+			dest1 += 4;
+			mask += 4;
+			length -= 4;
+		}
+		if(length >= 2){
+			__m128i src0 = _mm_loadl_epi64(cast(__m128i*)src);
+			__m128i dest0 = _mm_loadl_epi64(cast(__m128i*)dest);
+			__m128i mask0 = _mm_loadl_epi64(cast(__m128i*)mask);
+			dest0 = (dest0 & mask0) | src0;
+			_mm_storel_epi64(cast(__m128i*)dest1, dest0);
+			src += 2;
+			dest += 2;
+			dest1 += 2;
+			mask += 2;
+			length -= 2;
+		}
+		if(length){
+			__m128i src0 = _mm_cvtsi32_si128(*cast(int*)src);
+			__m128i dest0 = _mm_cvtsi32_si128(*cast(int*)dest);
+			__m128i mask0 = _mm_cvtsi32_si128(*cast(int*)mask);
+			dest0 = (dest0 & mask0) | src0;
+			*cast(int*)dest1 = _mm_cvtsi128_si32(dest0);
+		}
+	}else version(X86){
 		version(MMX){
 			asm @nogc{
 				mov		ESI, src[EBP];
@@ -3721,7 +3963,60 @@ public @nogc void blitter32bit(uint* src, uint* dest, uint* dest1, size_t length
  * Output is copied into a memory location specified by dest1.
  */
 public @nogc void alphaBlend32bit(uint* src, uint* dest, uint* dest1, size_t length, uint* mask){
-	version(X86){
+	version(LDC){
+		while(length >= 4){
+			__m128i src0 = _mm_loadu_si128(cast(__m128i*)src);
+			__m128i dest0 = _mm_loadu_si128(cast(__m128i*)dest);
+			__m128i mask0 = _mm_loadu_si128(cast(__m128i*)mask);
+			__m128i mask_lo = _mm_unpacklo_epi8(mask0, SSE2_NULLVECT);
+			__m128i mask_hi = _mm_unpackhi_epi8(mask0, SSE2_NULLVECT);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
+			__m128i mask0_hi = _mm_adds_epu16(mask_hi, ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			mask_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_hi);
+			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(src0, SSE2_NULLVECT), mask0_lo);
+			__m128i src_hi = _mm_mullo_epi16(_mm_unpackhi_epi8(src0, SSE2_NULLVECT), mask0_hi);
+			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(dest0, SSE2_NULLVECT), mask_lo);
+			__m128i dest_hi = _mm_mullo_epi16(_mm_unpackhi_epi8(dest0, SSE2_NULLVECT), mask_hi);
+			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
+			src_hi = _mm_srli_epi16(_mm_adds_epu16(src_hi, dest_hi), 8);
+			_mm_storeu_si128(cast(__m128i*)dest1, _mm_packus_epi16(src_lo, src_hi));
+			src += 4;
+			dest += 4;
+			dest1 += 4;
+			mask += 4;
+			length -= 4;
+		}
+		if(length >= 2){
+			__m128i src0 = _mm_loadl_epi64(cast(__m128i*)src);
+			__m128i dest0 = _mm_loadl_epi64(cast(__m128i*)dest);
+			__m128i mask0 = _mm_loadl_epi64(cast(__m128i*)mask);
+			__m128i mask_lo = _mm_unpacklo_epi8(mask0, SSE2_NULLVECT);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(src0, SSE2_NULLVECT), mask0_lo);
+			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(dest0, SSE2_NULLVECT), mask_lo);
+			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
+			_mm_storel_epi64(cast(__m128i*)dest1, _mm_packus_epi16(src_lo, SSE2_NULLVECT));
+			src += 2;
+			dest += 2;
+			dest1 += 2;
+			mask += 2;
+			length -= 2;
+		}
+		if(length){
+			__m128i src0 = _mm_cvtsi32_si128(*cast(int*)src);
+			__m128i dest0 = _mm_cvtsi32_si128(*cast(int*)dest);
+			__m128i mask0 = _mm_cvtsi32_si128(*cast(int*)mask);
+			__m128i mask_lo = _mm_unpacklo_epi8(mask0, SSE2_NULLVECT);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(src0, SSE2_NULLVECT), mask0_lo);
+			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(dest0, SSE2_NULLVECT), mask_lo);
+			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
+			*cast(int*)dest1 = _mm_cvtsi128_si32(_mm_packus_epi16(src_lo, SSE2_NULLVECT));
+		}
+	}else version(X86){
 		version(MMX){
 			int target8 = length/8, target4 = length%2;
 			asm @nogc {
