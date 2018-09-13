@@ -4,7 +4,7 @@ import CPUblit.colorspaces;
 /**
  * Draws a line using a fixed point method. Is capable of drawing lines diagonally.
  */
-public @nogc void drawLine(T)(int x0, int y0, int x1, int y1, T color, T* dest, int destWidth){
+public @nogc void drawLine(T)(int x0, int y0, int x1, int y1, T color, T* dest, size_t destWidth){
 	static if(!(T == "ubyte" || T == "ushort" || T == "Color32Bit")){
 		static assert("Template parameter '" ~ T.stringof ~ "' is not supported!");
 	}
@@ -60,7 +60,7 @@ public @nogc void drawLine(T)(int x0, int y0, int x1, int y1, T color, T* dest, 
 /**
  * Draws a rectangle.
  */
-public @nogc void drawRectangle(T)(int x0, int y0, int x1, int y1, T color, T*dest, int destWidth){
+public @nogc void drawRectangle(T)(int x0, int y0, int x1, int y1, T color, T*dest, size_t destWidth){
 	static if(!(T == "ubyte" || T == "ushort" || T == "Color32Bit")){
 		static assert("Template parameter '" ~ T.stringof ~ "' is not supported!");
 	}
@@ -73,7 +73,7 @@ public @nogc void drawRectangle(T)(int x0, int y0, int x1, int y1, T color, T*de
  * Draws a filled rectangle.
  * TODO: Upgrade algorhithm to use SSE2/MMX for faster filling.
  */
-public @nogc void drawFilledRectangle(T)(int x0, int y0, int x1, int y1, T color, T* dest, int destWidth){
+public @nogc void drawFilledRectangle(T)(int x0, int y0, int x1, int y1, T color, T* dest, size_t destWidth){
 	if(x1 < x0){
 		int k = x1;
 		x1 = x0;
@@ -89,5 +89,25 @@ public @nogc void drawFilledRectangle(T)(int x0, int y0, int x1, int y1, T color
 	while(targetWidth){
 		drawLine!T(x0, y0, x1, y0, color, dest, destWidth);
 		targetWidth--;
+	}
+}
+/**
+ * Flood fills a bitmap at the given point.
+ */
+public @nogc void floodFill(T)(int x0, int y0, T color, T* dest, size_t destWidth, size_t destLength, T transparencyIndex = T.init){
+	//check for boundaries of the bitmap
+	if(x0 > 0, y0 > 0){
+		int yOffset = y0 * destWidth
+		if(x0 < destWidth, yOffset < destLength){
+			//check if the current pixel is "transparent"
+			T* p = dest + yOffset + x0;
+			if(transparencyIndex =  *(p)){
+				*p = color;
+				floodFill(x0 + 1, y0, color, dest, destWidth, destLength, transparencyIndex);
+				floodFill(x0 - 1, y0, color, dest, destWidth, destLength, transparencyIndex);
+				floodFill(x0, y0 + 1, color, dest, destWidth, destLength, transparencyIndex);
+				floodFill(x0, y0 - 1, color, dest, destWidth, destLength, transparencyIndex);
+			}
+		}
 	}
 }
