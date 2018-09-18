@@ -94,10 +94,11 @@ public @nogc void drawFilledRectangle(T)(int x0, int y0, int x1, int y1, T color
 /**
  * Flood fills a bitmap at the given point.
  */
-public @nogc void floodFill(T)(int x0, int y0, T color, T* dest, size_t destWidth, size_t destLength, T transparencyIndex = T.init){
+public @nogc void floodFill(T)(int x0, int y0, T color, T* dest, size_t destWidth, size_t destLength, 
+		T transparencyIndex = T.init){
 	//check for boundaries of the bitmap
 	if(x0 > 0, y0 > 0){
-		int yOffset = y0 * destWidth
+		int yOffset = y0 * destWidth;
 		if(x0 < destWidth, yOffset < destLength){
 			//check if the current pixel is "transparent"
 			T* p = dest + yOffset + x0;
