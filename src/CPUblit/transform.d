@@ -8,14 +8,15 @@ import CPUblit.colorspaces;
  * Lenght determines the source's length.
  * trfmParam describes how the transformation is done. 1024 results in the same exact line. Larger values cause shrinkage, smaller omes growth. Negative values cause reflections.
  */
-public @nogc void horizontalScaleNearest(T)(T* src, T* dest, size_t length, int trfmParam){
+public @nogc void horizontalScaleNearest(T)(T* src, T* dest, sizediff_t length, int trfmParam){
 	if(trfmParam < 0)
 		src += length;
 	sizediff_t offset;
-	while(length){
+	length <<= 1024;
+	while(length > 0){
 		*dest = src[offset>>>10];
 		offset += trfmParam;
-		length--;
+		length -= trfmParam;
 		dest++;
 	}
 }
@@ -25,14 +26,15 @@ public @nogc void horizontalScaleNearest(T)(T* src, T* dest, size_t length, int 
  * Lenght determines the source's length.
  * trfmParam describes how the transformation is done. 1024 results in the same exact line. Larger values cause shrinkage, smaller omes growth. Negative values cause reflections.
  */
-public @nogc void horizontalScaleNearestAndCLU(T, U)(T* src, U* dest, U* palette, size_t length, const int trfmParam){
+public @nogc void horizontalScaleNearestAndCLU(T, U)(T* src, U* dest, U* palette, sizediff_t length, const int trfmParam){
 	if(trfmParam < 0)
 		src += length;
 	sizediff_t offset;
-	while(length){
+	length <<= 1024;
+	while(length > 0){
 		*dest = palette[(src[offset>>>10])];
 		offset += trfmParam;
-		length--;
+		length -= trfmParam;
 		dest++;
 	}
 }
@@ -42,17 +44,17 @@ public @nogc void horizontalScaleNearestAndCLU(T, U)(T* src, U* dest, U* palette
  * Lenght determines the source's length.
  * trfmParam describes how the transformation is done. 1024 results in the same exact line. Larger values cause shrinkage, smaller omes growth. Negative values cause reflections.
  */
-public @nogc void horizontalScaleNearest4Bit(ubyte* src, ubyte* dest, size_t length, sizediff_t offset, 
+public @nogc void horizontalScaleNearest4Bit(ubyte* src, ubyte* dest, sizediff_t length, sizediff_t offset, 
 		const int trfmParam){
 	if(trfmParam < 0)
 		src += length;
-	//sizediff_t offset;
+	length <<= 1024;
 	offset <<= 10;
-	while(length){
+	while(length > 0){
 		const ubyte temp = (offset>>>10) & 1 ?  src[offset>>>11] & 0x0F : src[offset>>>11] >> 4;
 		*dest |= length & 1 ? temp : temp << 4;
 		offset += trfmParam;
-		length--;
+		length -= trfmParam;
 		dest++;
 	}
 }
@@ -62,17 +64,17 @@ public @nogc void horizontalScaleNearest4Bit(ubyte* src, ubyte* dest, size_t len
  * Lenght determines the source's length.
  * trfmParam describes how the transformation is done. 1024 results in the same exact line. Larger values cause shrinkage, smaller omes growth. Negative values cause reflections.
  */
-public @nogc void horizontalScaleNearest4BitAndCLU(U)(ubyte* src, U* dest, U* palette, size_t length, sizediff_t offset, 
+public @nogc void horizontalScaleNearest4BitAndCLU(U)(ubyte* src, U* dest, U* palette, sizediff_t length, sizediff_t offset, 
 		const int trfmParam){
 	if(trfmParam < 0)
 		src += length;
-	//sizediff_t offset;
+	length <<= 1024;
 	offset <<= 10;
-	while(length){
+	while(length > 0){
 		const ubyte temp = (offset>>>10) & 1 ?  src[offset>>>11] & 0x0F : src[offset>>>11] >> 4;
 		*dest = palette[temp];
 		offset += trfmParam;
-		length--;
+		length -= trfmParam;
 		dest++;
 	}
 }
@@ -83,7 +85,7 @@ public @nogc void horizontalScaleNearest4BitAndCLU(U)(ubyte* src, U* dest, U* pa
 public @nogc size_t scaleNearestLength(size_t origLen, int trfmParam){
 	if(trfmParam < 0)
 		trfmParam *= -1;
-	return (origLen * trfmParam)>>10;
+	return cast(size_t)(cast(double)origLen * (1024.0 / cast(double)trfmParam));
 }
 unittest{
 	uint[256] a, b;
