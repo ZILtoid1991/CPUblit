@@ -9,10 +9,13 @@ import CPUblit.colorspaces;
  * trfmParam describes how the transformation is done. 1024 results in the same exact line. Larger values cause shrinkage, smaller omes growth. Negative values cause reflections.
  */
 public @nogc void horizontalScaleNearest(T)(T* src, T* dest, sizediff_t length, int trfmParam){
-	if(trfmParam < 0)
-		src += length;
+	int trfmParamA = trfmParam;
 	sizediff_t offset;
-	length <<= 1024;
+	length <<= 10;
+	if(trfmParam < 0){
+		offset += length-1024;
+		trfmParamA *= -1;
+	}
 	while(length > 0){
 		*dest = src[offset>>>10];
 		offset += trfmParam;
@@ -27,14 +30,17 @@ public @nogc void horizontalScaleNearest(T)(T* src, T* dest, sizediff_t length, 
  * trfmParam describes how the transformation is done. 1024 results in the same exact line. Larger values cause shrinkage, smaller omes growth. Negative values cause reflections.
  */
 public @nogc void horizontalScaleNearestAndCLU(T, U)(T* src, U* dest, U* palette, sizediff_t length, const int trfmParam){
-	if(trfmParam < 0)
-		src += length;
+	int trfmParamA = trfmParam;
 	sizediff_t offset;
-	length <<= 1024;
+	length <<= 10;
+	if(trfmParam < 0){
+		offset += length-1024;
+		trfmParamA *= -1;
+	}
 	while(length > 0){
 		*dest = palette[(src[offset>>>10])];
 		offset += trfmParam;
-		length -= trfmParam;
+		length -= trfmParamA;
 		dest++;
 	}
 }
@@ -46,10 +52,12 @@ public @nogc void horizontalScaleNearestAndCLU(T, U)(T* src, U* dest, U* palette
  */
 public @nogc void horizontalScaleNearest4Bit(ubyte* src, ubyte* dest, sizediff_t length, sizediff_t offset, 
 		const int trfmParam){
-	if(trfmParam < 0)
-		src += length;
-	length <<= 1024;
+	length <<= 10;
 	offset <<= 10;
+	if(trfmParam < 0){
+		offset += length-1024;
+		trfmParamA *= -1;
+	}
 	while(length > 0){
 		const ubyte temp = (offset>>>10) & 1 ?  src[offset>>>11] & 0x0F : src[offset>>>11] >> 4;
 		*dest |= length & 1 ? temp : temp << 4;
@@ -66,10 +74,12 @@ public @nogc void horizontalScaleNearest4Bit(ubyte* src, ubyte* dest, sizediff_t
  */
 public @nogc void horizontalScaleNearest4BitAndCLU(U)(ubyte* src, U* dest, U* palette, sizediff_t length, sizediff_t offset, 
 		const int trfmParam){
-	if(trfmParam < 0)
-		src += length;
-	length <<= 1024;
+	length <<= 10;
 	offset <<= 10;
+	if(trfmParam < 0){
+		offset += length-1024;
+		trfmParamA *= -1;
+	}
 	while(length > 0){
 		const ubyte temp = (offset>>>10) & 1 ?  src[offset>>>11] & 0x0F : src[offset>>>11] >> 4;
 		*dest = palette[temp];
