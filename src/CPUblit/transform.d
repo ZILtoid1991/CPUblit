@@ -52,6 +52,7 @@ public @nogc void horizontalScaleNearestAndCLU(T, U)(T* src, U* dest, U* palette
  */
 public @nogc void horizontalScaleNearest4Bit(ubyte* src, ubyte* dest, sizediff_t length, sizediff_t offset, 
 		const int trfmParam){
+	int trfmParamA = trfmParam;
 	length <<= 10;
 	offset <<= 10;
 	if(trfmParam < 0){
@@ -74,6 +75,7 @@ public @nogc void horizontalScaleNearest4Bit(ubyte* src, ubyte* dest, sizediff_t
  */
 public @nogc void horizontalScaleNearest4BitAndCLU(U)(ubyte* src, U* dest, U* palette, sizediff_t length, sizediff_t offset, 
 		const int trfmParam){
+	int trfmParamA = trfmParam;
 	length <<= 10;
 	offset <<= 10;
 	if(trfmParam < 0){
