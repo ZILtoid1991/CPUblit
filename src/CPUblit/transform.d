@@ -20,6 +20,7 @@ public @nogc void horizontalScaleNearest(T)(T* src, T* dest, sizediff_t length, 
 		dest++;
 	}
 }
+
 /**
  * Horizontal scaling and color lookup using nearest integer algorithm for per-line operations.
  * Works with most datatypes. Use a separate one for 4 bit.
