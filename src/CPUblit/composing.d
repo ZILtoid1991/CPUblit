@@ -1810,7 +1810,7 @@ public @nogc void textBlitter(T)(T* src, T* dest, size_t length, T color){
 		static if(T.stringof == "ubyte"){
 			__vector(ubyte[16]) colorV;
 			static enum MAINLOOP_LENGTH = 16;
-			static enum HALFLOAD_LENGTH = 8;
+			static enum HALFLOAD_LENGTH = 16;
 			static enum QUTRLOAD_LENGTH = 4;
 		}else static if(T.stringof == "ushort"){
 			__vector(ushort[8]) colorV;
@@ -1906,7 +1906,7 @@ public @nogc void textBlitter(T)(T* src, T* dest, T* dest1, size_t length, T col
 		static if(T.stringof == "ubyte"){
 			__vector(ubyte[16]) colorV;
 			static enum MAINLOOP_LENGTH = 16;
-			static enum HALFLOAD_LENGTH = 8;
+			static enum HALFLOAD_LENGTH = 16;
 			static enum QUTRLOAD_LENGTH = 4;
 		}else static if(T.stringof == "ushort"){
 			__vector(ushort[8]) colorV;
@@ -2007,7 +2007,7 @@ public @nogc void blitter(T)(T* src, T* dest, size_t length){
 	static if(USE_INTEL_INTRINSICS){
 		static if(T.stringof == "ubyte"){
 			static enum MAINLOOP_LENGTH = 16;
-			static enum HALFLOAD_LENGTH = 8;
+			static enum HALFLOAD_LENGTH = 16;
 			static enum QUTRLOAD_LENGTH = 4;
 		}else static if(T.stringof == "ushort"){
 			static enum MAINLOOP_LENGTH = 8;
@@ -2098,7 +2098,7 @@ public @nogc void blitter(T)(T* src, T* dest, T* dest1, size_t length){
 	static if(USE_INTEL_INTRINSICS){
 		static if(T.stringof == "ubyte"){
 			static enum MAINLOOP_LENGTH = 16;
-			static enum HALFLOAD_LENGTH = 8;
+			static enum HALFLOAD_LENGTH = 16;
 			static enum QUTRLOAD_LENGTH = 4;
 		}else static if(T.stringof == "ushort"){
 			static enum MAINLOOP_LENGTH = 8;
@@ -2193,7 +2193,7 @@ public @nogc void blitter(T)(T* src, T* dest, T* dest1, size_t length, T* mask){
 	static if(USE_INTEL_INTRINSICS){
 		static if(T.stringof == "ubyte"){
 			static enum MAINLOOP_LENGTH = 16;
-			static enum HALFLOAD_LENGTH = 8;
+			static enum HALFLOAD_LENGTH = 16;
 			static enum QUTRLOAD_LENGTH = 4;
 		}else static if(T.stringof == "ushort"){
 			static enum MAINLOOP_LENGTH = 8;
@@ -2275,7 +2275,7 @@ public @nogc void blitter(T)(T* src, T* dest,  size_t length, T* mask){
 	static if(USE_INTEL_INTRINSICS){
 		static if(T.stringof == "ubyte"){
 			static enum MAINLOOP_LENGTH = 16;
-			static enum HALFLOAD_LENGTH = 8;
+			static enum HALFLOAD_LENGTH = 16;
 			static enum QUTRLOAD_LENGTH = 4;
 		}else static if(T.stringof == "ushort"){
 			static enum MAINLOOP_LENGTH = 8;
