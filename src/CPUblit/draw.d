@@ -5,7 +5,7 @@ import CPUblit.colorspaces;
  * Draws a line using a fixed point method. Is capable of drawing lines diagonally.
  */
 public @nogc void drawLine(T)(int x0, int y0, int x1, int y1, T color, T* dest, size_t destWidth){
-	static if(!(T.stringof == "ubyte" || T.stringof == "ushort" || T.stringof == "Color32Bit")){
+	static if(!(T.stringof == "ubyte" || T.stringof == "ushort" || T.stringof == "uint" || T.stringof == "Color32Bit")){
 		static assert(0, "Template parameter '" ~ T.stringof ~ "' is not supported!");
 	}
 	if(x1 < x0){
@@ -61,7 +61,7 @@ public @nogc void drawLine(T)(int x0, int y0, int x1, int y1, T color, T* dest, 
  * Draws a rectangle.
  */
 public @nogc void drawRectangle(T)(int x0, int y0, int x1, int y1, T color, T*dest, size_t destWidth){
-	static if(!(T.stringof == "ubyte" || T.stringof == "ushort" || T.stringof == "Color32Bit")){
+	static if(!(T.stringof == "ubyte" || T.stringof == "ushort" || T.stringof == "uint" || T.stringof == "Color32Bit")){
 		static assert(0, "Template parameter '" ~ T.stringof ~ "' is not supported!");
 	}
 	drawLine(x0,y0,x0,y1,color,dest,destWidth);
