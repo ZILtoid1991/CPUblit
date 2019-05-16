@@ -115,9 +115,28 @@ public @nogc void floodFill(T)(int x0, int y0, T color, T* dest, size_t destWidt
 	}
 }
 unittest{
-	ubyte[256*256] virtualImage;
-	drawLine(0, 0, 0, 255, 255, virtualImage.ptr, 256);
+	{	//test if only the first line is being drawn.
+		ubyte[256*256] virtualImage;
+		drawLine(0, 0, 255, 0, 0xFF, virtualImage.ptr, 256);
+		for(int x ; x < 256 ; x++){
+			assert(virtualImage[x] == 0xFF);
+		}
+		for(int x ; x < 256 ; x++){
+			assert(virtualImage[256 + x] == 0x00);
+		}
+	}
+	{	//test if only the first row is being drawn.
+		ubyte[256*256] virtualImage;
+		drawLine(0, 0, 0, 255, 0xFF, virtualImage.ptr, 256);
+		for(int y ; y < 256 ; y++){
+			assert(virtualImage[256 * y] == 0xFF);
+		}
+		for(int y ; y < 256 ; y++){
+			assert(virtualImage[(256 * y) + 1] == 0x00);
+		}
+	}
+	/+drawLine(0, 0, 0, 255, 255, virtualImage.ptr, 256);
 	drawLine(0, 0, 255, 255, 255, virtualImage.ptr, 256);
 	drawLine(0, 0, 255, 0, 255, virtualImage.ptr, 256);
-	floodFill(12, 12, 8, virtualImage.ptr, 256, 256*256);
+	floodFill(12, 12, 8, virtualImage.ptr, 256, 256*256);+/
 }
