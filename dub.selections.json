@@ -1,6 +1,7 @@
 {
 	"fileVersion": 1,
 	"versions": {
-		"intel-intrinsics": "1.1.1"
+		"bitleveld": "0.1.0-alpha",
+		"intel-intrinsics": "1.2.2"
 	}
 }

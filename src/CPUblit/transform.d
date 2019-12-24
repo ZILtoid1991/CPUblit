@@ -1,6 +1,7 @@
 module CPUblit.transform;
 
 import CPUblit.colorspaces;
+import bitleveld.datatypes;
 
 /**
  * Horizontal scaling using nearest integer algorithm for per-line operations.
@@ -8,7 +9,7 @@ import CPUblit.colorspaces;
  * Lenght determines the source's length.
  * trfmParam describes how the transformation is done. 1024 results in the same exact line. Larger values cause shrinkage, smaller omes growth. Negative values cause reflections.
  */
-public @nogc void horizontalScaleNearest(T)(T* src, T* dest, sizediff_t length, int trfmParam){
+public void horizontalScaleNearest(T)(T* src, T* dest, sizediff_t length, int trfmParam) @nogc pure nothrow {
 	int trfmParamA = trfmParam;
 	sizediff_t offset;
 	length <<= 10;
@@ -29,7 +30,8 @@ public @nogc void horizontalScaleNearest(T)(T* src, T* dest, sizediff_t length, 
  * Lenght determines the source's length.
  * trfmParam describes how the transformation is done. 1024 results in the same exact line. Larger values cause shrinkage, smaller omes growth. Negative values cause reflections.
  */
-public @nogc void horizontalScaleNearestAndCLU(T, U)(T* src, U* dest, U* palette, sizediff_t length, const int trfmParam){
+public void horizontalScaleNearestAndCLU(T, U)(T* src, U* dest, U* palette, sizediff_t length, const int trfmParam)
+		@nogc pure nothrow {
 	int trfmParamA = trfmParam;
 	sizediff_t offset;
 	length <<= 10;
@@ -50,8 +52,8 @@ public @nogc void horizontalScaleNearestAndCLU(T, U)(T* src, U* dest, U* palette
  * Lenght determines the source's length.
  * trfmParam describes how the transformation is done. 1024 results in the same exact line. Larger values cause shrinkage, smaller omes growth. Negative values cause reflections.
  */
-public @nogc void horizontalScaleNearest4Bit(ubyte* src, ubyte* dest, sizediff_t length, sizediff_t offset, 
-		const int trfmParam){
+public void horizontalScaleNearest4Bit(ubyte* src, ubyte* dest, sizediff_t length, sizediff_t offset, 
+		const int trfmParam) @nogc pure nothrow {
 	int trfmParamA = trfmParam;
 	length <<= 10;
 	offset <<= 10;
@@ -73,8 +75,8 @@ public @nogc void horizontalScaleNearest4Bit(ubyte* src, ubyte* dest, sizediff_t
  * Lenght determines the source's length.
  * trfmParam describes how the transformation is done. 1024 results in the same exact line. Larger values cause shrinkage, smaller omes growth. Negative values cause reflections.
  */
-public @nogc void horizontalScaleNearest4BitAndCLU(U)(ubyte* src, U* dest, U* palette, sizediff_t length, sizediff_t offset, 
-		const int trfmParam){
+public void horizontalScaleNearest4BitAndCLU(U)(ubyte* src, U* dest, U* palette, sizediff_t length, sizediff_t offset, 
+		const int trfmParam) @nogc pure nothrow {
 	int trfmParamA = trfmParam;
 	length <<= 10;
 	offset <<= 10;
@@ -91,19 +93,29 @@ public @nogc void horizontalScaleNearest4BitAndCLU(U)(ubyte* src, U* dest, U* pa
 	}
 }
 /**
+ * Template for scaling with datatypes smaller than a byte.
+ */
+/+public void horizontalScaleNearestSTB(T,U)(T src, U* dest, const int trfmParam, sizediff_t offset) @nogc pure nothrow 
+		if(typeof(T) is typeof(NibbleArray) || )+/
+/**
  * Returns the needed length of dest for the given trfmParam if the "nearest integer algorithm" used.
  * Works with both horizontal and vertical algorithms.
  */
-public @nogc size_t scaleNearestLength(size_t origLen, int trfmParam){
+public size_t scaleNearestLength(size_t origLen, int trfmParam) @nogc pure nothrow {
 	if(trfmParam < 0)
 		trfmParam *= -1;
 	return cast(size_t)(cast(double)origLen * (1024.0 / cast(double)trfmParam));
 }
-unittest{
+pure nothrow unittest{
+	import std.conv : to;
 	uint[256] a, b;
 	ubyte[256] c;
 	//force the compiler to check the scalers
 	horizontalScaleNearest(a.ptr, b.ptr, 16, 2048);
 	horizontalScaleNearestAndCLU(c.ptr,a.ptr,b.ptr,16,2048);
 	horizontalScaleNearest4BitAndCLU(c.ptr,a.ptr,b.ptr,16,0,2048);
+	assert(20 == scaleNearestLength(10, 512), "Error while testing function `scaleNearestLength`. Expected value: 20 " ~
+			"Returned value: " ~ to!string(scaleNearestLength(10, 512)));
+	assert(20 == scaleNearestLength(10, -512), "Error while testing function `scaleNearestLength`. Expected value: 20 " ~
+			"Returned value: " ~ to!string(scaleNearestLength(10, -512)));
 }

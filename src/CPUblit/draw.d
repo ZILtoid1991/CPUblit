@@ -4,10 +4,10 @@ import CPUblit.colorspaces;
 /**
  * Draws a line using a fixed point method. Is capable of drawing lines diagonally.
  */
-public @nogc void drawLine(T)(int x0, int y0, int x1, int y1, T color, T* dest, size_t destWidth){
-	static if(!(T.stringof == "ubyte" || T.stringof == "ushort" || T.stringof == "uint" || T.stringof == "Color32Bit")){
+public void drawLine(T)(int x0, int y0, int x1, int y1, T color, T* dest, size_t destWidth) @nogc nothrow pure {
+	/+static if(!(T.stringof == "ubyte" || T.stringof == "ushort" || T.stringof == "uint" || T.stringof == "Color32Bit")){
 		static assert(0, "Template parameter '" ~ T.stringof ~ "' is not supported!");
-	}
+	}+/
 	if(x1 < x0){
 		int k = x1;
 		x1 = x0;
@@ -60,10 +60,10 @@ public @nogc void drawLine(T)(int x0, int y0, int x1, int y1, T color, T* dest, 
 /**
  * Draws a rectangle.
  */
-public @nogc void drawRectangle(T)(int x0, int y0, int x1, int y1, T color, T*dest, size_t destWidth){
-	static if(!(T.stringof == "ubyte" || T.stringof == "ushort" || T.stringof == "uint" || T.stringof == "Color32Bit")){
+public void drawRectangle(T)(int x0, int y0, int x1, int y1, T color, T*dest, size_t destWidth) @nogc nothrow pure {
+	/+static if(!(T.stringof == "ubyte" || T.stringof == "ushort" || T.stringof == "uint" || T.stringof == "Color32Bit")) {
 		static assert(0, "Template parameter '" ~ T.stringof ~ "' is not supported!");
-	}
+	}+/
 	drawLine(x0,y0,x0,y1,color,dest,destWidth);
 	drawLine(x0,y0,x1,y0,color,dest,destWidth);
 	drawLine(x1,y0,x1,y1,color,dest,destWidth);
@@ -73,7 +73,8 @@ public @nogc void drawRectangle(T)(int x0, int y0, int x1, int y1, T color, T*de
  * Draws a filled rectangle.
  * TODO: Upgrade algorhithm to use SSE2/MMX for faster filling.
  */
-public @nogc void drawFilledRectangle(T)(int x0, int y0, int x1, int y1, T color, T* dest, size_t destWidth){
+public void drawFilledRectangle(T) (int x0, int y0, int x1, int y1, T color, T* dest, size_t destWidth) @nogc nothrow 
+		pure {
 	if(x1 < x0){
 		int k = x1;
 		x1 = x0;
@@ -96,11 +97,11 @@ public @nogc void drawFilledRectangle(T)(int x0, int y0, int x1, int y1, T color
 /**
  * Flood fills a bitmap at the given point.
  */
-public @nogc void floodFill(T)(int x0, int y0, T color, T* dest, size_t destWidth, size_t destLength, 
-		T transparencyIndex = T.init){
+public void floodFill(T)(int x0, int y0, T color, T* dest, size_t destWidth, size_t destLength, 
+		T transparencyIndex = T.init) @nogc nothrow pure {
 	//check for boundaries of the bitmap
 	if(x0 > 0 && y0 > 0){
-		size_t yOffset = y0 * destWidth;
+		const size_t yOffset = y0 * destWidth;
 		if(x0 < destWidth && yOffset < destLength){
 			//check if the current pixel is "transparent"
 			T* p = dest + yOffset + x0;
@@ -114,7 +115,7 @@ public @nogc void floodFill(T)(int x0, int y0, T color, T* dest, size_t destWidt
 		}
 	}
 }
-unittest{
+@nogc nothrow pure unittest{
 	{	//test if only the first line is being drawn.
 		ubyte[256*256] virtualImage;
 		drawLine(0, 0, 255, 0, 0xFF, virtualImage.ptr, 256);

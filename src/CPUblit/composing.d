@@ -17,9 +17,9 @@ import CPUblit.system;
  */
 
 //import core.simd;
-version(LDC){
+static if (USE_INTEL_INTRINSICS) {
 	import inteli.emmintrin;
-	import ldc.simd;
+	//import ldc.simd;
 	package immutable __m128i SSE2_NULLVECT;
 	package immutable __vector(ushort[8]) ALPHABLEND_SSE2_CONST1 = [1,1,1,1,1,1,1,1];
 	package immutable __vector(ushort[8]) ALPHABLEND_SSE2_CONST256 = [256,256,256,256,256,256,256,256];
@@ -28,23 +28,24 @@ version(LDC){
 /**
  * Copies an 8bit image onto another without blitter. No transparency is used.
  */
-public @nogc void copy8bit(ubyte* src, ubyte* dest, size_t length){
+public void copy8bit(ubyte* src, ubyte* dest, size_t length) @nogc pure nothrow {
 	import core.stdc.string;
 	memcpy(dest, src, length);
 }
 /**
  * Copies a 16bit image onto another without blitter. No transparency is used.
  */
-public @nogc void copy16bit(ushort* src, ushort* dest, size_t length){
+public void copy16bit(ushort* src, ushort* dest, size_t length) @nogc pure nothrow {
 	import core.stdc.string;
 	memcpy(cast(void*)dest, cast(void*)src, length * 2);
 }
 /**
  * Implements a two plus one operand alpha-blending algorithm for 32bit bitmaps. Automatic alpha-mask generation follows this formula:
  * src[B,G,R,A] --> mask [A,A,A,A]
+ * TODO: add template to make it able to specify the alpha channel.
  */
-public @nogc void alphaBlend32bit(uint* src, uint* dest, size_t length){
-	version(LDC){
+public void alphaBlend32bit(uint* src, uint* dest, size_t length) @nogc pure nothrow {
+	static if(USE_INTEL_INTRINSICS){
 		while(length >= 4){
 			__m128i src0 = _mm_loadu_si128(cast(__m128i*)src);
 			__m128i dest0 = _mm_loadu_si128(cast(__m128i*)dest);
@@ -100,50 +101,52 @@ public @nogc void alphaBlend32bit(uint* src, uint* dest, size_t length){
 			*cast(int*)dest = _mm_cvtsi128_si32(_mm_packus_epi16(src_lo, SSE2_NULLVECT));
 		}
 	}else{
+		/+Pixel32Bit lsrc = *cast(Pixel32Bit*)src, ldest = *cast(Pixel32Bit*)dest;
 		for(int i ; i < length ; i++){
-			switch(src.ColorSpaceARGB.alpha){
+			switch(lsrc.ColorSpaceARGB.alpha){
 				case 0: 
 					break;
 				case 255: 
-					dest = src;
+					ldest = lsrc;
 					break;
 				default:
-					int src1 = 1 + src.ColorSpaceARGB.alpha;
-					int src256 = 256 - src.ColorSpaceARGB.alpha;
-					dest.ColorSpaceARGB.red = cast(ubyte)((src.ColorSpaceARGB.red * src1 + dest.ColorSpaceARGB.red * src256)>>8);
-					dest.ColorSpaceARGB.green = cast(ubyte)((src.ColorSpaceARGB.green * src1 + dest.ColorSpaceARGB.green * src256)>>8);
-					dest.ColorSpaceARGB.blue = cast(ubyte)((src.ColorSpaceARGB.blue * src1 + dest.ColorSpaceARGB.blue * src256)>>8);
+					const int src1 = 1 + lsrc.ColorSpaceARGB.alpha;
+					const int src256 = 256 - lsrc.ColorSpaceARGB.alpha;
+					ldest.ColorSpaceARGB.red = cast(ubyte)((lsrc.ColorSpaceARGB.red * src1 + ldest.ColorSpaceARGB.red * src256)>>8);
+					ldest.ColorSpaceARGB.green = cast(ubyte)((lsrc.ColorSpaceARGB.green * src1 + ldest.ColorSpaceARGB.green * src256)>>8);
+					ldest.ColorSpaceARGB.blue = cast(ubyte)((lsrc.ColorSpaceARGB.blue * src1 + ldest.ColorSpaceARGB.blue * src256)>>8);
 					break;
 			}
 			src++;
+			*cast(Pixel32Bit*)dest = ldest;
 			dest++;
-		}
+		}+/
 	}
 }
 /**
  * Copies a 32bit image onto another without blitter. No transparency is used.
  */
-public @nogc void copy32bit(uint* src, uint* dest, size_t length){
+public void copy32bit(uint* src, uint* dest, size_t length) @nogc pure nothrow {
 	import core.stdc.string;
 	memcpy(dest, src, length * 4);
 }
 /**
  * Copies an 8bit image onto another without blitter. No transparency is used. Mask is placeholder.
  */
-public @nogc void copy8bit(ubyte* src, ubyte* dest, size_t length, ubyte* mask){
+public void copy8bit(ubyte* src, ubyte* dest, size_t length, ubyte* mask) @nogc pure nothrow {
 	copy8bit(src,dest,length);
 }
 /**
  * Copies a 16bit image onto another without blitter. No transparency is used. Mask is a placeholder for easy exchangeability with other functions.
  */
-public @nogc void copy16bit(ushort* src, ushort* dest, size_t length, ushort* mask){
+public void copy16bit(ushort* src, ushort* dest, size_t length, ushort* mask) @nogc pure nothrow {
 	copy16bit(src,dest,length);
 }
 /**
  * Implements a three plus one operand alpha-blending algorithm for 32bit bitmaps. For masking, use Pixel32Bit.AlphaMask from CPUblit.colorspaces.
  */
-public @nogc void alphaBlend32bit(uint* src, uint* dest, size_t length, uint* mask){
-	version(LDC){
+public void alphaBlend32bit(uint* src, uint* dest, size_t length, uint* mask) @nogc pure nothrow {
+	static if(USE_INTEL_INTRINSICS){
 		while(length >= 4){
 			__m128i src0 = _mm_loadu_si128(cast(__m128i*)src);
 			__m128i dest0 = _mm_loadu_si128(cast(__m128i*)dest);
@@ -195,7 +198,7 @@ public @nogc void alphaBlend32bit(uint* src, uint* dest, size_t length, uint* ma
 			*cast(int*)dest = _mm_cvtsi128_si32(_mm_packus_epi16(src_lo, SSE2_NULLVECT));
 		}
 	}else{
-		for(int i ; i < length ; i++){
+		/+for(int i ; i < length ; i++){
 			switch(mask.AlphaMask.value){
 				case 0: 
 					break;
@@ -213,33 +216,33 @@ public @nogc void alphaBlend32bit(uint* src, uint* dest, size_t length, uint* ma
 			src++;
 			dest++;
 			mask++;
-		}
+		}+/
 	}
 }
 /**
  * Copies a 32bit image onto another without blitter. No transparency is used. Mask is placeholder.
  */
-public @nogc void copy32bit(uint* src, uint* dest, size_t length, uint* mask){
+public void copy32bit(uint* src, uint* dest, size_t length, uint* mask) @nogc pure nothrow {
 	copy32bit(src,dest,length);
 }
 /**
  * Copies an 8bit image onto another without blitter. No transparency is used. Dest is placeholder.
  */
-public @nogc void copy8bit(ubyte* src, ubyte* dest, ubyte* dest1, size_t length){
+public void copy8bit(ubyte* src, ubyte* dest, ubyte* dest1, size_t length) @nogc pure nothrow {
 	copy8bit(src,dest1,length);
 }
 /**
  * Copies a 16bit image onto another without blitter. No transparency is used. Dest is placeholder.
  */
-public @nogc void copy16bit(ushort* src, ushort* dest, ushort* dest1, size_t length){
+public void copy16bit(ushort* src, ushort* dest, ushort* dest1, size_t length) @nogc pure nothrow {
 	copy16bit(src,dest1,length);
 }
 /**
  * Implements a three plus one operand alpha-blending algorithm for 32bit bitmaps. Automatic alpha-mask generation follows this formula:
  * src[B,G,R,A] --> mask [A,A,A,A]
  */
-public @nogc void alphaBlend32bit(uint* src, uint* dest, uint* dest1, size_t length){
-	version(LDC){
+public void alphaBlend32bit(uint* src, uint* dest, uint* dest1, size_t length) @nogc pure nothrow {
+	static if(USE_INTEL_INTRINSICS){
 		while(length >= 4){
 			__m128i src0 = _mm_loadu_si128(cast(__m128i*)src);
 			__m128i dest0 = _mm_loadu_si128(cast(__m128i*)dest);
@@ -297,7 +300,7 @@ public @nogc void alphaBlend32bit(uint* src, uint* dest, uint* dest1, size_t len
 			*cast(int*)dest1 = _mm_cvtsi128_si32(_mm_packus_epi16(src_lo, SSE2_NULLVECT));
 		}
 	}else{
-		for(int i ; i < length ; i++){
+		/+for(int i ; i < length ; i++){
 			switch(src.ColorSpaceARGB.alpha){
 				case 0: 
 					break;
@@ -315,33 +318,33 @@ public @nogc void alphaBlend32bit(uint* src, uint* dest, uint* dest1, size_t len
 			src++;
 			dest++;
 			dest1++;
-		}
+		}+/
 	}	
 }
 /**
  * Copies a 32bit image onto another without blitter. No transparency is used. Dest is placeholder.
  */
-public @nogc void copy32bit(uint* src, uint* dest, uint* dest1, size_t length){
+public void copy32bit(uint* src, uint* dest, uint* dest1, size_t length) @nogc pure nothrow {
 	copy32bit(src, dest1, length);
 }
 /**
  * Copies an 8bit image onto another without blitter. No transparency is used. Dest and mask are placeholders.
  */
-public @nogc void copy8bit(ubyte* src, ubyte* dest, ubyte* dest1, size_t length, ubyte* mask){
+public void copy8bit(ubyte* src, ubyte* dest, ubyte* dest1, size_t length, ubyte* mask) @nogc pure nothrow {
 	copy8bit(src,dest1,length);
 }
 /**
  * Copies a 16bit image onto another without blitter. No transparency is used. Dest and mask is placeholder.
  */
-public @nogc void copy16bit(ushort* src, ushort* dest, ushort* dest1, size_t length, ushort* mask){
+public void copy16bit(ushort* src, ushort* dest, ushort* dest1, size_t length, ushort* mask) @nogc pure nothrow {
 	copy16bit(src,dest1,length);
 }
 /**
  * Implements a four plus one operand alpha-blending algorithm for 32bit bitmaps. For masking, use Pixel32Bit.AlphaMask from CPUblit.colorspaces.
  * Output is copied into a memory location specified by dest1.
  */
-public @nogc void alphaBlend32bit(uint* src, uint* dest, uint* dest1, size_t length, uint* mask){
-	version(LDC){
+public void alphaBlend32bit(uint* src, uint* dest, uint* dest1, size_t length, uint* mask) @nogc pure nothrow {
+	static if(USE_INTEL_INTRINSICS){
 		while(length >= 4){
 			__m128i src0 = _mm_loadu_si128(cast(__m128i*)src);
 			__m128i dest0 = _mm_loadu_si128(cast(__m128i*)dest);
@@ -395,7 +398,7 @@ public @nogc void alphaBlend32bit(uint* src, uint* dest, uint* dest1, size_t len
 			*cast(int*)dest1 = _mm_cvtsi128_si32(_mm_packus_epi16(src_lo, SSE2_NULLVECT));
 		}
 	}else{
-		for(int i ; i < length ; i++){
+		/+for(int i ; i < length ; i++){
 			switch(mask.AlphaMask.value){
 				case 0: 
 					break;
@@ -414,20 +417,20 @@ public @nogc void alphaBlend32bit(uint* src, uint* dest, uint* dest1, size_t len
 			dest++;
 			dest1++;
 			mask++;
-		}
+		}+/
 	}
 }
 /**
  * Copies a 32bit image onto another without blitter. No transparency is used. Dest and mask is placeholder.
  */
-public @nogc void copy32bit(uint* src, uint* dest, uint* dest1, size_t length, uint* mask){
+public void copy32bit(uint* src, uint* dest, uint* dest1, size_t length, uint* mask) @nogc pure nothrow {
 	copy32bit(src,dest1,length);
 }
 /**
  * Text blitter, mainly intended for single color texts, can work in other applications as long as they're correctly formatted,
  * meaning: transparent pixels = 0, colored pixels = T.max 
  */
-public @nogc void textBlitter(T)(T* src, T* dest, size_t length, T color){
+public void textBlitter(T)(T* src, T* dest, size_t length, T color) @nogc pure nothrow {
 	static if(USE_INTEL_INTRINSICS){
 		static if(T.stringof == "ubyte"){
 			__vector(ubyte[16]) colorV;
@@ -523,7 +526,7 @@ public @nogc void textBlitter(T)(T* src, T* dest, size_t length, T color){
  * Text blitter, mainly intended for single color texts, can work in other applications as long as they're correctly formatted,
  * meaning: transparent pixels = 0, colored pixels = T.max 
  */
-public @nogc void textBlitter(T)(T* src, T* dest, T* dest1, size_t length, T color){
+public void textBlitter(T)(T* src, T* dest, T* dest1, size_t length, T color) @nogc pure nothrow {
 	static if(USE_INTEL_INTRINSICS){
 		static if(T.stringof == "ubyte"){
 			__vector(ubyte[16]) colorV;
@@ -625,7 +628,7 @@ public @nogc void textBlitter(T)(T* src, T* dest, T* dest1, size_t length, T col
  * dest = src | (dest & mask) => mask = src ? 0 : T.max.
  * On 32 bit images, it's sufficent to have only the alpha channel set to zero.
  */
-public @nogc void blitter(T)(T* src, T* dest, size_t length){
+public void blitter(T)(T* src, T* dest, size_t length) @nogc pure nothrow {
 	static if(USE_INTEL_INTRINSICS){
 		static if(T.stringof == "ubyte"){
 			static enum MAINLOOP_LENGTH = 16;
@@ -716,7 +719,7 @@ public @nogc void blitter(T)(T* src, T* dest, size_t length){
  * dest1 = src | (dest & mask) => mask = src ? 0 : T.max.
  * On 32 bit images, it's sufficent to have only the alpha channel set to zero.
  */
-public @nogc void blitter(T)(T* src, T* dest, T* dest1, size_t length){
+public void blitter(T)(T* src, T* dest, T* dest1, size_t length) @nogc pure nothrow {
 	static if(USE_INTEL_INTRINSICS){
 		static if(T.stringof == "ubyte"){
 			static enum MAINLOOP_LENGTH = 16;
@@ -811,7 +814,7 @@ public @nogc void blitter(T)(T* src, T* dest, T* dest1, size_t length){
  * Blitter function. Composes an image onto another (per line) with transparency using the logical function of:
  * dest1 = src | (dest & mask).
  */
-public @nogc void blitter(T)(T* src, T* dest, T* dest1, size_t length, T* mask){
+public void blitter(T)(T* src, T* dest, T* dest1, size_t length, T* mask) @nogc pure nothrow {
 	static if(USE_INTEL_INTRINSICS){
 		static if(T.stringof == "ubyte"){
 			static enum MAINLOOP_LENGTH = 16;
@@ -893,7 +896,7 @@ public @nogc void blitter(T)(T* src, T* dest, T* dest1, size_t length, T* mask){
  * Blitter function. Composes an image onto another (per line) with transparency using the logical function of:
  * dest1 = src | (dest & mask).
  */
-public @nogc void blitter(T)(T* src, T* dest,  size_t length, T* mask){
+public void blitter(T)(T* src, T* dest,  size_t length, T* mask) @nogc pure nothrow {
 	static if(USE_INTEL_INTRINSICS){
 		static if(T.stringof == "ubyte"){
 			static enum MAINLOOP_LENGTH = 16;
@@ -977,22 +980,24 @@ public @nogc void blitter(T)(T* src, T* dest,  size_t length, T* mask){
 public @nogc void xorBlitter(T)(T* dest, T* dest1, size_t length, T color){
 	static if(USE_INTEL_INTRINSICS){
 		static if(T.stringof == "ubyte"){
-			__vector(ubyte[16]) colorV = [color, color, color, color, color, color, color, color, color, color, color, color, 
-					color, color, color, color];
+			__vector(ubyte[16]) colorV;
 			static enum MAINLOOP_LENGTH = 16;
 			static enum HALFLOAD_LENGTH = 8;
 			static enum QUTRLOAD_LENGTH = 4;
 		}else static if(T.stringof == "ushort"){
-			__vector(ushort[8]) colorV = [color, color, color, color, color, color, color, color];
+			__vector(ushort[8]) colorV;
 			static enum MAINLOOP_LENGTH = 8;
 			static enum HALFLOAD_LENGTH = 4;
 			static enum QUTRLOAD_LENGTH = 2;
 		}else static if(T.stringof == "uint"){
-			__vector(uint[4]) colorV = [color, color, color, color];
+			__vector(uint[4]) colorV;
 			static enum MAINLOOP_LENGTH = 4;
 			static enum HALFLOAD_LENGTH = 2;
 			static enum QUTRLOAD_LENGTH = 1;
 		}else static assert(0, "Template parameter '"~ T.stringof ~"' not supported!");
+		for (int i ; i < colorV.length ; i++){
+			colorV[i] = color;
+		}
 		while(length >= MAINLOOP_LENGTH){
 			__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
 			destV = _mm_xor_si128(destV, colorV);
@@ -1043,25 +1048,27 @@ public @nogc void xorBlitter(T)(T* dest, T* dest1, size_t length, T color){
 /**
  * XOR blitter. Popularly used for selection and pseudo-transparency.
  */
-public @nogc void xorBlitter(T)(T* dest, size_t length, T color){
+public void xorBlitter(T)(T* dest, size_t length, T color) @nogc pure nothrow {
 	static if(USE_INTEL_INTRINSICS){
 		static if(T.stringof == "ubyte"){
-			__vector(ubyte[16]) colorV = [color, color, color, color, color, color, color, color, color, color, color, color, 
-					color, color, color, color];
+			__vector(ubyte[16]) colorV;
 			static enum MAINLOOP_LENGTH = 16;
 			static enum HALFLOAD_LENGTH = 8;
 			static enum QUTRLOAD_LENGTH = 4;
 		}else static if(T.stringof == "ushort"){
-			__vector(ushort[8]) colorV = [color, color, color, color, color, color, color, color];
+			__vector(ushort[8]) colorV;
 			static enum MAINLOOP_LENGTH = 8;
 			static enum HALFLOAD_LENGTH = 4;
 			static enum QUTRLOAD_LENGTH = 2;
 		}else static if(T.stringof == "uint"){
-			__vector(uint[4]) colorV = [color, color, color, color];
+			__vector(uint[4]) colorV;
 			static enum MAINLOOP_LENGTH = 4;
 			static enum HALFLOAD_LENGTH = 2;
 			static enum QUTRLOAD_LENGTH = 1;
 		}else static assert(0, "Template parameter '"~ T.stringof ~"' not supported!");
+		for (int i ; i < colorV.length ; i++){
+			colorV[i] = color;
+		}
 		while(length >= MAINLOOP_LENGTH){
 			__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
 			destV = _mm_xor_si128(destV, colorV);
@@ -1104,7 +1111,148 @@ public @nogc void xorBlitter(T)(T* dest, size_t length, T color){
 		}
 	}
 }
-unittest{
+/**
+ * XOR blitter. Popularly used for selection and pseudo-transparency.
+ */
+public void xorBlitter(T)(T* src, T* dest, size_t length) @nogc pure nothrow {
+	static if(USE_INTEL_INTRINSICS){
+		static if(T.stringof == "ubyte"){
+			static enum MAINLOOP_LENGTH = 16;
+			static enum HALFLOAD_LENGTH = 8;
+			static enum QUTRLOAD_LENGTH = 4;
+		}else static if(T.stringof == "ushort"){
+			static enum MAINLOOP_LENGTH = 8;
+			static enum HALFLOAD_LENGTH = 4;
+			static enum QUTRLOAD_LENGTH = 2;
+		}else static if(T.stringof == "uint"){
+			static enum MAINLOOP_LENGTH = 4;
+			static enum HALFLOAD_LENGTH = 2;
+			static enum QUTRLOAD_LENGTH = 1;
+		}else static assert(0, "Template parameter '"~ T.stringof ~"' not supported!");
+		while(length >= MAINLOOP_LENGTH){
+			__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
+			__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
+			destV = _mm_xor_si128(destV, srcV);
+			_mm_storeu_si128(cast(__m128i*)dest, destV);
+			dest += MAINLOOP_LENGTH;
+			src += MAINLOOP_LENGTH;
+			length -= MAINLOOP_LENGTH;
+		}
+		if(length >= HALFLOAD_LENGTH){
+			__m128i srcV = _mm_loadl_epi64(cast(__m64*)src);
+			__m128i destV = _mm_loadl_epi64(cast(__m64*)dest);
+			destV = _mm_xor_si128(destV, srcV);
+			_mm_storel_epi64(cast(__m64*)dest, destV);
+			dest += HALFLOAD_LENGTH;
+			src += HALFLOAD_LENGTH;
+			length -= HALFLOAD_LENGTH;
+		}
+		if(length >= QUTRLOAD_LENGTH){
+			__m128i srcV = _mm_cvtsi32_si128((*cast(int*)src));
+			__m128i destV = _mm_cvtsi32_si128((*cast(int*)dest));
+			destV = _mm_xor_si128(destV, srcV);
+			*cast(int*)dest = _mm_cvtsi128_si32(destV);
+			static if(T.stringof != "uint"){
+				dest += QUTRLOAD_LENGTH;
+				src += QUTRLOAD_LENGTH;
+				length -= QUTRLOAD_LENGTH;
+			}
+		}
+		static if(T.stringof == "ubyte"){
+			while(length){
+				*dest = *src ^ *dest;
+				dest++;
+				src++;
+				length--;
+			}
+		}else static if(T.stringof == "ushort"){
+			if(length){
+				*dest = *src ^ *dest;
+			}
+		}
+	}else{
+		while(length){
+			*dest = *src ^ *dest;
+			dest++;
+			src++;
+			length--;
+		}
+	}
+}
+/**
+ * XOR blitter. Popularly used for selection and pseudo-transparency.
+ */
+public void xorBlitter(T)(T* src, T* dest, T* dest1, size_t length) @nogc pure nothrow {
+	static if(USE_INTEL_INTRINSICS){
+		static if(T.stringof == "ubyte"){
+			static enum MAINLOOP_LENGTH = 16;
+			static enum HALFLOAD_LENGTH = 8;
+			static enum QUTRLOAD_LENGTH = 4;
+		}else static if(T.stringof == "ushort"){
+			static enum MAINLOOP_LENGTH = 8;
+			static enum HALFLOAD_LENGTH = 4;
+			static enum QUTRLOAD_LENGTH = 2;
+		}else static if(T.stringof == "uint"){
+			static enum MAINLOOP_LENGTH = 4;
+			static enum HALFLOAD_LENGTH = 2;
+			static enum QUTRLOAD_LENGTH = 1;
+		}else static assert(0, "Template parameter '"~ T.stringof ~"' not supported!");
+		while(length >= MAINLOOP_LENGTH){
+			__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
+			__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
+			destV = _mm_xor_si128(destV, srcV);
+			_mm_storeu_si128(cast(__m128i*)dest1, destV);
+			dest += MAINLOOP_LENGTH;
+			dest1 += MAINLOOP_LENGTH;
+			src += MAINLOOP_LENGTH;
+			length -= MAINLOOP_LENGTH;
+		}
+		if(length >= HALFLOAD_LENGTH){
+			__m128i srcV = _mm_loadl_epi64(cast(__m64*)src);
+			__m128i destV = _mm_loadl_epi64(cast(__m64*)dest);
+			destV = _mm_xor_si128(destV, srcV);
+			_mm_storel_epi64(cast(__m64*)dest1, destV);
+			dest += HALFLOAD_LENGTH;
+			dest1 += HALFLOAD_LENGTH;
+			src += HALFLOAD_LENGTH;
+			length -= HALFLOAD_LENGTH;
+		}
+		if(length >= QUTRLOAD_LENGTH){
+			__m128i srcV = _mm_cvtsi32_si128((*cast(int*)src));
+			__m128i destV = _mm_cvtsi32_si128((*cast(int*)dest));
+			destV = _mm_xor_si128(destV, srcV);
+			*cast(int*)dest1 = _mm_cvtsi128_si32(destV);
+			static if(T.stringof != "uint"){
+				dest += QUTRLOAD_LENGTH;
+				dest1 += QUTRLOAD_LENGTH;
+				src += QUTRLOAD_LENGTH;
+				length -= QUTRLOAD_LENGTH;
+			}
+		}
+		static if(T.stringof == "ubyte"){
+			while(length){
+				*dest = *src ^ *dest;
+				dest++;
+				dest1++;
+				src++;
+				length--;
+			}
+		}else static if(T.stringof == "ushort"){
+			if(length){
+				*dest1 = *src ^ *dest;
+			}
+		}
+	}else{
+		while(length){
+			*dest = *src ^ *dest;
+			dest++;
+			dest1++;
+			src++;
+			length--;
+		}
+	}
+}
+@nogc pure nothrow unittest {
 	uint[256] a, b;
 	ushort[256] c, d;
 	ubyte[256] e, f;
@@ -1127,4 +1275,7 @@ unittest{
 	textBlitter(c.ptr, d.ptr, d.ptr, 255, cast(ubyte)50);
 	textBlitter(e.ptr, f.ptr, 255, 50);
 	textBlitter(e.ptr, f.ptr, f.ptr, 255, 50);
+
+	xorBlitter(a.ptr, b.ptr, 255, a[0]);
+	xorBlitter(a.ptr, 255, a[0]);
 }

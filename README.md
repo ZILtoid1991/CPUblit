@@ -22,3 +22,7 @@ recommended if the images have size mismatch.
 * Add functions for RLE compression and decompression.
 * Add higher-level functions and types (might introduce external dependencies).
 * More testing.
+
+# Known issues
+
+DMD for x86-64 targets treats vector optimization features differently from LDC. This will be fixed in the near future.

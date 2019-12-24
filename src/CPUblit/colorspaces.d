@@ -64,23 +64,23 @@ union Pixel32Bit{
 	@nogc struct ColorSpaceARGB{
 		ubyte[4] colors;	///Normal representation, aliases are used for color naming.
 		version(LittleEndian){
-			public @property @nogc ubyte alpha(){ return colors[0]; }
-			public @property @nogc ubyte red(){ return colors[1]; }
-			public @property @nogc ubyte green(){ return colors[2]; }
-			public @property @nogc ubyte blue(){ return colors[3]; }
-			public @property @nogc ubyte alpha(ubyte value){ return colors[0] = value; }
-			public @property @nogc ubyte red(ubyte value){ return colors[1] = value; }
-			public @property @nogc ubyte green(ubyte value){ return colors[2] = value; }
-			public @property @nogc ubyte blue(ubyte value){ return colors[3] = value; }
+			public @property @nogc nothrow pure ubyte alpha(){ return colors[0]; }
+			public @property @nogc nothrow pure ubyte red(){ return colors[1]; }
+			public @property @nogc nothrow pure ubyte green(){ return colors[2]; }
+			public @property @nogc nothrow pure ubyte blue(){ return colors[3]; }
+			public @property @nogc nothrow pure ubyte alpha(ubyte value){ return colors[0] = value; }
+			public @property @nogc nothrow pure ubyte red(ubyte value){ return colors[1] = value; }
+			public @property @nogc nothrow pure ubyte green(ubyte value){ return colors[2] = value; }
+			public @property @nogc nothrow pure ubyte blue(ubyte value){ return colors[3] = value; }
 		}else{
-			public @property @nogc ubyte alpha(){ return colors[3]; }
-			public @property @nogc ubyte red(){ return colors[2]; }
-			public @property @nogc ubyte green(){ return colors[1]; }
-			public @property @nogc ubyte blue(){ return colors[0]; }
-			public @property @nogc ubyte alpha(ubyte value){ return colors[3] = value; }
-			public @property @nogc ubyte red(ubyte value){ return colors[2] = value; }
-			public @property @nogc ubyte green(ubyte value){ return colors[1] = value; }
-			public @property @nogc ubyte blue(ubyte value){ return colors[0] = value; }
+			public @property @nogc nothrow pure ubyte alpha(){ return colors[3]; }
+			public @property @nogc nothrow pure ubyte red(){ return colors[2]; }
+			public @property @nogc nothrow pure ubyte green(){ return colors[1]; }
+			public @property @nogc nothrow pure ubyte blue(){ return colors[0]; }
+			public @property @nogc nothrow pure ubyte alpha(ubyte value){ return colors[3] = value; }
+			public @property @nogc nothrow pure ubyte red(ubyte value){ return colors[2] = value; }
+			public @property @nogc nothrow pure ubyte green(ubyte value){ return colors[1] = value; }
+			public @property @nogc nothrow pure ubyte blue(ubyte value){ return colors[0] = value; }
 		}
 		@nogc this(ubyte red, ubyte green, ubyte blue, ubyte alpha){
 			this.red = red;
