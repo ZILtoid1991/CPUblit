@@ -1,9 +1,9 @@
-module CPUblit.composing;
+module CPUblit.oldcomposing;
 
 import CPUblit.colorspaces;
 import CPUblit.system;
 
-/**
+/*
  * CPUblit
  * Low-level image composing functions
  * Author: Laszlo Szeremi
@@ -14,12 +14,13 @@ import CPUblit.system;
  * Where it was possible I implemented vector support. Due to various quirks I needed (such as the ability of load unaligned values, and load less than 128/64bits), I often 
  * had to rely on assembly. As the functions themselves aren't too complicated it wasn't an impossible task, but makes debugging time-consuming.
  * See specific functions for more information. 
+ *
+ * This file is deprecated as of now. Will be left here for backwards compatibility reasons, newer ones will use separate files for certain things.
  */
 
 //import core.simd;
 static if (USE_INTEL_INTRINSICS) {
 	import inteli.emmintrin;
-	//import ldc.simd;
 	package immutable __m128i SSE2_NULLVECT;
 	package immutable __vector(ushort[8]) ALPHABLEND_SSE2_CONST1 = [1,1,1,1,1,1,1,1];
 	package immutable __vector(ushort[8]) ALPHABLEND_SSE2_CONST256 = [256,256,256,256,256,256,256,256];
@@ -112,9 +113,9 @@ public void alphaBlend32bit(uint* src, uint* dest, size_t length) @nogc pure not
 				default:
 					const int src1 = 1 + lsrc.ColorSpaceARGB.alpha;
 					const int src256 = 256 - lsrc.ColorSpaceARGB.alpha;
-					ldest.ColorSpaceARGB.red = cast(ubyte)((lsrc.ColorSpaceARGB.red * src1 + ldest.ColorSpaceARGB.red * src256)>>8);
-					ldest.ColorSpaceARGB.green = cast(ubyte)((lsrc.ColorSpaceARGB.green * src1 + ldest.ColorSpaceARGB.green * src256)>>8);
-					ldest.ColorSpaceARGB.blue = cast(ubyte)((lsrc.ColorSpaceARGB.blue * src1 + ldest.ColorSpaceARGB.blue * src256)>>8);
+					ldest.ColorSpaceARGB.red = cast(ubyte)((lsrc.ColorSpaceARGB.red * src1 + ldest.ColorSpaceARGB.red * src256)>>>8);
+					ldest.ColorSpaceARGB.green = cast(ubyte)((lsrc.ColorSpaceARGB.green * src1 + ldest.ColorSpaceARGB.green * src256)>>>8);
+					ldest.ColorSpaceARGB.blue = cast(ubyte)((lsrc.ColorSpaceARGB.blue * src1 + ldest.ColorSpaceARGB.blue * src256)>>>8);
 					break;
 			}
 			src++;
@@ -198,25 +199,7 @@ public void alphaBlend32bit(uint* src, uint* dest, size_t length, uint* mask) @n
 			*cast(int*)dest = _mm_cvtsi128_si32(_mm_packus_epi16(src_lo, SSE2_NULLVECT));
 		}
 	}else{
-		/+for(int i ; i < length ; i++){
-			switch(mask.AlphaMask.value){
-				case 0: 
-					break;
-				case 255: 
-					dest = src;
-					break;
-				default:
-					int src1 = 1 + mask.AlphaMask.value;
-					int src256 = 256 - mask.AlphaMask.value;
-					dest.ColorSpaceARGB.red = cast(ubyte)((src.ColorSpaceARGB.red * src1 + dest.ColorSpaceARGB.red * src256)>>8);
-					dest.ColorSpaceARGB.green = cast(ubyte)((src.ColorSpaceARGB.green * src1 + dest.ColorSpaceARGB.green * src256)>>8);
-					dest.ColorSpaceARGB.blue = cast(ubyte)((src.ColorSpaceARGB.blue * src1 + dest.ColorSpaceARGB.blue * src256)>>8);
-					break;
-			}
-			src++;
-			dest++;
-			mask++;
-		}+/
+		
 	}
 }
 /**

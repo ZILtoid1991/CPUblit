@@ -1,11 +1,9 @@
 module CPUblit.system;
 
 /*
- * Notes on MMX support (TODO):
- * <ul>
- * <li>This feature is solely intended for legacy purposes on older x86 processors that don't have the SSE2 extension. In any other case, use regular mode.</ li>
- * <li>This feature only works with the LDC compiler, as it relies on intel intrinsics.</ li>
- * </ ul>
+ * MMX Support is not yet implemented, and likely will be abandoned.
+ *
+ * ARM targets will use Intel intrinsics emulation as long as there won't be any performance penalties from it.
  */
 version(X86) {
 	version(LDC) {
@@ -30,8 +28,16 @@ version(X86) {
 		static enum bool USE_DMD_INTRINSICS = true;
 	else
 		static enum bool USE_DMD_INTRINSICS = false;
-	
-} else {	///TODO: Add ARM NEON support
+} else version(ARM) {
+	//Must be LDC!
+	static enum bool USE_MMX = false;
+	static enum bool USE_INTEL_INTRINSICS = true;
+	static enum bool USE_DMD_INTRINSICS = false;
+} else version(AArch64) {
+	static enum bool USE_MMX = false;
+	static enum bool USE_INTEL_INTRINSICS = true;
+	static enum bool USE_DMD_INTRINSICS = false;
+} else {
 	static enum bool USE_MMX = false;
 	static enum bool USE_INTEL_INTRINSICS = false;
 	static enum bool USE_DMD_INTRINSICS = false;
