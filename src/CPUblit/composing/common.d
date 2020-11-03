@@ -23,8 +23,8 @@ package immutable short8 ALPHABLEND_SSE2_CONST256 = [256,256,256,256,256,256,256
 version (unittest) {
 	void testArrayForZeros(T)(T[] input) @safe {
 		import std.conv : to;
-	  foreach (size_t pos, T val ; input) {
-		 assert(!val, "Error at position " ~ to!string(pos));
-	  }
+		foreach (size_t pos, T val ; input) {
+			assert(!val, "Error at position " ~ to!string(pos));
+		}
    }
 }
