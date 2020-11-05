@@ -1,4 +1,5 @@
 # CPUblit
+
 Drawing and image composing library.
 
 # Description
@@ -10,8 +11,8 @@ Drawing and image composing library.
 
 Add this library to your project's dependency via dub or your chosen IDE.
 
-Currently most functions are very low-level, so experience with pointers is recommended. Per-line approach for composing is
-recommended if the images have size mismatch.
+Currently most functions are very low-level, so experience with pointers is recommended. This is to make vector optimizations
+easier, and pointers will be hidden in higher-level functions.
 
 ## Composing function operator legends
 
@@ -23,13 +24,38 @@ recommended if the images have size mismatch.
 transparency, amount, etc.
 * color/value: Sets a fix amount for a given composition.
 
+## Composing function code example
+
+Many composing functions are semi-interchangeable with virtual function calls.
+
+```d
+alias cmpFunc = void function(uint*, uint* size_t) @nogc pure nothrow;
+```
+
+The recommended solution for composing two images with different sizes is a per-line approach:
+
+```d
+for (int i ; i < lineNum ; i++) {
+    alphaBlend32bit(src + i * srcPitch, dest + i * destPitch, lineLength);
+}
+```
+
+## General guidelines
+
+* Memory allocation will cause performance drop. To avoid it, use pre-allocated destinations. This is also the reason
+why the functions don't return either an array of result, or a pointer to it.
+* As of now, GC allocation have very minimal or no performance impact compared to using manual C-style ones. However
+GC allocation have the advantage of better memory safety. However it's recommended to use `@nogc` labels on functions
+where GC allocation is not needed.
+* Use of LDC2 is recommended over DMD due to it's better performance.
+
 # To do list
 
-* Fix non-x86 and x86-64 targets.
 * Add optimization for ARM Neon. (partly done)
 * Make a GPGPU based variant called GPUblit with either D-Compute, CUDA, and/or OpenCL.
 * Add functions for RLE compression and decompression.
 * Add higher-level functions and types.
+* Add ability of running it in betterC mode with limitations.
 * More testing.
 
 # Known issues
