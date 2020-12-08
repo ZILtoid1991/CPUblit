@@ -67,7 +67,7 @@ public void textBlitter(T)(T* src, T* dest, size_t length, T color) @nogc pure n
 			else static if(T.stringof == "uint")
 				__m128i mask = _mm_cmpeq_epi32(srcV, SSE2_NULLVECT);
 			destV = srcV | (destV & mask);
-			*cast(int*)dest = _mm_cvtsi128_si32(destV);
+			_mm_storeu_si32(dest, destV);
 			static if(T.stringof != "uint"){
 				src += QUTRLOAD_LENGTH;
 				dest += QUTRLOAD_LENGTH;
@@ -165,7 +165,7 @@ public void textBlitter(T)(T* src, T* dest, T* dest0, size_t length, T color) @n
 			else static if(T.stringof == "uint")
 				__m128i mask = _mm_cmpeq_epi32(srcV, SSE2_NULLVECT);
 			destV = srcV | (destV & mask);
-			*cast(int*)dest0 = _mm_cvtsi128_si32(destV);
+			_mm_storeu_si32(dest0, destV);
 			static if(T.stringof != "uint"){
 				src += QUTRLOAD_LENGTH;
 				dest += QUTRLOAD_LENGTH;
@@ -242,7 +242,7 @@ public @nogc void xorBlitter(T)(T* dest, T* dest0, size_t length, T color){
 		if(length >= QUTRLOAD_LENGTH){
 			__m128i destV = _mm_cvtsi32_si128((*cast(int*)dest));
 			destV = _mm_xor_si128(destV, colorV);
-			*cast(int*)dest0 = _mm_cvtsi128_si32(destV);
+			_mm_storeu_si32(dest0, destV);
 			static if(T.stringof != "uint"){
 				dest += QUTRLOAD_LENGTH;
 				dest0 += QUTRLOAD_LENGTH;
@@ -310,7 +310,7 @@ public void xorBlitter(T)(T* dest, size_t length, T color) @nogc pure nothrow {
 	if(length >= QUTRLOAD_LENGTH){
 		__m128i destV = _mm_cvtsi32_si128((*cast(int*)dest));
 		destV = _mm_xor_si128(destV, colorV);
-		*cast(int*)dest = _mm_cvtsi128_si32(destV);
+		_mm_storeu_si32(dest, destV);
 		static if(T.stringof != "uint"){
 			dest += QUTRLOAD_LENGTH;
 			length -= QUTRLOAD_LENGTH;
@@ -368,7 +368,7 @@ public void xorBlitter(T)(T* src, T* dest, size_t length) @nogc pure nothrow {
 		__m128i srcV = _mm_cvtsi32_si128((*cast(int*)src));
 		__m128i destV = _mm_cvtsi32_si128((*cast(int*)dest));
 		destV = _mm_xor_si128(destV, srcV);
-		*cast(int*)dest = _mm_cvtsi128_si32(destV);
+		_mm_storeu_si32(dest, destV);
 		static if(T.stringof != "uint"){
 			dest += QUTRLOAD_LENGTH;
 			src += QUTRLOAD_LENGTH;
@@ -429,7 +429,7 @@ public void xorBlitter(T)(T* src, T* dest, T* dest0, size_t length) @nogc pure n
 		__m128i srcV = _mm_cvtsi32_si128((*cast(int*)src));
 		__m128i destV = _mm_cvtsi32_si128((*cast(int*)dest));
 		destV = _mm_xor_si128(destV, srcV);
-		*cast(int*)dest0 = _mm_cvtsi128_si32(destV);
+		_mm_storeu_si32(dest0, destV);
 		static if(T.stringof != "uint"){
 			dest += QUTRLOAD_LENGTH;
 			dest0 += QUTRLOAD_LENGTH;
@@ -457,46 +457,46 @@ unittest {
     {
         ubyte[255] a, b, c;
         textBlitter(a.ptr, b.ptr, 255, 0);
-        testArrayForZeros(b);
+        testArrayForValue(b);
         textBlitter(a.ptr, b.ptr, c.ptr, 255, 0);
-        testArrayForZeros(c);
+        testArrayForValue(c);
         xorBlitter(a.ptr, b.ptr, 255);
-        testArrayForZeros(b);
+        testArrayForValue(b);
         xorBlitter(a.ptr, b.ptr, c.ptr, 255);
-        testArrayForZeros(c);
+        testArrayForValue(c);
         xorBlitter(b.ptr, 255, 0);
-        testArrayForZeros(b);
+        testArrayForValue(b);
         xorBlitter(b.ptr, c.ptr, 255, 0);
-        testArrayForZeros(c);
+        testArrayForValue(c);
     }
     {
         ushort[255] a, b, c;
         textBlitter(a.ptr, b.ptr, 255, 0);
-        testArrayForZeros(b);
+        testArrayForValue(b);
         textBlitter(a.ptr, b.ptr, c.ptr, 255, 0);
-        testArrayForZeros(c);
+        testArrayForValue(c);
         xorBlitter(a.ptr, b.ptr, 255);
-        testArrayForZeros(b);
+        testArrayForValue(b);
         xorBlitter(a.ptr, b.ptr, c.ptr, 255);
-        testArrayForZeros(c);
+        testArrayForValue(c);
         xorBlitter(b.ptr, 255, 0);
-        testArrayForZeros(b);
+        testArrayForValue(b);
         xorBlitter(b.ptr, c.ptr, 255, 0);
-        testArrayForZeros(c);
+        testArrayForValue(c);
     }
     {
         uint[255] a, b, c;
         textBlitter(a.ptr, b.ptr, 255, 0);
-        testArrayForZeros(b);
+        testArrayForValue(b);
         textBlitter(a.ptr, b.ptr, c.ptr, 255, 0);
-        testArrayForZeros(c);
+        testArrayForValue(c);
         xorBlitter(a.ptr, b.ptr, 255);
-        testArrayForZeros(b);
+        testArrayForValue(b);
         xorBlitter(a.ptr, b.ptr, c.ptr, 255);
-        testArrayForZeros(c);
+        testArrayForValue(c);
         xorBlitter(b.ptr, 255, 0);
-        testArrayForZeros(b);
+        testArrayForValue(b);
         xorBlitter(b.ptr, c.ptr, 255, 0);
-        testArrayForZeros(c);
+        testArrayForValue(c);
     }
 }

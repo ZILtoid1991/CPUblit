@@ -12,7 +12,7 @@ import core.stdc.string : memcpy;
  * These functions are using memcpy as their backend, so these should use whatever is the most efficient on your target.
  */
 
-@nogc pure nothrow:
+@nogc pure nothrow {
 	/**
 	 * 2 operator copy function.
 	 */
@@ -29,15 +29,100 @@ import core.stdc.string : memcpy;
 	 * 3 operator copy function.
 	 */
 	void copy(T)(T* src, T* dest, T* dest0, size_t length) {
-		memcpy(dest1, src, length * T.sizeof);
+		memcpy(dest0, src, length * T.sizeof);
 	}
 	/**
 	 * 4 operator copy function.
 	 */
 	void copy(T,M)(T* src, T* dest, T* dest0, size_t length, M* mask) {
-		memcpy(dest1, src, length * T.sizeof);
+		memcpy(dest0, src, length * T.sizeof);
 	}
+	/**
+	 * 2 operator copy function with dummy master value.
+	 */
+	void copyMV(T)(T* src, T* dest, size_t length, ubyte value) {
+		memcpy(dest, src, length * T.sizeof);
+	}
+	/**
+	 * 3 operator copy function with dummy master value.
+	 */
+	void copyMV(T,M)(T* src, T* dest, size_t length, M* mask, ubyte value) {
+		memcpy(dest, src, length * T.sizeof);
+	}
+	/**
+	 * 3 operator copy function with dummy master value.
+	 */
+	void copyMV(T)(T* src, T* dest, T* dest0, size_t length, ubyte value) {
+		memcpy(dest0, src, length * T.sizeof);
+	}
+	/**
+	 * 4 operator copy function with dummy master value.
+	 */
+	void copyMV(T,M)(T* src, T* dest, T* dest0, size_t length, M* mask, ubyte value) {
+		memcpy(dest0, src, length * T.sizeof);
+	}
+}
 
-	unittest {
-		
+unittest {
+	void testfunc(T)(){
+		{
+			T[255] a, b;
+			copy(a.ptr, b.ptr, 255);
+			foreach (T val ; b) {
+				assert(!val);
+			}
+			foreach (ref T val ; a) {
+				val = T.max;
+			}
+			copy(a.ptr, b.ptr, 255);
+			foreach (T val ; b) {
+				assert(val == T.max);
+			}
+		}
+		{
+			T[255] a, b;
+			copy(a.ptr, b.ptr, b.ptr, 255);
+			foreach (T val ; b) {
+				assert(!val);
+			}
+			foreach (ref T val ; a) {
+				val = T.max;
+			}
+			copy(a.ptr, b.ptr, b.ptr, 255);
+			foreach (T val ; b) {
+				assert(val == T.max);
+			}
+		}
+		/+{
+			T[255] a, b;
+			copy(a.ptr, b.ptr, 255, null);
+			foreach (T val ; b) {
+				assert(!val);
+			}
+			foreach (ref T val ; a) {
+				val = T.max;
+			}
+			copy(a.ptr, b.ptr, 255, null);
+			foreach (T val ; b) {
+				assert(val == T.max);
+			}
+		}
+		{
+			T[255] a, b;
+			copy(a.ptr, b.ptr, b.ptr, 255, null);
+			foreach (T val ; b) {
+				assert(!val);
+			}
+			foreach (ref T val ; a) {
+				val = T.max;
+			}
+			copy(a.ptr, b.ptr, b.ptr, 255, null);
+			foreach (T val ; b) {
+				assert(val == T.max);
+			}
+		}+/
 	}
+	testfunc!ubyte();
+	testfunc!ushort();
+	testfunc!uint();
+}

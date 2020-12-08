@@ -30,7 +30,7 @@ import CPUblit.composing.common;
 			else static if(is(T == ushort))
 				__m128i maskV = _mm_cmpeq_epi16(srcV, SSE2_NULLVECT);
 			else static if(is(T == uint))
-				__m128i maskV = _mm_cmpeq_epi32(srcV & cast(__m128i)ALPHABLEND_SSE2_MASK, SSE2_NULLVECT);
+				__m128i maskV = _mm_cmpeq_epi32(srcV & cast(__m128i)ALPHABLEND_SSE2_AMASK, SSE2_NULLVECT);
 			destV = srcV | (destV & maskV);
 			_mm_storeu_si128(cast(__m128i*)dest, destV);
 			src += MAINLOOP_LENGTH;
@@ -45,7 +45,7 @@ import CPUblit.composing.common;
 			else static if(is(T == ushort))
 				__m128i maskV = _mm_cmpeq_epi16(srcV, SSE2_NULLVECT);
 			else static if(is(T == uint))
-				__m128i maskV = _mm_cmpeq_epi32(srcV & cast(__m128i)ALPHABLEND_SSE2_MASK, SSE2_NULLVECT);
+				__m128i maskV = _mm_cmpeq_epi32(srcV & cast(__m128i)ALPHABLEND_SSE2_AMASK, SSE2_NULLVECT);
 			destV = srcV | (destV & maskV);
 			_mm_storel_epi64(cast(__m128i*)dest, destV);
 			src += HALFLOAD_LENGTH;
@@ -60,9 +60,9 @@ import CPUblit.composing.common;
 			else static if(is(T == ushort))
 				__m128i maskV = _mm_cmpeq_epi16(srcV, SSE2_NULLVECT);
 			else static if(is(T == uint))
-				__m128i maskV = _mm_cmpeq_epi32(srcV & cast(__m128i)ALPHABLEND_SSE2_MASK, SSE2_NULLVECT);
+				__m128i maskV = _mm_cmpeq_epi32(srcV & cast(__m128i)ALPHABLEND_SSE2_AMASK, SSE2_NULLVECT);
 			destV = srcV | (destV & maskV);
-			*cast(int*)dest = _mm_cvtsi128_si32(destV);
+			_mm_storeu_si32(dest, destV);
 			static if(!is(T == uint)){
 				src += QUTRLOAD_LENGTH;
 				dest += QUTRLOAD_LENGTH;
@@ -97,7 +97,7 @@ import CPUblit.composing.common;
 			else static if(is(T == ushort))
 				__m128i maskV = _mm_cmpeq_epi16(srcV, SSE2_NULLVECT);
 			else static if(is(T == uint))
-				__m128i maskV = _mm_cmpeq_epi32(srcV & cast(__m128i)ALPHABLEND_SSE2_MASK, SSE2_NULLVECT);
+				__m128i maskV = _mm_cmpeq_epi32(srcV & cast(__m128i)ALPHABLEND_SSE2_AMASK, SSE2_NULLVECT);
 			destV = srcV | (destV & maskV);
 			_mm_storeu_si128(cast(__m128i*)dest0, destV);
 			src += MAINLOOP_LENGTH;
@@ -113,7 +113,7 @@ import CPUblit.composing.common;
 			else static if(is(T == ushort))
 				__m128i maskV = _mm_cmpeq_epi16(srcV, SSE2_NULLVECT);
 			else static if(is(T == uint))
-				__m128i maskV = _mm_cmpeq_epi32(srcV & cast(__m128i)ALPHABLEND_SSE2_MASK, SSE2_NULLVECT);
+				__m128i maskV = _mm_cmpeq_epi32(srcV & cast(__m128i)ALPHABLEND_SSE2_AMASK, SSE2_NULLVECT);
 			destV = srcV | (destV & maskV);
 			_mm_storel_epi64(cast(__m128i*)dest0, destV);
 			src += HALFLOAD_LENGTH;
@@ -129,9 +129,9 @@ import CPUblit.composing.common;
 			else static if(is(T == ushort))
 				__m128i maskV = _mm_cmpeq_epi16(srcV, SSE2_NULLVECT);
 			else static if(is(T == uint))
-				__m128i maskV = _mm_cmpeq_epi32(srcV & cast(__m128i)ALPHABLEND_SSE2_MASK, SSE2_NULLVECT);
+				__m128i maskV = _mm_cmpeq_epi32(srcV & cast(__m128i)ALPHABLEND_SSE2_AMASK, SSE2_NULLVECT);
 			destV = srcV | (destV & maskV);
-			*cast(int*)dest0 = _mm_cvtsi128_si32(destV);
+			_mm_storeu_si32(dest0, destV);
 			static if(!is(T == uint)){
 				src += QUTRLOAD_LENGTH;
 				dest += QUTRLOAD_LENGTH;
@@ -175,7 +175,7 @@ import CPUblit.composing.common;
 				} else static assert (0, "16 bit blitter only works with 8 or 16 bit masks!");
 			} else static if(is(T == uint)) {
 				static if (is(M == uint)) {
-					__m128i maskV = _mm_cmpeq_epi32(_mm_loadu_si128(cast(__m128i*)mask) & cast(__m128i)ALPHABLEND_SSE2_MASK, 
+					__m128i maskV = _mm_cmpeq_epi32(_mm_loadu_si128(cast(__m128i*)mask) & cast(__m128i)ALPHABLEND_SSE2_AMASK, 
 							SSE2_NULLVECT);
 				} else static if (is(M == ubyte)) {
 					__m128i maskV;
@@ -208,7 +208,7 @@ import CPUblit.composing.common;
 				} else static assert (0, "16 bit blitter only works with ");
 			} else static if(is(T == uint)) {
 				static if (is(M == uint)) {
-					__m128i maskV = _mm_cmpeq_epi32(_mm_loadl_epi64(cast(__m128i*)mask) & cast(__m128i)ALPHABLEND_SSE2_MASK, 
+					__m128i maskV = _mm_cmpeq_epi32(_mm_loadl_epi64(cast(__m128i*)mask) & cast(__m128i)ALPHABLEND_SSE2_AMASK, 
 							SSE2_NULLVECT);
 				} else static if (is(M == ubyte)) {
 					__m128i maskV;
@@ -239,7 +239,7 @@ import CPUblit.composing.common;
 				} else static assert (0, "16 bit blitter only works with 8 or 16 bit masks!");
 			} else static if(is(T == uint)) {
 				static if (is(M == uint)) {
-					__m128i maskV = _mm_cmpeq_epi32(_mm_loadu_si32(mask) & cast(__m128i)ALPHABLEND_SSE2_MASK, 
+					__m128i maskV = _mm_cmpeq_epi32(_mm_loadu_si32(mask) & cast(__m128i)ALPHABLEND_SSE2_AMASK, 
 							SSE2_NULLVECT);
 				} else static if (is(M == ubyte)) {
 					__m128i maskV;
@@ -248,7 +248,7 @@ import CPUblit.composing.common;
 				} else static assert (0, "32 bit blitter only works with 8 or 32 bit masks!");
 			}
 			destV = srcV | (destV & maskV);
-			*cast(int*)dest = _mm_cvtsi128_si32(destV);
+			_mm_storeu_si32(dest, destV);
 			static if(!is(T == uint)){
 				src += QUTRLOAD_LENGTH;
 				dest += QUTRLOAD_LENGTH;
@@ -290,7 +290,7 @@ import CPUblit.composing.common;
 				} else static assert (0, "16 bit blitter only works with 8 or 16 bit masks!");
 			} else static if(is(T == uint)) {
 				static if (is(M == uint)) {
-					__m128i maskV = _mm_cmpeq_epi32(_mm_loadu_si128(cast(__m128i*)mask) & cast(__m128i)ALPHABLEND_SSE2_MASK, 
+					__m128i maskV = _mm_cmpeq_epi32(_mm_loadu_si128(cast(__m128i*)mask) & cast(__m128i)ALPHABLEND_SSE2_AMASK, 
 							SSE2_NULLVECT);
 				} else static if (is(M == ubyte)) {
 					__m128i maskV;
@@ -324,7 +324,7 @@ import CPUblit.composing.common;
 				} else static assert (0, "16 bit blitter only works with ");
 			} else static if(is(T == uint)) {
 				static if (is(M == uint)) {
-					__m128i maskV = _mm_cmpeq_epi32(_mm_loadl_epi64(cast(__m128i*)mask) & cast(__m128i)ALPHABLEND_SSE2_MASK, 
+					__m128i maskV = _mm_cmpeq_epi32(_mm_loadl_epi64(cast(__m128i*)mask) & cast(__m128i)ALPHABLEND_SSE2_AMASK, 
 							SSE2_NULLVECT);
 				} else static if (is(M == ubyte)) {
 					__m128i maskV;
@@ -356,7 +356,7 @@ import CPUblit.composing.common;
 				} else static assert (0, "16 bit blitter only works with ");
 			} else static if(is(T == uint)) {
 				static if (is(M == uint)) {
-					__m128i maskV = _mm_cmpeq_epi32(_mm_loadu_si32(mask) & cast(__m128i)ALPHABLEND_SSE2_MASK, 
+					__m128i maskV = _mm_cmpeq_epi32(_mm_loadu_si32(mask) & cast(__m128i)ALPHABLEND_SSE2_AMASK, 
 							SSE2_NULLVECT);
 				} else static if (is(M == ubyte)) {
 					__m128i maskV;
@@ -365,7 +365,7 @@ import CPUblit.composing.common;
 				} else static assert (0, "32 bit blitter only works with 8 or 32 bit masks!");
 			}
 			destV = srcV | (destV & maskV);
-			*cast(int*)dest0 = _mm_cvtsi128_si32(destV);
+			_mm_storeu_si32(dest0, destV);
 			static if(!is(T == uint)){
 				src += QUTRLOAD_LENGTH;
 				dest += QUTRLOAD_LENGTH;
@@ -389,63 +389,81 @@ import CPUblit.composing.common;
 			}
 		}
 	}
+	///Blitter with dummy master value
+	void blitter(T)(T* src, T* dest, size_t length, ubyte value) {
+		blitter(src, dest, length);
+	}
+	///Blitter with dummy master value
+	void blitter(T)(T* src, T* dest, T* dest0, size_t length, ubyte value) {
+		blitter(src, dest, dest0, length);
+	}
+	///Blitter with dummy master value
+	void blitter(T,M)(T* src, T* dest, size_t length, M* mask, ubyte value) {
+		blitter(src, dest, length, mask);
+	}
+	///Blitter with dummy master value
+	void blitter(T,M)(T* src, T* dest, T* dest0, size_t length, M* mask, ubyte value) {
+		blitter(src, dest, dest0, length, mask);
+	}
+
 }
+
 unittest {
 	{
 		ubyte[255] a, b, c, d;
 		blitter(a.ptr, b.ptr, 255);
-		testArrayForZeros(b);
+		testArrayForValue(b);
 		blitter(a.ptr, b.ptr, c.ptr, 255);
-		testArrayForZeros(c);
+		testArrayForValue(c);
 		blitter(a.ptr, b.ptr, 255, d.ptr);
-		testArrayForZeros(b);
+		testArrayForValue(b);
 		blitter(a.ptr, b.ptr, c.ptr, 255, d.ptr);
-		testArrayForZeros(c);
+		testArrayForValue(c);
 	}
 	{
 		ushort[255] a, b, c, d;
 		blitter(a.ptr, b.ptr, 255);
-		testArrayForZeros(b);
+		testArrayForValue(b);
 		blitter(a.ptr, b.ptr, c.ptr, 255);
-		testArrayForZeros(c);
+		testArrayForValue(c);
 		blitter(a.ptr, b.ptr, 255, d.ptr);
-		testArrayForZeros(b);
+		testArrayForValue(b);
 		blitter(a.ptr, b.ptr, c.ptr, 255, d.ptr);
-		testArrayForZeros(c);
+		testArrayForValue(c);
 	}
 	{
 		uint[255] a, b, c, d;
 		blitter(a.ptr, b.ptr, 255);
-		testArrayForZeros(b);
+		testArrayForValue(b);
 		blitter(a.ptr, b.ptr, c.ptr, 255);
-		testArrayForZeros(c);
+		testArrayForValue(c);
 		blitter(a.ptr, b.ptr, 255, d.ptr);
-		testArrayForZeros(b);
+		testArrayForValue(b);
 		blitter(a.ptr, b.ptr, c.ptr, 255, d.ptr);
-		testArrayForZeros(c);
+		testArrayForValue(c);
 	}
 	{
 		ushort[255] a, b, c;
 		ubyte[255] d;
 		blitter(a.ptr, b.ptr, 255);
-		testArrayForZeros(b);
+		testArrayForValue(b);
 		blitter(a.ptr, b.ptr, c.ptr, 255);
-		testArrayForZeros(c);
+		testArrayForValue(c);
 		blitter(a.ptr, b.ptr, 255, d.ptr);
-		testArrayForZeros(b);
+		testArrayForValue(b);
 		blitter(a.ptr, b.ptr, c.ptr, 255, d.ptr);
-		testArrayForZeros(c);
+		testArrayForValue(c);
 	}
 	{
 		uint[255] a, b, c;
 		ubyte[255] d;
 		blitter(a.ptr, b.ptr, 255);
-		testArrayForZeros(b);
+		testArrayForValue(b);
 		blitter(a.ptr, b.ptr, c.ptr, 255);
-		testArrayForZeros(c);
+		testArrayForValue(c);
 		blitter(a.ptr, b.ptr, 255, d.ptr);
-		testArrayForZeros(b);
+		testArrayForValue(b);
 		blitter(a.ptr, b.ptr, c.ptr, 255, d.ptr);
-		testArrayForZeros(c);
+		testArrayForValue(c);
 	}
 }
