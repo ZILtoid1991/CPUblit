@@ -22,7 +22,7 @@ import CPUblit.composing.common;
 	/**
 	 * 2 operator add function
 	 */
-	public void add32Bit(bool UseAlpha = false)(uint* src, uint* dest, size_t length) {
+	public void add(bool UseAlpha = false)(uint* src, uint* dest, size_t length) {
 		while(length >= 4) {
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
 			__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
@@ -93,7 +93,7 @@ import CPUblit.composing.common;
 	/**
 	 * 3 operator add function with separate destination.
 	 */
-	public void add32Bit(bool UseAlpha = false)(uint* src, uint* dest, uint* dest0, size_t length) {
+	public void add(bool UseAlpha = false)(uint* src, uint* dest, uint* dest0, size_t length) {
 		while(length >= 4) {
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
 			__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
@@ -165,7 +165,7 @@ import CPUblit.composing.common;
 	/**
 	 * 3 operator add function with masking
 	 */
-	public void add32Bit(M)(uint* src, uint* dest, size_t length, M* mask) {
+	public void add(M)(uint* src, uint* dest, size_t length, M* mask) {
 		while(length >= 4) {
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
 			__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
@@ -236,7 +236,7 @@ import CPUblit.composing.common;
 	/**
 	 * 3 operator add function with separate destination and masking.
 	 */
-	public void add32Bit(M)(uint* src, uint* dest, uint* dest0, size_t length, M* mask) {
+	public void add(M)(uint* src, uint* dest, uint* dest0, size_t length, M* mask) {
 		while(length >= 4) {
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
 			__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
@@ -309,7 +309,7 @@ import CPUblit.composing.common;
 	 * 2 operator add function with master alpha value.
 	 * `UseAlpha` determines whether the src's alpha channel will be used or not.
 	 */
-	public void add32BitMV(bool UseAlpha = false, V)(uint* src, uint* dest, size_t length, V value) {
+	public void addMV(bool UseAlpha = false, V)(uint* src, uint* dest, size_t length, V value) {
 		__m128i master_1;
 		static if (is(V == uint)) {
 			master_1[0] = value;
@@ -406,7 +406,7 @@ import CPUblit.composing.common;
 	/**
 	 * 3 operator add function with separate destination and master alpha value.
 	 */
-	public void add32BitMV(bool UseAlpha = false, V)(uint* src, uint* dest, uint* dest0, size_t length, V value) {
+	public void addMV(bool UseAlpha = false, V)(uint* src, uint* dest, uint* dest0, size_t length, V value) {
 		__m128i master_1;
 		static if (is(V == uint)) {
 			master_1[0] = value;
@@ -504,7 +504,7 @@ import CPUblit.composing.common;
 	/**
 	 * 3 operator add function with masking and master alpha value.
 	 */
-	public void add32BitMV(M,V)(uint* src, uint* dest, size_t length, M* mask, V value) {
+	public void addMV(M,V)(uint* src, uint* dest, size_t length, M* mask, V value) {
 		__m128i master_1;
 		static if (is(V == uint)) {
 			master_1[0] = value;
@@ -594,7 +594,7 @@ import CPUblit.composing.common;
 	/**
 	 * 3 operator add function with separate destination, masking, and master value.
 	 */
-	public void add32BitMV(M, V)(uint* src, uint* dest, uint* dest0, size_t length, M* mask, V value) {
+	public void addMV(M, V)(uint* src, uint* dest, uint* dest0, size_t length, M* mask, V value) {
 		__m128i master_1;
 		static if (is(V == uint)) {
 			master_1[0] = value;
@@ -693,55 +693,55 @@ unittest {
 	mask0.length = 255;
 	fillWithSingleValue(src, 0x05050505);
 	fillWithSingleValue(dest, 0x05050505);
-	add32Bit!false(src.ptr, dest.ptr, 255);
+	add!false(src.ptr, dest.ptr, 255);
 	testArrayForValue(dest, 0x0a0a0a0a);
 	fillWithSingleValue(dest, 0x05050505);
-	add32Bit!false(src.ptr, dest.ptr, dest0.ptr, 255);
+	add!false(src.ptr, dest.ptr, dest0.ptr, 255);
 	testArrayForValue(dest0, 0x0a0a0a0a);
 	fillWithSingleValue(dest0, 0);
 
 	//mask value of 0 should generate no change in the output
-	add32Bit(src.ptr, dest.ptr, 255, mask.ptr);
+	add(src.ptr, dest.ptr, 255, mask.ptr);
 	testArrayForValue(dest, 0x05050505);
-	add32Bit(src.ptr, dest.ptr, 255, mask0.ptr);
+	add(src.ptr, dest.ptr, 255, mask0.ptr);
 	testArrayForValue(dest, 0x05050505);
-	add32Bit(src.ptr, dest.ptr, dest0.ptr, 255, mask.ptr);
+	add(src.ptr, dest.ptr, dest0.ptr, 255, mask.ptr);
 	testArrayForValue(dest0, 0x05050505);
 	fillWithSingleValue(dest0, 0);
-	add32Bit(src.ptr, dest.ptr, dest0.ptr, 255, mask0.ptr);
+	add(src.ptr, dest.ptr, dest0.ptr, 255, mask0.ptr);
 	testArrayForValue(dest0, 0x05050505);
 
 	//mask value of 255 should generate maximum change in the output
 	fillWithSingleValue(mask, uint.max);
 	fillWithSingleValue(mask0, ubyte.max);
-	add32Bit(src.ptr, dest.ptr, 255, mask.ptr);
+	add(src.ptr, dest.ptr, 255, mask.ptr);
 	testArrayForValue(dest, 0x0a0a0a0a);
 	fillWithSingleValue(dest, 0x05050505);
-	add32Bit(src.ptr, dest.ptr, 255, mask0.ptr);
+	add(src.ptr, dest.ptr, 255, mask0.ptr);
 	testArrayForValue(dest, 0x0a0a0a0a);
 	fillWithSingleValue(dest, 0x05050505);
-	add32Bit(src.ptr, dest.ptr, dest0.ptr, 255, mask.ptr);
+	add(src.ptr, dest.ptr, dest0.ptr, 255, mask.ptr);
 	testArrayForValue(dest0, 0x0a0a0a0a);
 	fillWithSingleValue(dest0, 0);
-	add32Bit(src.ptr, dest.ptr, dest0.ptr, 255, mask0.ptr);
+	add(src.ptr, dest.ptr, dest0.ptr, 255, mask0.ptr);
 	testArrayForValue(dest0, 0x0a0a0a0a);
 	//test with alpha channel
 
 	//the least significant byte of a 32 bit pixel is the alpha
 	fillWithSingleValue(src, 0x050505FF);
 	fillWithSingleValue(dest, 0x050505FF);
-	add32Bit!true(src.ptr, dest.ptr, 255);
+	add!true(src.ptr, dest.ptr, 255);
 	testArrayForValue(dest, 0x0a0a0aFF);
 	fillWithSingleValue(dest, 0x050505FF);
-	add32Bit!true(src.ptr, dest.ptr, dest0.ptr, 255);
+	add!true(src.ptr, dest.ptr, dest0.ptr, 255);
 	testArrayForValue(dest0, 0x0a0a0aFF);
 	fillWithSingleValue(dest0, 0);
 	//with alpha value of zero, the destination shouldn't be affected
 	fillWithSingleValue(src, 0x05050500);
 	fillWithSingleValue(dest, 0x050505FF);
-	add32Bit!true(src.ptr, dest.ptr, 255);
+	add!true(src.ptr, dest.ptr, 255);
 	testArrayForValue(dest, 0x050505FF);
-	add32Bit!true(src.ptr, dest.ptr, dest0.ptr, 255);
+	add!true(src.ptr, dest.ptr, dest0.ptr, 255);
 	testArrayForValue(dest0, 0x050505FF);
 	fillWithSingleValue(src, 0x050505FF);
 	fillWithSingleValue(dest0, 0);
@@ -749,54 +749,54 @@ unittest {
 	//test master value functions
 
 	//master value of zero shouldn't affect anything
-	add32BitMV!false(src.ptr, dest.ptr, 255, uint.min);
+	addMV!false(src.ptr, dest.ptr, 255, uint.min);
 	testArrayForValue(dest, 0x050505FF);
-	add32BitMV!true(src.ptr, dest.ptr, 255, ubyte.min);
+	addMV!true(src.ptr, dest.ptr, 255, ubyte.min);
 	testArrayForValue(dest, 0x050505FF);
-	add32BitMV!false(src.ptr, dest.ptr, dest0.ptr, 255, uint.min);
+	addMV!false(src.ptr, dest.ptr, dest0.ptr, 255, uint.min);
 	testArrayForValue(dest0, 0x050505FF);
 	fillWithSingleValue(dest0, 0);
-	add32BitMV!true(src.ptr, dest.ptr, dest0.ptr, 255, ubyte.min);
+	addMV!true(src.ptr, dest.ptr, dest0.ptr, 255, ubyte.min);
 	testArrayForValue(dest0, 0x050505FF);
 	fillWithSingleValue(dest0, 0);
 	//masks should be also "ignored"
 	fillWithSingleValue(mask, uint.max);
 	fillWithSingleValue(mask0, ubyte.max);
-	add32BitMV(src.ptr, dest.ptr, 255, mask.ptr, ubyte.min);
+	addMV(src.ptr, dest.ptr, 255, mask.ptr, ubyte.min);
 	testArrayForValue(dest, 0x050505FF);
-	add32BitMV(src.ptr, dest.ptr, dest0.ptr, 255, mask.ptr, uint.min);
+	addMV(src.ptr, dest.ptr, dest0.ptr, 255, mask.ptr, uint.min);
 	testArrayForValue(dest0, 0x050505FF);
 	fillWithSingleValue(dest0, 0);
-	add32BitMV(src.ptr, dest.ptr, 255, mask0.ptr, uint.min);
+	addMV(src.ptr, dest.ptr, 255, mask0.ptr, uint.min);
 	testArrayForValue(dest, 0x050505FF);
-	add32BitMV(src.ptr, dest.ptr, dest0.ptr, 255, mask0.ptr, ubyte.min);
+	addMV(src.ptr, dest.ptr, dest0.ptr, 255, mask0.ptr, ubyte.min);
 	testArrayForValue(dest0, 0x050505FF);
 	fillWithSingleValue(dest0, 0);
 	
 	//master value of 255 should generate maximum change in the output
-	add32BitMV!false(src.ptr, dest.ptr, 255, ubyte.max);
+	addMV!false(src.ptr, dest.ptr, 255, ubyte.max);
 	testArrayForValue(dest, 0x0a0a0aFF);
 	fillWithSingleValue(dest, 0x050505FF);
-	add32BitMV!true(src.ptr, dest.ptr, 255, ubyte.max);
+	addMV!true(src.ptr, dest.ptr, 255, ubyte.max);
 	testArrayForValue(dest, 0x0a0a0aFF);
 	fillWithSingleValue(dest, 0x050505FF);
-	add32BitMV!false(src.ptr, dest.ptr, dest0.ptr, 255, ubyte.max);
+	addMV!false(src.ptr, dest.ptr, dest0.ptr, 255, ubyte.max);
 	testArrayForValue(dest0, 0x0a0a0aFF);
 	fillWithSingleValue(dest0, 0);
-	add32BitMV!true(src.ptr, dest.ptr, dest0.ptr, 255, ubyte.max);
+	addMV!true(src.ptr, dest.ptr, dest0.ptr, 255, ubyte.max);
 	testArrayForValue(dest0, 0x0a0a0aFF);
 	fillWithSingleValue(dest0, 0);
 
 	//ditto with masks of maximum value
-	add32BitMV(src.ptr, dest.ptr, 255, mask.ptr, ubyte.max);
+	addMV(src.ptr, dest.ptr, 255, mask.ptr, ubyte.max);
 	testArrayForValue(dest, 0x0a0a0aFF);
 	fillWithSingleValue(dest, 0x050505FF);
-	add32BitMV(src.ptr, dest.ptr, 255, mask0.ptr, ubyte.max);
+	addMV(src.ptr, dest.ptr, 255, mask0.ptr, ubyte.max);
 	testArrayForValue(dest, 0x0a0a0aFF);
 	fillWithSingleValue(dest, 0x050505FF);
-	add32BitMV(src.ptr, dest.ptr, dest0.ptr, 255, mask.ptr, ubyte.max);
+	addMV(src.ptr, dest.ptr, dest0.ptr, 255, mask.ptr, ubyte.max);
 	testArrayForValue(dest0, 0x0a0a0aFF);
 	fillWithSingleValue(dest0, 0);
-	add32BitMV(src.ptr, dest.ptr, dest0.ptr, 255, mask0.ptr, ubyte.max);
+	addMV(src.ptr, dest.ptr, dest0.ptr, 255, mask0.ptr, ubyte.max);
 	testArrayForValue(dest0, 0x0a0a0aFF);
 }

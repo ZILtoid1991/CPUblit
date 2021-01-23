@@ -22,7 +22,7 @@ import CPUblit.composing.common;
 	/**
 	 * 2 operator difference function without alpha
 	 */
-	public void diff32Bit(uint* src, uint* dest, size_t length) {
+	public void diff(uint* src, uint* dest, size_t length) {
 		while(length >= 4) {
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
 			__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
@@ -52,7 +52,7 @@ import CPUblit.composing.common;
 	/**
 	 * 3 operator difference function with separate destination without alpha.
 	 */
-	public void diff32Bit(uint* src, uint* dest, uint* dest0, size_t length) {
+	public void diff(uint* src, uint* dest, uint* dest0, size_t length) {
 		while(length >= 4) {
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
 			__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
@@ -83,7 +83,7 @@ import CPUblit.composing.common;
 	/**
 	 * 2 operator difference function with alpha
 	 */
-	public void diff32BitBl(uint* src, uint* dest, size_t length) {
+	public void diffBl(uint* src, uint* dest, size_t length) {
 		while(length >= 4) {
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
 			__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
@@ -161,7 +161,7 @@ import CPUblit.composing.common;
 	/**
 	 * 3 operator difference function with separate destination and alpha.
 	 */
-	public void diff32BitBl(uint* src, uint* dest, uint* dest0, size_t length) {
+	public void diffBl(uint* src, uint* dest, uint* dest0, size_t length) {
 		while(length >= 4) {
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
 			__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
@@ -240,7 +240,7 @@ import CPUblit.composing.common;
 	/**
 	 * 3 operator difference function with masking
 	 */
-	public void diff32Bit(M)(uint* src, uint* dest, size_t length, M* mask) {
+	public void diff(M)(uint* src, uint* dest, size_t length, M* mask) {
 		while(length >= 4) {
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
 			__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
@@ -323,7 +323,7 @@ import CPUblit.composing.common;
 	/**
 	 * 4 operator difference function with separate destination and masking.
 	 */
-	public void diff32Bit(M)(uint* src, uint* dest, uint* dest0, size_t length, M* mask) {
+	public void diff(M)(uint* src, uint* dest, uint* dest0, size_t length, M* mask) {
 		while(length >= 4) {
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
 			__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
@@ -409,7 +409,7 @@ import CPUblit.composing.common;
 	 * 2 operator add function with master alpha value.
 	 * `UseAlpha` determines whether the src's alpha channel will be used or not.
 	 */
-	public void diff32BitMV(V)(uint* src, uint* dest, size_t length, V value) {
+	public void diffMV(V)(uint* src, uint* dest, size_t length, V value) {
 		__m128i masterV;
 		static if (is(V == uint)) {
 			masterV[0] = value;
@@ -467,7 +467,7 @@ import CPUblit.composing.common;
 	/**
 	 * 3 operator difference function with separate destination and master alpha value.
 	 */
-	public void diff32BitMV(V)(uint* src, uint* dest, uint* dest0, size_t length, V value) {
+	public void diffMV(V)(uint* src, uint* dest, uint* dest0, size_t length, V value) {
 		__m128i masterV;
 		static if (is(V == uint)) {
 			masterV[0] = value;
@@ -525,7 +525,7 @@ import CPUblit.composing.common;
 	/**
 	 * 2 operator add function with master alpha value and per pixel alpha.
 	 */
-	public void diff32BitMVBl(V)(uint* src, uint* dest, size_t length, V value) {
+	public void diffMVBl(V)(uint* src, uint* dest, size_t length, V value) {
 		__m128i masterV;
 		static if (is(V == uint)) {
 			masterV[0] = value;
@@ -624,7 +624,7 @@ import CPUblit.composing.common;
 	/**
 	 * 3 operator difference function with separate destination and master alpha value.
 	 */
-	public void diff32BitMVBl(V)(uint* src, uint* dest, uint* dest0, size_t length, V value) {
+	public void diffMVBl(V)(uint* src, uint* dest, uint* dest0, size_t length, V value) {
 		__m128i masterV;
 		static if (is(V == uint)) {
 			masterV[0] = value;
@@ -723,7 +723,7 @@ import CPUblit.composing.common;
 	/**
 	 * 3 operator difference function with masking, per-pixel alpha, and master alpha value.
 	 */
-	public void diff32BitMV(M,V)(uint* src, uint* dest, size_t length, M* mask, V value) {
+	public void diffMV(M,V)(uint* src, uint* dest, size_t length, M* mask, V value) {
 		__m128i masterV;
 		static if (is(V == uint)) {
 			masterV[0] = value;
@@ -823,7 +823,7 @@ import CPUblit.composing.common;
 	/**
 	 * 4 operator difference function with masking, separate destination, per-pixel alpha, and master alpha value.
 	 */
-	public void diff32BitMV(M, V)(uint* src, uint* dest, uint* dest0, size_t length, M* mask, V value) {
+	public void diffMV(M, V)(uint* src, uint* dest, uint* dest0, size_t length, M* mask, V value) {
 		__m128i masterV;
 		static if (is(V == uint)) {
 			masterV[0] = value;
@@ -935,211 +935,211 @@ unittest {
 	fillWithSingleValue(dest, 0x010f01FF);
 
 	//test basic functions
-	diff32Bit(src.ptr, dest.ptr, 255);
+	diff(src.ptr, dest.ptr, 255);
 	testArrayForValue(dest, 0x0e0e0e00);
 	fillWithSingleValue(dest, 0x010f01FF);
-	diff32Bit(src.ptr, dest.ptr, dest0.ptr, 255);
+	diff(src.ptr, dest.ptr, dest0.ptr, 255);
 	testArrayForValue(dest0, 0x0e0e0e00);
 	fillWithSingleValue(dest0, 0);
 
 	//test functions with blend
-	diff32BitBl(src.ptr, dest.ptr, 255);
+	diffBl(src.ptr, dest.ptr, 255);
 	testArrayForValue(dest, 0x0e0e0e00);
 	fillWithSingleValue(dest, 0x010f01FF);
-	diff32BitBl(src.ptr, dest.ptr, dest0.ptr, 255);
+	diffBl(src.ptr, dest.ptr, dest0.ptr, 255);
 	testArrayForValue(dest0, 0x0e0e0e00);
 	fillWithSingleValue(dest0, 0);
 
 	fillWithSingleValue(src, 0x0f010f00);
 
-	diff32BitBl(src.ptr, dest.ptr, 255);
+	diffBl(src.ptr, dest.ptr, 255);
 	testArrayForValue(dest, 0x010f01FF);
 	//fillWithSingleValue(dest, 0x010f01FF);
-	diff32BitBl(src.ptr, dest.ptr, dest0.ptr, 255);
+	diffBl(src.ptr, dest.ptr, dest0.ptr, 255);
 	testArrayForValue(dest0, 0x010f01FF);
 	fillWithSingleValue(dest0, 0);
 
 	fillWithSingleValue(src, 0x0f010fFF);
 
 	//test functions with masking
-	diff32Bit(src.ptr, dest.ptr, 255, mask.ptr);
+	diff(src.ptr, dest.ptr, 255, mask.ptr);
 	testArrayForValue(dest, 0x010f01FF);
 	//fillWithSingleValue(dest, 0x010f01FF);
-	diff32Bit(src.ptr, dest.ptr, dest0.ptr, 255, mask.ptr);
+	diff(src.ptr, dest.ptr, dest0.ptr, 255, mask.ptr);
 	testArrayForValue(dest0, 0x010f01FF);
 	fillWithSingleValue(dest0, 0);
 
-	diff32Bit(src.ptr, dest.ptr, 255, mask0.ptr);
+	diff(src.ptr, dest.ptr, 255, mask0.ptr);
 	testArrayForValue(dest, 0x010f01FF);
 	//fillWithSingleValue(dest, 0x010f01FF);
-	diff32Bit(src.ptr, dest.ptr, dest0.ptr, 255, mask0.ptr);
+	diff(src.ptr, dest.ptr, dest0.ptr, 255, mask0.ptr);
 	testArrayForValue(dest0, 0x010f01FF);
 	fillWithSingleValue(dest0, 0);
 
 	fillWithSingleValue(mask, uint.max);
 	fillWithSingleValue(mask0, ubyte.max);
 
-	diff32Bit(src.ptr, dest.ptr, 255, mask.ptr);
+	diff(src.ptr, dest.ptr, 255, mask.ptr);
 	testArrayForValue(dest, 0x0e0e0e00);
 	fillWithSingleValue(dest, 0x010f01FF);
-	diff32Bit(src.ptr, dest.ptr, dest0.ptr, 255, mask.ptr);
+	diff(src.ptr, dest.ptr, dest0.ptr, 255, mask.ptr);
 	testArrayForValue(dest0, 0x0e0e0e00);
 	fillWithSingleValue(dest0, 0);
 
-	diff32Bit(src.ptr, dest.ptr, 255, mask0.ptr);
+	diff(src.ptr, dest.ptr, 255, mask0.ptr);
 	testArrayForValue(dest, 0x0e0e0e00);
 	fillWithSingleValue(dest, 0x010f01FF);
-	diff32Bit(src.ptr, dest.ptr, dest0.ptr, 255, mask0.ptr);
+	diff(src.ptr, dest.ptr, dest0.ptr, 255, mask0.ptr);
 	testArrayForValue(dest0, 0x0e0e0e00);
 	fillWithSingleValue(dest0, 0);
 
 	//test master value functions without blend
-	diff32BitMV(src.ptr, dest.ptr, 255, ubyte.max);
+	diffMV(src.ptr, dest.ptr, 255, ubyte.max);
 	testArrayForValue(dest, 0x0e0e0e00);
 	fillWithSingleValue(dest, 0x010f01FF);
-	diff32BitMV(src.ptr, dest.ptr, dest0.ptr, 255, ubyte.max);
+	diffMV(src.ptr, dest.ptr, dest0.ptr, 255, ubyte.max);
 	testArrayForValue(dest0, 0x0e0e0e00);
 	fillWithSingleValue(dest0, 0);
 
-	diff32BitMV(src.ptr, dest.ptr, 255, ubyte.min);
+	diffMV(src.ptr, dest.ptr, 255, ubyte.min);
 	testArrayForValue(dest, 0x010f01FF);
 	//fillWithSingleValue(dest, 0x010f01FF);
-	diff32BitMV(src.ptr, dest.ptr, dest0.ptr, 255, ubyte.min);
+	diffMV(src.ptr, dest.ptr, dest0.ptr, 255, ubyte.min);
 	testArrayForValue(dest0, 0x010f01FF);
 	fillWithSingleValue(dest0, 0);
 
-	diff32BitMV(src.ptr, dest.ptr, 255, uint.max);
+	diffMV(src.ptr, dest.ptr, 255, uint.max);
 	testArrayForValue(dest, 0x0e0e0e00);
 	fillWithSingleValue(dest, 0x010f01FF);
-	diff32BitMV(src.ptr, dest.ptr, dest0.ptr, 255, uint.max);
+	diffMV(src.ptr, dest.ptr, dest0.ptr, 255, uint.max);
 	testArrayForValue(dest0, 0x0e0e0e00);
 	fillWithSingleValue(dest0, 0);
 
-	diff32BitMV(src.ptr, dest.ptr, 255, uint.min);
+	diffMV(src.ptr, dest.ptr, 255, uint.min);
 	testArrayForValue(dest, 0x010f01FF);
 	//fillWithSingleValue(dest, 0x010f01FF);
-	diff32BitMV(src.ptr, dest.ptr, dest0.ptr, 255, uint.min);
+	diffMV(src.ptr, dest.ptr, dest0.ptr, 255, uint.min);
 	testArrayForValue(dest0, 0x010f01FF);
 	fillWithSingleValue(dest0, 0);
 
 	//test master value functions with blend
 	//255 alpha values
-	diff32BitMVBl(src.ptr, dest.ptr, 255, ubyte.max);
+	diffMVBl(src.ptr, dest.ptr, 255, ubyte.max);
 	testArrayForValue(dest, 0x0e0e0e00);
 	fillWithSingleValue(dest, 0x010f01FF);
-	diff32BitMVBl(src.ptr, dest.ptr, dest0.ptr, 255, ubyte.max);
+	diffMVBl(src.ptr, dest.ptr, dest0.ptr, 255, ubyte.max);
 	testArrayForValue(dest0, 0x0e0e0e00);
 	fillWithSingleValue(dest0, 0);
 
-	diff32BitMVBl(src.ptr, dest.ptr, 255, ubyte.min);
+	diffMVBl(src.ptr, dest.ptr, 255, ubyte.min);
 	testArrayForValue(dest, 0x010f01FF);
 	//fillWithSingleValue(dest, 0x010f01FF);
-	diff32BitMVBl(src.ptr, dest.ptr, dest0.ptr, 255, ubyte.min);
+	diffMVBl(src.ptr, dest.ptr, dest0.ptr, 255, ubyte.min);
 	testArrayForValue(dest0, 0x010f01FF);
 	fillWithSingleValue(dest0, 0);
 
-	diff32BitMVBl(src.ptr, dest.ptr, 255, uint.max);
+	diffMVBl(src.ptr, dest.ptr, 255, uint.max);
 	testArrayForValue(dest, 0x0e0e0e00);
 	fillWithSingleValue(dest, 0x010f01FF);
-	diff32BitMVBl(src.ptr, dest.ptr, dest0.ptr, 255, uint.max);
+	diffMVBl(src.ptr, dest.ptr, dest0.ptr, 255, uint.max);
 	testArrayForValue(dest0, 0x0e0e0e00);
 	fillWithSingleValue(dest0, 0);
 
-	diff32BitMVBl(src.ptr, dest.ptr, 255, uint.min);
+	diffMVBl(src.ptr, dest.ptr, 255, uint.min);
 	testArrayForValue(dest, 0x010f01FF);
 	//fillWithSingleValue(dest, 0x010f01FF);
-	diff32BitMVBl(src.ptr, dest.ptr, dest0.ptr, 255, uint.min);
+	diffMVBl(src.ptr, dest.ptr, dest0.ptr, 255, uint.min);
 	testArrayForValue(dest0, 0x010f01FF);
 	fillWithSingleValue(dest0, 0);
 	//0 alpha values
 	fillWithSingleValue(src, 0x0f010f00);
 
-	diff32BitMVBl(src.ptr, dest.ptr, 255, ubyte.max);
+	diffMVBl(src.ptr, dest.ptr, 255, ubyte.max);
 	testArrayForValue(dest, 0x010f01FF);
 	//fillWithSingleValue(dest, 0x010f01FF);
-	diff32BitMVBl(src.ptr, dest.ptr, dest0.ptr, 255, ubyte.max);
+	diffMVBl(src.ptr, dest.ptr, dest0.ptr, 255, ubyte.max);
 	testArrayForValue(dest0, 0x010f01FF);
 	fillWithSingleValue(dest0, 0);
 
-	diff32BitMVBl(src.ptr, dest.ptr, 255, ubyte.min);
+	diffMVBl(src.ptr, dest.ptr, 255, ubyte.min);
 	testArrayForValue(dest, 0x010f01FF);
 	//fillWithSingleValue(dest, 0x010f01FF);
-	diff32BitMVBl(src.ptr, dest.ptr, dest0.ptr, 255, ubyte.min);
+	diffMVBl(src.ptr, dest.ptr, dest0.ptr, 255, ubyte.min);
 	testArrayForValue(dest0, 0x010f01FF);
 	fillWithSingleValue(dest0, 0);
 
-	diff32BitMVBl(src.ptr, dest.ptr, 255, uint.max);
+	diffMVBl(src.ptr, dest.ptr, 255, uint.max);
 	testArrayForValue(dest, 0x010f01FF);
 	//fillWithSingleValue(dest, 0x010f01FF);
-	diff32BitMVBl(src.ptr, dest.ptr, dest0.ptr, 255, uint.max);
+	diffMVBl(src.ptr, dest.ptr, dest0.ptr, 255, uint.max);
 	testArrayForValue(dest0, 0x010f01FF);
 	fillWithSingleValue(dest0, 0);
 
-	diff32BitMVBl(src.ptr, dest.ptr, 255, uint.min);
+	diffMVBl(src.ptr, dest.ptr, 255, uint.min);
 	testArrayForValue(dest, 0x010f01FF);
 	//fillWithSingleValue(dest, 0x010f01FF);
-	diff32BitMVBl(src.ptr, dest.ptr, dest0.ptr, 255, uint.min);
+	diffMVBl(src.ptr, dest.ptr, dest0.ptr, 255, uint.min);
 	testArrayForValue(dest0, 0x010f01FF);
 	fillWithSingleValue(dest0, 0);
 
 	//test master value functions with masking
 	fillWithSingleValue(src, 0x0f010fFF);
 	fillWithSingleValue(mask, uint.max);
-	diff32BitMV(src.ptr, dest.ptr, 255, mask.ptr, ubyte.max);
+	diffMV(src.ptr, dest.ptr, 255, mask.ptr, ubyte.max);
 	testArrayForValue(dest, 0x0e0e0e00);
 	fillWithSingleValue(dest, 0x010f01FF);
-	diff32BitMV(src.ptr, dest.ptr, dest0.ptr, 255, mask.ptr, ubyte.max);
+	diffMV(src.ptr, dest.ptr, dest0.ptr, 255, mask.ptr, ubyte.max);
 	testArrayForValue(dest0, 0x0e0e0e00);
 	fillWithSingleValue(dest0, 0);
 
-	diff32BitMV(src.ptr, dest.ptr, 255, mask.ptr, ubyte.min);
+	diffMV(src.ptr, dest.ptr, 255, mask.ptr, ubyte.min);
 	testArrayForValue(dest, 0x010f01FF);
 	//fillWithSingleValue(dest, 0x010f01FF);
-	diff32BitMV(src.ptr, dest.ptr, dest0.ptr, 255, mask.ptr, ubyte.min);
+	diffMV(src.ptr, dest.ptr, dest0.ptr, 255, mask.ptr, ubyte.min);
 	testArrayForValue(dest0, 0x010f01FF);
 	fillWithSingleValue(dest0, 0);
 
-	diff32BitMV(src.ptr, dest.ptr, 255, mask.ptr, uint.max);
+	diffMV(src.ptr, dest.ptr, 255, mask.ptr, uint.max);
 	testArrayForValue(dest, 0x0e0e0e00);
 	fillWithSingleValue(dest, 0x010f01FF);
-	diff32BitMV(src.ptr, dest.ptr, dest0.ptr, 255, mask.ptr, uint.max);
+	diffMV(src.ptr, dest.ptr, dest0.ptr, 255, mask.ptr, uint.max);
 	testArrayForValue(dest0, 0x0e0e0e00);
 	fillWithSingleValue(dest0, 0);
 
-	diff32BitMV(src.ptr, dest.ptr, 255, mask.ptr, uint.min);
+	diffMV(src.ptr, dest.ptr, 255, mask.ptr, uint.min);
 	testArrayForValue(dest, 0x010f01FF);
 	//fillWithSingleValue(dest, 0x010f01FF);
-	diff32BitMV(src.ptr, dest.ptr, dest0.ptr, 255, mask.ptr, uint.min);
+	diffMV(src.ptr, dest.ptr, dest0.ptr, 255, mask.ptr, uint.min);
 	testArrayForValue(dest0, 0x010f01FF);
 	fillWithSingleValue(dest0, 0);
 	//0 alpha values
 	fillWithSingleValue(mask, uint.min);
 
-	diff32BitMV(src.ptr, dest.ptr, 255, mask.ptr, ubyte.max);
+	diffMV(src.ptr, dest.ptr, 255, mask.ptr, ubyte.max);
 	testArrayForValue(dest, 0x010f01FF);
 	//fillWithSingleValue(dest, 0x010f01FF);
-	diff32BitMV(src.ptr, dest.ptr, dest0.ptr, 255, mask.ptr, ubyte.max);
+	diffMV(src.ptr, dest.ptr, dest0.ptr, 255, mask.ptr, ubyte.max);
 	testArrayForValue(dest0, 0x010f01FF);
 	fillWithSingleValue(dest0, 0);
 
-	diff32BitMV(src.ptr, dest.ptr, 255, mask.ptr, ubyte.min);
+	diffMV(src.ptr, dest.ptr, 255, mask.ptr, ubyte.min);
 	testArrayForValue(dest, 0x010f01FF);
 	//fillWithSingleValue(dest, 0x010f01FF);
-	diff32BitMV(src.ptr, dest.ptr, dest0.ptr, 255, mask.ptr, ubyte.min);
+	diffMV(src.ptr, dest.ptr, dest0.ptr, 255, mask.ptr, ubyte.min);
 	testArrayForValue(dest0, 0x010f01FF);
 	fillWithSingleValue(dest0, 0);
 
-	diff32BitMV(src.ptr, dest.ptr, 255, mask.ptr, uint.max);
+	diffMV(src.ptr, dest.ptr, 255, mask.ptr, uint.max);
 	testArrayForValue(dest, 0x010f01FF);
 	//fillWithSingleValue(dest, 0x010f01FF);
-	diff32BitMV(src.ptr, dest.ptr, dest0.ptr, 255, mask.ptr, uint.max);
+	diffMV(src.ptr, dest.ptr, dest0.ptr, 255, mask.ptr, uint.max);
 	testArrayForValue(dest0, 0x010f01FF);
 	fillWithSingleValue(dest0, 0);
 
-	diff32BitMV(src.ptr, dest.ptr, 255, mask.ptr, uint.min);
+	diffMV(src.ptr, dest.ptr, 255, mask.ptr, uint.min);
 	testArrayForValue(dest, 0x010f01FF);
 	//fillWithSingleValue(dest, 0x010f01FF);
-	diff32BitMV(src.ptr, dest.ptr, dest0.ptr, 255, mask.ptr, uint.min);
+	diffMV(src.ptr, dest.ptr, dest0.ptr, 255, mask.ptr, uint.min);
 	testArrayForValue(dest0, 0x010f01FF);
 	fillWithSingleValue(dest0, 0);
 }

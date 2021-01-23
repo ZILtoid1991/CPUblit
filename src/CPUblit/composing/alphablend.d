@@ -1,4 +1,4 @@
-module CPUblit.composing.alphablend32;
+module CPUblit.composing.alphablend;
 
 import CPUblit.composing.common;
 
@@ -29,7 +29,7 @@ import CPUblit.composing.common;
 /**
  * 2 operator alpha-blending function.
  */
-public void alphaBlend32bit(uint* src, uint* dest, size_t length) {
+public void alphaBlend(uint* src, uint* dest, size_t length) {
 	static if(USE_INTEL_INTRINSICS){
 		while (length >= 4) {
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
@@ -119,7 +119,7 @@ public void alphaBlend32bit(uint* src, uint* dest, size_t length) {
 /**
  * 3 operator alpha-blending function.
  */
-public void alphaBlend32bit(uint* src, uint* dest, uint* dest0, size_t length) {
+public void alphaBlend(uint* src, uint* dest, uint* dest0, size_t length) {
 	static if (USE_INTEL_INTRINSICS) { 
 		while (length >= 4) {
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
@@ -212,7 +212,7 @@ public void alphaBlend32bit(uint* src, uint* dest, uint* dest0, size_t length) {
  * 3 operator alpha-blending function.
  * Mask is either 8 or 32 bit per pixel.
  */
-public void alphaBlend32bit(M)(uint* src, uint* dest, size_t length, M* mask) {
+public void alphaBlend(M)(uint* src, uint* dest, size_t length, M* mask) {
 	static if(USE_INTEL_INTRINSICS){
 		while(length >= 4){
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
@@ -315,7 +315,7 @@ public void alphaBlend32bit(M)(uint* src, uint* dest, size_t length, M* mask) {
  * 4 operator alpha-blending function.
  * Mask is either 8 or 32 bit per pixel.
  */
-public void alphaBlend32bit(M)(uint* src, uint* dest, uint* dest0, size_t length, M* mask) {
+public void alphaBlend(M)(uint* src, uint* dest, uint* dest0, size_t length, M* mask) {
 	static if(USE_INTEL_INTRINSICS){
 		while(length >= 4){
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
@@ -419,7 +419,7 @@ public void alphaBlend32bit(M)(uint* src, uint* dest, uint* dest0, size_t length
 /**
  * Fix value alpha-blending, 3 operator.
  */
-public void alphaBlend32bitFV(V)(uint* src, uint* dest, size_t length, V value) {
+public void alphaBlendFV(V)(uint* src, uint* dest, size_t length, V value) {
 	static if(USE_INTEL_INTRINSICS){
 		__m128i maskV;
 		static if (is(V == uint)) {
@@ -501,7 +501,7 @@ public void alphaBlend32bitFV(V)(uint* src, uint* dest, size_t length, V value) 
 /**
  * Fix value alpha-blending, 4 operator.
  */
-public void alphaBlend32bitFV(V)(uint* src, uint* dest, uint* dest0, size_t length, V value) {
+public void alphaBlendFV(V)(uint* src, uint* dest, uint* dest0, size_t length, V value) {
 	static if(USE_INTEL_INTRINSICS){
 		__m128i maskV;
 		static if (is(V == uint)) {
@@ -585,7 +585,7 @@ public void alphaBlend32bitFV(V)(uint* src, uint* dest, uint* dest0, size_t leng
  * `value` controls the overall alpha through extra multiplications on the alpha extracted from the pixels.
  * 2 operator.
  */
-public void alphaBlend32bitMV(V)(uint* src, uint* dest, size_t length, V value) {
+public void alphaBlendMV(V)(uint* src, uint* dest, size_t length, V value) {
 	static if(USE_INTEL_INTRINSICS) {
 		__m128i masterV;
 		static if (is(V == uint)) {
@@ -698,7 +698,7 @@ public void alphaBlend32bitMV(V)(uint* src, uint* dest, size_t length, V value) 
  * `value` controls the overall alpha through extra multiplications on the alpha extracted from the pixels.
  * 3 operator.
  */
-public void alphaBlend32bitMV(V)(uint* src, uint* dest, uint* dest0, size_t length, V value) {
+public void alphaBlendMV(V)(uint* src, uint* dest, uint* dest0, size_t length, V value) {
 	static if(USE_INTEL_INTRINSICS) {
 		__m128i masterV;
 		static if (is(V == uint)) {
@@ -812,7 +812,7 @@ public void alphaBlend32bitMV(V)(uint* src, uint* dest, uint* dest0, size_t leng
  * `value` controls the overall alpha through extra multiplications on the alpha extracted from the pixels.
  * 3 operator.
  */
-public void alphaBlend32bitMV(V,M)(uint* src, uint* dest, size_t length, M* mask, V value) {
+public void alphaBlendMV(V,M)(uint* src, uint* dest, size_t length, M* mask, V value) {
 	static if(USE_INTEL_INTRINSICS) {
 		__m128i masterV;
 		static if (is(V == uint)) {
@@ -928,7 +928,7 @@ public void alphaBlend32bitMV(V,M)(uint* src, uint* dest, size_t length, M* mask
  * `value` controls the overall alpha through extra multiplications on the alpha extracted from the pixels.
  * 3 operator.
  */
-public void alphaBlend32bitMV(V,M)(uint* src, uint* dest, uint* dest0, size_t length, M* mask, V value) {
+public void alphaBlendMV(V,M)(uint* src, uint* dest, uint* dest0, size_t length, M* mask, V value) {
 	static if(USE_INTEL_INTRINSICS) {
 		__m128i masterV;
 		static if (is(V == uint)) {
@@ -1048,40 +1048,40 @@ unittest {
 	uint[255] a, b, c, d;
 	ubyte[255] e;
 	//0 velues should stay 0
-	alphaBlend32bit(a.ptr, b.ptr, 255);
+	alphaBlend(a.ptr, b.ptr, 255);
 	testArrayForValue(b);
-	alphaBlend32bit(a.ptr, b.ptr, 255, d.ptr);
+	alphaBlend(a.ptr, b.ptr, 255, d.ptr);
 	testArrayForValue(b);
-	alphaBlend32bit(a.ptr, b.ptr, c.ptr, 255);
+	alphaBlend(a.ptr, b.ptr, c.ptr, 255);
 	testArrayForValue(c);
-	alphaBlend32bit(a.ptr, b.ptr, c.ptr, 255, d.ptr);
+	alphaBlend(a.ptr, b.ptr, c.ptr, 255, d.ptr);
 	testArrayForValue(c);
-	alphaBlend32bit(a.ptr, b.ptr, 255, e.ptr);
+	alphaBlend(a.ptr, b.ptr, 255, e.ptr);
 	testArrayForValue(b);
-	alphaBlend32bit(a.ptr, b.ptr, c.ptr, 255, e.ptr);
+	alphaBlend(a.ptr, b.ptr, c.ptr, 255, e.ptr);
 	testArrayForValue(c);
-	alphaBlend32bitFV!ubyte(a.ptr, b.ptr, 255, 0x0F);
+	alphaBlendFV!ubyte(a.ptr, b.ptr, 255, 0x0F);
 	testArrayForValue(b);
-	alphaBlend32bitFV!ubyte(a.ptr, b.ptr, c.ptr, 255, 0x0F);
+	alphaBlendFV!ubyte(a.ptr, b.ptr, c.ptr, 255, 0x0F);
 	testArrayForValue(c);
-	alphaBlend32bitFV!uint(a.ptr, b.ptr, 255, 0x0F0F0F0F);
+	alphaBlendFV!uint(a.ptr, b.ptr, 255, 0x0F0F0F0F);
 	testArrayForValue(b);
-	alphaBlend32bitFV!uint(a.ptr, b.ptr, c.ptr, 255, 0x0F0F0F0F);
+	alphaBlendFV!uint(a.ptr, b.ptr, c.ptr, 255, 0x0F0F0F0F);
 	testArrayForValue(c);
-	alphaBlend32bitMV!ubyte(a.ptr, b.ptr, 255, ubyte.max);
+	alphaBlendMV!ubyte(a.ptr, b.ptr, 255, ubyte.max);
 	testArrayForValue(b);
-	alphaBlend32bitMV!ubyte(a.ptr, b.ptr, 255, d.ptr, ubyte.max);
+	alphaBlendMV!ubyte(a.ptr, b.ptr, 255, d.ptr, ubyte.max);
 	testArrayForValue(b);
-	alphaBlend32bitMV!ubyte(a.ptr, b.ptr, c.ptr, 255, ubyte.max);
+	alphaBlendMV!ubyte(a.ptr, b.ptr, c.ptr, 255, ubyte.max);
 	testArrayForValue(c);
-	alphaBlend32bitMV!ubyte(a.ptr, b.ptr, c.ptr, 255, d.ptr, ubyte.max);
+	alphaBlendMV!ubyte(a.ptr, b.ptr, c.ptr, 255, d.ptr, ubyte.max);
 	testArrayForValue(c);
-	alphaBlend32bitMV!uint(a.ptr, b.ptr, 255, uint.max);
+	alphaBlendMV!uint(a.ptr, b.ptr, 255, uint.max);
 	testArrayForValue(b);
-	alphaBlend32bitMV!uint(a.ptr, b.ptr, 255, d.ptr, uint.max);
+	alphaBlendMV!uint(a.ptr, b.ptr, 255, d.ptr, uint.max);
 	testArrayForValue(b);
-	alphaBlend32bitMV!uint(a.ptr, b.ptr, c.ptr, 255, uint.max);
+	alphaBlendMV!uint(a.ptr, b.ptr, c.ptr, 255, uint.max);
 	testArrayForValue(c);
-	alphaBlend32bitMV!uint(a.ptr, b.ptr, c.ptr, 255, d.ptr, uint.max);
+	alphaBlendMV!uint(a.ptr, b.ptr, c.ptr, 255, d.ptr, uint.max);
 	testArrayForValue(c);
 }

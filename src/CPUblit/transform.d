@@ -152,10 +152,14 @@ pure nothrow unittest{
 	import std.conv : to;
 	uint[256] a, b;
 	ubyte[256] c;
+	NibbleArray d = NibbleArray(c[0..$], 512);
+	QuadArray e = QuadArray(c[0..$], 1024);
 	//force the compiler to check the scalers
 	horizontalScaleNearest(a.ptr, b.ptr, 16, 2048);
 	horizontalScaleNearestAndCLU(c.ptr,a.ptr,b.ptr,16,2048);
 	horizontalScaleNearest4BitAndCLU(c.ptr,a.ptr,b.ptr,16,0,2048);
+	horizontalScaleNearestAndCLU(d, a.ptr, b.ptr, 256, 0, 2048);
+	horizontalScaleNearestAndCLU(e, a.ptr, b.ptr, 256, 0, 2048);
 	assert(20 == scaleNearestLength(10, 512), "Error while testing function `scaleNearestLength`. Expected value: 20 " ~
 			"Returned value: " ~ to!string(scaleNearestLength(10, 512)));
 	assert(20 == scaleNearestLength(10, -512), "Error while testing function `scaleNearestLength`. Expected value: 20 " ~

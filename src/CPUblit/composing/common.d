@@ -7,6 +7,8 @@ public import CPUblit.colorspaces;
 public import inteli.emmintrin;
 ///All zeroes vector
 package immutable __m128i SSE2_NULLVECT;
+///All ones vector
+package immutable __m128i SSE2_FULLVECT = [0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF];
 ///All ones vector for alpha-blending offset correction when doing it with integers
 package immutable short8 ALPHABLEND_SSE2_CONST1 = [1,1,1,1,1,1,1,1];
 ///All 256 vector for negative alpha blending

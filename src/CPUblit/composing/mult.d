@@ -11,7 +11,7 @@ import CPUblit.composing.common;
  * dest0[rgba] = src[rgba] * dest[rgba]
  * This is translated to the following formula:
  * dest0[rgba] = ((1 + src[rgba]) * dest[rgba])>>>8
- * If alpha channel is enabled, it'control the blend between the multiplied value and the original one.
+ * If alpha channel is enabled, it'll control the blend between the multiplied value and the original one.
  * dest0[rgba] = ((1.0 - mask[aaaa]) * dest) + (mask[aaaa] * src[rgba] * dest[rgba])
  * In integer, this is:
  * dest0[rgba] = (((256 - mask[aaaa]) * dest) + ((1 + mask[aaaa]) * ((1 + src[rgba]) * dest[rgba])>>>8))>>>8
@@ -20,7 +20,7 @@ import CPUblit.composing.common;
 	/**
 	 * 2 operator multiply function without blending.
 	 */
-	void mult32Bit(uint* src, uint* dest, size_t length) {
+	void mult(uint* src, uint* dest, size_t length) {
 		while (length >= 4) {
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
 			__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
@@ -37,9 +37,9 @@ import CPUblit.composing.common;
 			__m128i srcV = _mm_loadl_epi64(cast(__m128i*)src);
 			__m128i destV = _mm_loadl_epi64(cast(__m128i*)dest);
 			__m128i src_lo = _mm_adds_epu16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), ALPHABLEND_SSE2_CONST1);
-			__m128i src_hi = _mm_adds_epu16(_mm_unpackhi_epi8(srcV, SSE2_NULLVECT), ALPHABLEND_SSE2_CONST1);
+			//__m128i src_hi = _mm_adds_epu16(_mm_unpackhi_epi8(srcV, SSE2_NULLVECT), ALPHABLEND_SSE2_CONST1);
 			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo, _mm_unpacklo_epi8(destV, SSE2_NULLVECT)), 8);
-			src_hi = _mm_srli_epi16(_mm_mullo_epi16(src_hi, _mm_unpackhi_epi8(destV, SSE2_NULLVECT)), 8);
+			//src_hi = _mm_srli_epi16(_mm_mullo_epi16(src_hi, _mm_unpackhi_epi8(destV, SSE2_NULLVECT)), 8);
 			_mm_storel_epi64(cast(__m128i*)dest, _mm_packus_epi16(src_lo, SSE2_NULLVECT));
 			src += 2;
 			dest += 2;
@@ -49,9 +49,9 @@ import CPUblit.composing.common;
 			__m128i srcV = _mm_loadu_si32(src);
 			__m128i destV = _mm_loadu_si32(dest);
 			__m128i src_lo = _mm_adds_epu16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), ALPHABLEND_SSE2_CONST1);
-			__m128i src_hi = _mm_adds_epu16(_mm_unpackhi_epi8(srcV, SSE2_NULLVECT), ALPHABLEND_SSE2_CONST1);
+			//__m128i src_hi = _mm_adds_epu16(_mm_unpackhi_epi8(srcV, SSE2_NULLVECT), ALPHABLEND_SSE2_CONST1);
 			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo, _mm_unpacklo_epi8(destV, SSE2_NULLVECT)), 8);
-			src_hi = _mm_srli_epi16(_mm_mullo_epi16(src_hi, _mm_unpackhi_epi8(destV, SSE2_NULLVECT)), 8);
+			//src_hi = _mm_srli_epi16(_mm_mullo_epi16(src_hi, _mm_unpackhi_epi8(destV, SSE2_NULLVECT)), 8);
 			_mm_storeu_si32(dest, _mm_packus_epi16(src_lo, SSE2_NULLVECT));
 		}
 	}
@@ -59,7 +59,7 @@ import CPUblit.composing.common;
 	 * 3 operator multiply function without blending.
 	 * Has separate destination
 	 */
-	void mult32Bit(uint* src, uint* dest, uint* dest0, size_t length) {
+	void mult(uint* src, uint* dest, uint* dest0, size_t length) {
 		while (length >= 4) {
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
 			__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
@@ -99,7 +99,7 @@ import CPUblit.composing.common;
 	/**
 	 * 2 operator multiply function with blending.
 	 */
-	void mult32BitBl(uint* src, uint* dest, size_t length) {
+	void multBl(uint* src, uint* dest, size_t length) {
 		while (length >= 4) {
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
 			__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
@@ -182,7 +182,7 @@ import CPUblit.composing.common;
 	 * 3 operator multiply function without blending.
 	 * Has separate destination
 	 */
-	void mult32BitBl(uint* src, uint* dest, uint* dest0, size_t length) {
+	void multBl(uint* src, uint* dest, uint* dest0, size_t length) {
 		while (length >= 4) {
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
 			__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
@@ -266,7 +266,7 @@ import CPUblit.composing.common;
 	/**
 	 * 2 operator multiply function without blending and with master value.
 	 */
-	void mult32BitMV(V)(uint* src, uint* dest, size_t length, V value) {
+	void multMV(V)(uint* src, uint* dest, size_t length, V value) {
 		__m128i masterV;
 		static if (is(V == uint)) {
 			masterV[0] = value;
@@ -325,7 +325,7 @@ import CPUblit.composing.common;
 	 * 3 operator multiply function without blending and with master value.
 	 * Has separate destination.
 	 */
-	void mult32BitMV(V)(uint* src, uint* dest, uint* dest0, size_t length, V value) {
+	void multMV(V)(uint* src, uint* dest, uint* dest0, size_t length, V value) {
 		__m128i masterV;
 		static if (is(V == uint)) {
 			masterV[0] = value;
@@ -385,7 +385,7 @@ import CPUblit.composing.common;
 	/**
 	 * 3 operator multiply function with masking.
 	 */
-	void mult32Bit(M)(uint* src, uint* dest, size_t length, M* mask) {
+	void mult(M)(uint* src, uint* dest, size_t length, M* mask) {
 		while (length >= 4) {
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
 			__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
@@ -474,7 +474,7 @@ import CPUblit.composing.common;
 	 * 4 operator multiply function with masking.
 	 * Has separate destination.
 	 */
-	void mult32Bit(M)(uint* src, uint* dest, uint* dest0, size_t length, M* mask) {
+	void mult(M)(uint* src, uint* dest, uint* dest0, size_t length, M* mask) {
 		while (length >= 4) {
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
 			__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
@@ -564,7 +564,7 @@ import CPUblit.composing.common;
 	/**
 	 * 2 operator multiply function with blending and master value.
 	 */
-	void mult32BitMVBl(V)(uint* src, uint* dest, size_t length, V value) {
+	void multMVBl(V)(uint* src, uint* dest, size_t length, V value) {
 		__m128i masterV;
 		static if (is(V == uint)) {
 			masterV[0] = value;
@@ -662,7 +662,7 @@ import CPUblit.composing.common;
 	 * 3 operator multiply function with blending and master value.
 	 * Has separate destination.
 	 */
-	void mult32BitMVBl(V)(uint* src, uint* dest, uint* dest0, size_t length, V value) {
+	void multMVBl(V)(uint* src, uint* dest, uint* dest0, size_t length, V value) {
 		__m128i masterV;
 		static if (is(V == uint)) {
 			masterV[0] = value;
@@ -761,7 +761,7 @@ import CPUblit.composing.common;
 	/**
 	 * 3 operator multiply function with masking and master value.
 	 */
-	void mult32BitMV(M,V)(uint* src, uint* dest, size_t length, M* mask, V value) {
+	void multMV(M,V)(uint* src, uint* dest, size_t length, M* mask, V value) {
 		__m128i masterV;
 		static if (is(V == uint)) {
 			masterV[0] = value;
@@ -865,7 +865,7 @@ import CPUblit.composing.common;
 	 * 4 operator multiply function with masking and master value.
 	 * Has separate destination.
 	 */
-	void mult32BitMV(M,V)(uint* src, uint* dest, uint* dest0, size_t length, M* mask, V value) {
+	void multMV(M,V)(uint* src, uint* dest, uint* dest0, size_t length, M* mask, V value) {
 		__m128i masterV;
 		static if (is(V == uint)) {
 			masterV[0] = value;
@@ -985,231 +985,231 @@ unittest {
 	fillWithSingleValue(src0, 0x30609000);
 	fillWithSingleValue(dest, 0xEE2ADDFF);//result should be `0x2D0F7DFF` if A is FF
 
-	//Tast basic functions
-	mult32Bit(src.ptr, dest.ptr, 255);
+	//Test basic functions
+	mult(src.ptr, dest.ptr, 255);
 	testArrayForValue(dest, 0x2D0F7DFF);
 	fillWithSingleValue(dest, 0xEE2ADDFF);
-	mult32Bit(src.ptr, dest.ptr, dest0.ptr, 255);
+	mult(src.ptr, dest.ptr, dest0.ptr, 255);
 	testArrayForValue(dest0, 0x2D0F7DFF);
 	fillWithSingleValue(dest0, 0);
 
 	//Test blend functions
-	mult32BitBl(src.ptr, dest.ptr, 255);
+	multBl(src.ptr, dest.ptr, 255);
 	testArrayForValue(dest, 0x2D0F7DFF);
 	fillWithSingleValue(dest, 0xEE2ADDFF);
-	mult32BitBl(src.ptr, dest.ptr, dest0.ptr, 255);
+	multBl(src.ptr, dest.ptr, dest0.ptr, 255);
 	testArrayForValue(dest0, 0x2D0F7DFF);
 	fillWithSingleValue(dest0, 0);
 
-	mult32BitBl(src0.ptr, dest.ptr, 255);
+	multBl(src0.ptr, dest.ptr, 255);
 	testArrayForValue(dest, 0xEE2ADDFF);
-	mult32BitBl(src0.ptr, dest.ptr, dest0.ptr, 255);
+	multBl(src0.ptr, dest.ptr, dest0.ptr, 255);
 	testArrayForValue(dest0, 0xEE2ADDFF);
 	fillWithSingleValue(dest0, 0);
 
 	//Test master value functions
-	mult32BitMV(src.ptr, dest.ptr, 255, ubyte.max);
+	multMV(src.ptr, dest.ptr, 255, ubyte.max);
 	testArrayForValue(dest, 0x2D0F7DFF);
 	fillWithSingleValue(dest, 0xEE2ADDFF);
-	mult32BitMV(src.ptr, dest.ptr, dest0.ptr, 255, ubyte.max);
+	multMV(src.ptr, dest.ptr, dest0.ptr, 255, ubyte.max);
 	testArrayForValue(dest0, 0x2D0F7DFF);
 	fillWithSingleValue(dest0, 0);
 
-	mult32BitMV(src.ptr, dest.ptr, 255, uint.max);
+	multMV(src.ptr, dest.ptr, 255, uint.max);
 	testArrayForValue(dest, 0x2D0F7DFF);
 	fillWithSingleValue(dest, 0xEE2ADDFF);
-	mult32BitMV(src.ptr, dest.ptr, dest0.ptr, 255, uint.max);
+	multMV(src.ptr, dest.ptr, dest0.ptr, 255, uint.max);
 	testArrayForValue(dest0, 0x2D0F7DFF);
 	fillWithSingleValue(dest0, 0);
 
-	mult32BitMV(src.ptr, dest.ptr, 255, ubyte.min);
+	multMV(src.ptr, dest.ptr, 255, ubyte.min);
 	testArrayForValue(dest, 0xEE2ADDFF);
-	mult32BitMV(src.ptr, dest.ptr, dest0.ptr, 255, ubyte.min);
+	multMV(src.ptr, dest.ptr, dest0.ptr, 255, ubyte.min);
 	testArrayForValue(dest0, 0xEE2ADDFF);
 	fillWithSingleValue(dest0, 0);
 
-	mult32BitMV(src.ptr, dest.ptr, 255, uint.min);
+	multMV(src.ptr, dest.ptr, 255, uint.min);
 	testArrayForValue(dest, 0xEE2ADDFF);
-	mult32BitMV(src.ptr, dest.ptr, dest0.ptr, 255, uint.min);
+	multMV(src.ptr, dest.ptr, dest0.ptr, 255, uint.min);
 	testArrayForValue(dest0, 0xEE2ADDFF);
 	fillWithSingleValue(dest0, 0);
 
 	//Test mask functions
-	mult32Bit(src.ptr, dest.ptr, 255, mask0A.ptr);
+	mult(src.ptr, dest.ptr, 255, mask0A.ptr);
 	testArrayForValue(dest, 0x2D0F7DFF);
 	fillWithSingleValue(dest, 0xEE2ADDFF);
-	mult32Bit(src.ptr, dest.ptr, dest0.ptr, 255, mask0A.ptr);
+	mult(src.ptr, dest.ptr, dest0.ptr, 255, mask0A.ptr);
 	testArrayForValue(dest0, 0x2D0F7DFF);
 	fillWithSingleValue(dest0, 0);
 
-	mult32Bit(src.ptr, dest.ptr, 255, maskA.ptr);
+	mult(src.ptr, dest.ptr, 255, maskA.ptr);
 	testArrayForValue(dest, 0x2D0F7DFF);
 	fillWithSingleValue(dest, 0xEE2ADDFF);
-	mult32Bit(src.ptr, dest.ptr, dest0.ptr, 255, maskA.ptr);
+	mult(src.ptr, dest.ptr, dest0.ptr, 255, maskA.ptr);
 	testArrayForValue(dest0, 0x2D0F7DFF);
 	fillWithSingleValue(dest0, 0);
 
-	mult32Bit(src.ptr, dest.ptr, 255, mask0B.ptr);
+	mult(src.ptr, dest.ptr, 255, mask0B.ptr);
 	testArrayForValue(dest, 0xEE2ADDFF);
-	mult32Bit(src.ptr, dest.ptr, dest0.ptr, 255, mask0B.ptr);
+	mult(src.ptr, dest.ptr, dest0.ptr, 255, mask0B.ptr);
 	testArrayForValue(dest0, 0xEE2ADDFF);
 	fillWithSingleValue(dest0, 0);
 
-	mult32Bit(src.ptr, dest.ptr, 255, maskB.ptr);
+	mult(src.ptr, dest.ptr, 255, maskB.ptr);
 	testArrayForValue(dest, 0xEE2ADDFF);
-	mult32Bit(src.ptr, dest.ptr, dest0.ptr, 255, maskB.ptr);
+	mult(src.ptr, dest.ptr, dest0.ptr, 255, maskB.ptr);
 	testArrayForValue(dest0, 0xEE2ADDFF);
 	fillWithSingleValue(dest0, 0);
 
-	//Test blend master value functions
-	mult32BitMVBl(src.ptr, dest.ptr, 255, ubyte.max);
+	//Test blend with master value functions
+	multMVBl(src.ptr, dest.ptr, 255, ubyte.max);
 	testArrayForValue(dest, 0x2D0F7DFF);
 	fillWithSingleValue(dest, 0xEE2ADDFF);
-	mult32BitMVBl(src.ptr, dest.ptr, dest0.ptr, 255, ubyte.max);
+	multMVBl(src.ptr, dest.ptr, dest0.ptr, 255, ubyte.max);
 	testArrayForValue(dest0, 0x2D0F7DFF);
 	fillWithSingleValue(dest0, 0);
 
-	mult32BitMVBl(src.ptr, dest.ptr, 255, uint.max);
+	multMVBl(src.ptr, dest.ptr, 255, uint.max);
 	testArrayForValue(dest, 0x2D0F7DFF);
 	fillWithSingleValue(dest, 0xEE2ADDFF);
-	mult32BitMVBl(src.ptr, dest.ptr, dest0.ptr, 255, uint.max);
+	multMVBl(src.ptr, dest.ptr, dest0.ptr, 255, uint.max);
 	testArrayForValue(dest0, 0x2D0F7DFF);
 	fillWithSingleValue(dest0, 0);
 
-	mult32BitMVBl(src.ptr, dest.ptr, 255, ubyte.min);
+	multMVBl(src.ptr, dest.ptr, 255, ubyte.min);
 	testArrayForValue(dest, 0xEE2ADDFF);
-	mult32BitMVBl(src.ptr, dest.ptr, dest0.ptr, 255, ubyte.min);
+	multMVBl(src.ptr, dest.ptr, dest0.ptr, 255, ubyte.min);
 	testArrayForValue(dest0, 0xEE2ADDFF);
 	fillWithSingleValue(dest0, 0);
 
-	mult32BitMVBl(src.ptr, dest.ptr, 255, uint.min);
+	multMVBl(src.ptr, dest.ptr, 255, uint.min);
 	testArrayForValue(dest, 0xEE2ADDFF);
-	mult32BitMVBl(src.ptr, dest.ptr, dest0.ptr, 255, uint.min);
+	multMVBl(src.ptr, dest.ptr, dest0.ptr, 255, uint.min);
 	testArrayForValue(dest0, 0xEE2ADDFF);
 	fillWithSingleValue(dest0, 0);
 
-	mult32BitMVBl(src0.ptr, dest.ptr, 255, ubyte.max);
+	multMVBl(src0.ptr, dest.ptr, 255, ubyte.max);
 	testArrayForValue(dest, 0xEE2ADDFF);
-	mult32BitMVBl(src0.ptr, dest.ptr, dest0.ptr, 255, ubyte.max);
+	multMVBl(src0.ptr, dest.ptr, dest0.ptr, 255, ubyte.max);
 	testArrayForValue(dest0, 0xEE2ADDFF);
 	fillWithSingleValue(dest0, 0);
 
-	mult32BitMVBl(src0.ptr, dest.ptr, 255, uint.max);
+	multMVBl(src0.ptr, dest.ptr, 255, uint.max);
 	testArrayForValue(dest, 0xEE2ADDFF);
-	mult32BitMVBl(src0.ptr, dest.ptr, dest0.ptr, 255, uint.max);
+	multMVBl(src0.ptr, dest.ptr, dest0.ptr, 255, uint.max);
 	testArrayForValue(dest0, 0xEE2ADDFF);
 	fillWithSingleValue(dest0, 0);
 
-	mult32BitMVBl(src0.ptr, dest.ptr, 255, ubyte.min);
+	multMVBl(src0.ptr, dest.ptr, 255, ubyte.min);
 	testArrayForValue(dest, 0xEE2ADDFF);
-	mult32BitMVBl(src0.ptr, dest.ptr, dest0.ptr, 255, ubyte.min);
+	multMVBl(src0.ptr, dest.ptr, dest0.ptr, 255, ubyte.min);
 	testArrayForValue(dest0, 0xEE2ADDFF);
 	fillWithSingleValue(dest0, 0);
 
-	mult32BitMVBl(src0.ptr, dest.ptr, 255, uint.min);
+	multMVBl(src0.ptr, dest.ptr, 255, uint.min);
 	testArrayForValue(dest, 0xEE2ADDFF);
-	mult32BitMVBl(src0.ptr, dest.ptr, dest0.ptr, 255, uint.min);
+	multMVBl(src0.ptr, dest.ptr, dest0.ptr, 255, uint.min);
 	testArrayForValue(dest0, 0xEE2ADDFF);
 	fillWithSingleValue(dest0, 0);
 
 	//Test masking with master value functions
-	mult32BitMV(src.ptr, dest.ptr, 255, mask0A.ptr, ubyte.max);
+	multMV(src.ptr, dest.ptr, 255, mask0A.ptr, ubyte.max);
 	testArrayForValue(dest, 0x2D0F7DFF);
 	fillWithSingleValue(dest, 0xEE2ADDFF);
-	mult32BitMV(src.ptr, dest.ptr, dest0.ptr, 255, mask0A.ptr, ubyte.max);
+	multMV(src.ptr, dest.ptr, dest0.ptr, 255, mask0A.ptr, ubyte.max);
 	testArrayForValue(dest0, 0x2D0F7DFF);
 	fillWithSingleValue(dest0, 0);
 
-	mult32BitMV(src.ptr, dest.ptr, 255, mask0A.ptr, uint.max);
+	multMV(src.ptr, dest.ptr, 255, mask0A.ptr, uint.max);
 	testArrayForValue(dest, 0x2D0F7DFF);
 	fillWithSingleValue(dest, 0xEE2ADDFF);
-	mult32BitMV(src.ptr, dest.ptr, dest0.ptr, 255, mask0A.ptr, uint.max);
+	multMV(src.ptr, dest.ptr, dest0.ptr, 255, mask0A.ptr, uint.max);
 	testArrayForValue(dest0, 0x2D0F7DFF);
 	fillWithSingleValue(dest0, 0);
 
-	mult32BitMV(src.ptr, dest.ptr, 255, mask0A.ptr, ubyte.min);
+	multMV(src.ptr, dest.ptr, 255, mask0A.ptr, ubyte.min);
 	testArrayForValue(dest, 0xEE2ADDFF);
-	mult32BitMV(src.ptr, dest.ptr, dest0.ptr, 255, mask0A.ptr, ubyte.min);
+	multMV(src.ptr, dest.ptr, dest0.ptr, 255, mask0A.ptr, ubyte.min);
 	testArrayForValue(dest0, 0xEE2ADDFF);
 	fillWithSingleValue(dest0, 0);
 
-	mult32BitMV(src.ptr, dest.ptr, 255, mask0A.ptr, uint.min);
+	multMV(src.ptr, dest.ptr, 255, mask0A.ptr, uint.min);
 	testArrayForValue(dest, 0xEE2ADDFF);
-	mult32BitMV(src.ptr, dest.ptr, dest0.ptr, 255, mask0A.ptr, uint.min);
+	multMV(src.ptr, dest.ptr, dest0.ptr, 255, mask0A.ptr, uint.min);
 	testArrayForValue(dest0, 0xEE2ADDFF);
 	fillWithSingleValue(dest0, 0);
 
-	mult32BitMV(src0.ptr, dest.ptr, 255, mask0B.ptr, ubyte.max);
+	multMV(src.ptr, dest.ptr, 255, mask0B.ptr, ubyte.max);
 	testArrayForValue(dest, 0xEE2ADDFF);
-	mult32BitMV(src0.ptr, dest.ptr, dest0.ptr, 255, mask0B.ptr, ubyte.max);
+	multMV(src.ptr, dest.ptr, dest0.ptr, 255, mask0B.ptr, ubyte.max);
 	testArrayForValue(dest0, 0xEE2ADDFF);
 	fillWithSingleValue(dest0, 0);
 
-	mult32BitMV(src0.ptr, dest.ptr, 255, mask0B.ptr, uint.max);
+	multMV(src.ptr, dest.ptr, 255, mask0B.ptr, uint.max);
 	testArrayForValue(dest, 0xEE2ADDFF);
-	mult32BitMV(src0.ptr, dest.ptr, dest0.ptr, 255, mask0B.ptr, uint.max);
+	multMV(src.ptr, dest.ptr, dest0.ptr, 255, mask0B.ptr, uint.max);
 	testArrayForValue(dest0, 0xEE2ADDFF);
 	fillWithSingleValue(dest0, 0);
 
-	mult32BitMV(src0.ptr, dest.ptr, 255, mask0B.ptr, ubyte.min);
+	multMV(src.ptr, dest.ptr, 255, mask0B.ptr, ubyte.min);
 	testArrayForValue(dest, 0xEE2ADDFF);
-	mult32BitMV(src0.ptr, dest.ptr, dest0.ptr, 255, mask0B.ptr, ubyte.min);
+	multMV(src.ptr, dest.ptr, dest0.ptr, 255, mask0B.ptr, ubyte.min);
 	testArrayForValue(dest0, 0xEE2ADDFF);
 	fillWithSingleValue(dest0, 0);
 
-	mult32BitMV(src0.ptr, dest.ptr, 255, mask0B.ptr, uint.min);
+	multMV(src.ptr, dest.ptr, 255, mask0B.ptr, uint.min);
 	testArrayForValue(dest, 0xEE2ADDFF);
-	mult32BitMV(src0.ptr, dest.ptr, dest0.ptr, 255, mask0B.ptr, uint.min);
+	multMV(src.ptr, dest.ptr, dest0.ptr, 255, mask0B.ptr, uint.min);
 	testArrayForValue(dest0, 0xEE2ADDFF);
 	fillWithSingleValue(dest0, 0);
 	//
-	mult32BitMV(src.ptr, dest.ptr, 255, maskA.ptr, ubyte.max);
+	multMV(src.ptr, dest.ptr, 255, maskA.ptr, ubyte.max);
 	testArrayForValue(dest, 0x2D0F7DFF);
 	fillWithSingleValue(dest, 0xEE2ADDFF);
-	mult32BitMV(src.ptr, dest.ptr, dest0.ptr, 255, maskA.ptr, ubyte.max);
+	multMV(src.ptr, dest.ptr, dest0.ptr, 255, maskA.ptr, ubyte.max);
 	testArrayForValue(dest0, 0x2D0F7DFF);
 	fillWithSingleValue(dest0, 0);
 
-	mult32BitMV(src.ptr, dest.ptr, 255, maskA.ptr, uint.max);
+	multMV(src.ptr, dest.ptr, 255, maskA.ptr, uint.max);
 	testArrayForValue(dest, 0x2D0F7DFF);
 	fillWithSingleValue(dest, 0xEE2ADDFF);
-	mult32BitMV(src.ptr, dest.ptr, dest0.ptr, 255, maskA.ptr, uint.max);
+	multMV(src.ptr, dest.ptr, dest0.ptr, 255, maskA.ptr, uint.max);
 	testArrayForValue(dest0, 0x2D0F7DFF);
 	fillWithSingleValue(dest0, 0);
 
-	mult32BitMV(src.ptr, dest.ptr, 255, maskA.ptr, ubyte.min);
+	multMV(src.ptr, dest.ptr, 255, maskA.ptr, ubyte.min);
 	testArrayForValue(dest, 0xEE2ADDFF);
-	mult32BitMV(src.ptr, dest.ptr, dest0.ptr, 255, maskA.ptr, ubyte.min);
+	multMV(src.ptr, dest.ptr, dest0.ptr, 255, maskA.ptr, ubyte.min);
 	testArrayForValue(dest0, 0xEE2ADDFF);
 	fillWithSingleValue(dest0, 0);
 
-	mult32BitMV(src.ptr, dest.ptr, 255, maskA.ptr, uint.min);
+	multMV(src.ptr, dest.ptr, 255, maskA.ptr, uint.min);
 	testArrayForValue(dest, 0xEE2ADDFF);
-	mult32BitMV(src.ptr, dest.ptr, dest0.ptr, 255, maskA.ptr, uint.min);
+	multMV(src.ptr, dest.ptr, dest0.ptr, 255, maskA.ptr, uint.min);
 	testArrayForValue(dest0, 0xEE2ADDFF);
 	fillWithSingleValue(dest0, 0);
 
-	mult32BitMV(src0.ptr, dest.ptr, 255, maskB.ptr, ubyte.max);
+	multMV(src.ptr, dest.ptr, 255, maskB.ptr, ubyte.max);
 	testArrayForValue(dest, 0xEE2ADDFF);
-	mult32BitMV(src0.ptr, dest.ptr, dest0.ptr, 255, maskB.ptr, ubyte.max);
+	multMV(src.ptr, dest.ptr, dest0.ptr, 255, maskB.ptr, ubyte.max);
 	testArrayForValue(dest0, 0xEE2ADDFF);
 	fillWithSingleValue(dest0, 0);
 
-	mult32BitMV(src0.ptr, dest.ptr, 255, maskB.ptr, uint.max);
+	multMV(src.ptr, dest.ptr, 255, maskB.ptr, uint.max);
 	testArrayForValue(dest, 0xEE2ADDFF);
-	mult32BitMV(src0.ptr, dest.ptr, dest0.ptr, 255, maskB.ptr, uint.max);
+	multMV(src.ptr, dest.ptr, dest0.ptr, 255, maskB.ptr, uint.max);
 	testArrayForValue(dest0, 0xEE2ADDFF);
 	fillWithSingleValue(dest0, 0);
 
-	mult32BitMV(src0.ptr, dest.ptr, 255, maskB.ptr, ubyte.min);
+	multMV(src.ptr, dest.ptr, 255, maskB.ptr, ubyte.min);
 	testArrayForValue(dest, 0xEE2ADDFF);
-	mult32BitMV(src0.ptr, dest.ptr, dest0.ptr, 255, maskB.ptr, ubyte.min);
+	multMV(src.ptr, dest.ptr, dest0.ptr, 255, maskB.ptr, ubyte.min);
 	testArrayForValue(dest0, 0xEE2ADDFF);
 	fillWithSingleValue(dest0, 0);
 
-	mult32BitMV(src0.ptr, dest.ptr, 255, maskB.ptr, uint.min);
+	multMV(src.ptr, dest.ptr, 255, maskB.ptr, uint.min);
 	testArrayForValue(dest, 0xEE2ADDFF);
-	mult32BitMV(src0.ptr, dest.ptr, dest0.ptr, 255, maskB.ptr, uint.min);
+	multMV(src.ptr, dest.ptr, dest0.ptr, 255, maskB.ptr, uint.min);
 	testArrayForValue(dest0, 0xEE2ADDFF);
 	//fillWithSingleValue(dest0, 0);
 }
