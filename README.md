@@ -30,13 +30,16 @@ Many composing functions are semi-interchangeable with virtual function calls.
 
 ```d
 alias cmpFunc = void function(uint*, uint* size_t) @nogc pure nothrow;
+cmpFunc f = &alphaBlend;
 ```
+
+NOTE: there's currently an issue with how D handles templates with overloads, so it might not really work.
 
 The recommended solution for composing two images with different sizes is a per-line approach:
 
 ```d
 for (int i ; i < lineNum ; i++) {
-    alphaBlend32bit(src + i * srcPitch, dest + i * destPitch, lineLength);
+    alphaBlend(src + i * srcPitch, dest + i * destPitch, lineLength);
 }
 ```
 
