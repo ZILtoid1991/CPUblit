@@ -24,13 +24,13 @@ import CPUblit.composing.common;
 		while (length >= 4) {
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*) src);
 			__m128i destV = _mm_loadu_si128(cast(__m128i*) dest);
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
-			__m128i src_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpackhi_epi8(srcV, SSE2_NULLVECT));
-			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo, _mm_subs_epu16(ALPHABLEND_SSE2_CONST255,
+			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo, _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255,
 					_mm_unpacklo_epi8(destV, SSE2_NULLVECT))), 8);
-			src_hi = _mm_srli_epi16(_mm_mullo_epi16(src_hi, _mm_subs_epu16(ALPHABLEND_SSE2_CONST255,
+			src_hi = _mm_srli_epi16(_mm_mullo_epi16(src_hi, _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255,
 					_mm_unpackhi_epi8(destV, SSE2_NULLVECT))), 8);
 			_mm_storeu_si128(cast(__m128i*) dest, _mm_subs_epu8(SSE2_FULLVECT,
 					_mm_packus_epi16(src_lo, src_hi)));
@@ -41,9 +41,9 @@ import CPUblit.composing.common;
 		if (length >= 2) {
 			__m128i srcV = _mm_loadl_epi64(cast(__m128i*) src);
 			__m128i destV = _mm_loadl_epi64(cast(__m128i*) dest);
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
-			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo, _mm_subs_epu16(ALPHABLEND_SSE2_CONST255,
+			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo, _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255,
 					_mm_unpacklo_epi8(destV, SSE2_NULLVECT))), 8);
 			_mm_storel_epi64(cast(__m128i*) dest, _mm_subs_epu8(SSE2_FULLVECT,
 					_mm_packus_epi16(src_lo, SSE2_NULLVECT)));
@@ -54,9 +54,9 @@ import CPUblit.composing.common;
 		if (length) {
 			__m128i srcV = _mm_loadu_si32(src);
 			__m128i destV = _mm_loadu_si32(dest);
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
-			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo, _mm_subs_epu16(ALPHABLEND_SSE2_CONST255,
+			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo, _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255,
 					_mm_unpacklo_epi8(destV, SSE2_NULLVECT))), 8);
 			_mm_storeu_si32(dest, _mm_subs_epu8(SSE2_FULLVECT,
 					_mm_packus_epi16(src_lo, SSE2_NULLVECT)));
@@ -69,13 +69,13 @@ import CPUblit.composing.common;
 		while (length >= 4) {
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*) src);
 			__m128i destV = _mm_loadu_si128(cast(__m128i*) dest);
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
-			__m128i src_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpackhi_epi8(srcV, SSE2_NULLVECT));
-			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo, _mm_subs_epu16(ALPHABLEND_SSE2_CONST255,
+			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo, _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255,
 					_mm_unpacklo_epi8(destV, SSE2_NULLVECT))), 8);
-			src_hi = _mm_srli_epi16(_mm_mullo_epi16(src_hi, _mm_subs_epu16(ALPHABLEND_SSE2_CONST255,
+			src_hi = _mm_srli_epi16(_mm_mullo_epi16(src_hi, _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255,
 					_mm_unpackhi_epi8(destV, SSE2_NULLVECT))), 8);
 			_mm_storeu_si128(cast(__m128i*) dest0, _mm_subs_epu8(SSE2_FULLVECT,
 					_mm_packus_epi16(src_lo, src_hi)));
@@ -87,9 +87,9 @@ import CPUblit.composing.common;
 		if (length >= 2) {
 			__m128i srcV = _mm_loadl_epi64(cast(__m128i*) src);
 			__m128i destV = _mm_loadl_epi64(cast(__m128i*) dest);
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
-			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo, _mm_subs_epu16(ALPHABLEND_SSE2_CONST255,
+			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo, _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255,
 					_mm_unpacklo_epi8(destV, SSE2_NULLVECT))), 8);
 			_mm_storel_epi64(cast(__m128i*) dest0, _mm_subs_epu8(SSE2_FULLVECT,
 					_mm_packus_epi16(src_lo, SSE2_NULLVECT)));
@@ -101,9 +101,9 @@ import CPUblit.composing.common;
 		if (length) {
 			__m128i srcV = _mm_loadu_si32(src);
 			__m128i destV = _mm_loadu_si32(dest);
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
-			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo, _mm_subs_epu16(ALPHABLEND_SSE2_CONST255,
+			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo, _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255,
 					_mm_unpacklo_epi8(destV, SSE2_NULLVECT))), 8);
 			_mm_storeu_si32(dest0, _mm_subs_epu8(SSE2_FULLVECT,
 					_mm_packus_epi16(src_lo, SSE2_NULLVECT)));
@@ -124,25 +124,25 @@ import CPUblit.composing.common;
 				maskV |= _mm_slli_epi32(maskV, 8);
 				maskV |= _mm_slli_epi32(maskV, 16); //[A,A,A,A]
 			}
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
-			__m128i src_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpackhi_epi8(srcV, SSE2_NULLVECT));
 			__m128i dest_lo = _mm_unpacklo_epi8(destV, SSE2_NULLVECT);
 			__m128i dest_hi = _mm_unpackhi_epi8(destV, SSE2_NULLVECT);
 			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
 			src_hi = _mm_srli_epi16(_mm_mullo_epi16(src_hi,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_hi)), 8);
-			src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_lo);
-			src_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_hi);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_hi)), 8);
+			src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_lo);
+			src_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_hi);
 
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
 			__m128i mask_hi = _mm_unpackhi_epi8(maskV, SSE2_NULLVECT);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			__m128i mask0_hi = _mm_adds_epu16(mask_hi, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
-			mask_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_hi);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			__m128i mask0_hi = _mm_adds_epu16(mask_hi, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
+			mask_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_hi);
 			src_lo = _mm_mullo_epi16(src_lo, mask0_lo);
 			src_hi = _mm_mullo_epi16(src_hi, mask0_hi);
 			dest_lo = _mm_mullo_epi16(dest_lo, mask_lo);
@@ -165,16 +165,16 @@ import CPUblit.composing.common;
 				maskV |= _mm_slli_epi32(maskV, 8);
 				maskV |= _mm_slli_epi32(maskV, 16); //[A,A,A,A]
 			}
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
 			__m128i dest_lo = _mm_unpacklo_epi8(destV, SSE2_NULLVECT);
 			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
-			src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_lo);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
+			src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_lo);
 
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
 			src_lo = _mm_mullo_epi16(src_lo, mask0_lo);
 			dest_lo = _mm_mullo_epi16(dest_lo, mask_lo);
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
@@ -194,16 +194,16 @@ import CPUblit.composing.common;
 				maskV |= _mm_slli_epi32(maskV, 8);
 				maskV |= _mm_slli_epi32(maskV, 16); //[A,A,A,A]
 			}
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
 			__m128i dest_lo = _mm_unpacklo_epi8(destV, SSE2_NULLVECT);
 			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
-			src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_lo);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
+			src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_lo);
 
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
 			src_lo = _mm_mullo_epi16(src_lo, mask0_lo);
 			dest_lo = _mm_mullo_epi16(dest_lo, mask_lo);
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
@@ -225,25 +225,25 @@ import CPUblit.composing.common;
 				maskV |= _mm_slli_epi32(maskV, 8);
 				maskV |= _mm_slli_epi32(maskV, 16); //[A,A,A,A]
 			}
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
-			__m128i src_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpackhi_epi8(srcV, SSE2_NULLVECT));
 			__m128i dest_lo = _mm_unpacklo_epi8(destV, SSE2_NULLVECT);
 			__m128i dest_hi = _mm_unpackhi_epi8(destV, SSE2_NULLVECT);
 			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
 			src_hi = _mm_srli_epi16(_mm_mullo_epi16(src_hi,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_hi)), 8);
-			src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_lo);
-			src_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_hi);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_hi)), 8);
+			src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_lo);
+			src_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_hi);
 
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
 			__m128i mask_hi = _mm_unpackhi_epi8(maskV, SSE2_NULLVECT);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			__m128i mask0_hi = _mm_adds_epu16(mask_hi, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
-			mask_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_hi);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			__m128i mask0_hi = _mm_adds_epu16(mask_hi, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
+			mask_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_hi);
 			src_lo = _mm_mullo_epi16(src_lo, mask0_lo);
 			src_hi = _mm_mullo_epi16(src_hi, mask0_hi);
 			dest_lo = _mm_mullo_epi16(dest_lo, mask_lo);
@@ -267,16 +267,16 @@ import CPUblit.composing.common;
 				maskV |= _mm_slli_epi32(maskV, 8);
 				maskV |= _mm_slli_epi32(maskV, 16); //[A,A,A,A]
 			}
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
 			__m128i dest_lo = _mm_unpacklo_epi8(destV, SSE2_NULLVECT);
 			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
-			src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_lo);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
+			src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_lo);
 
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
 			src_lo = _mm_mullo_epi16(src_lo, mask0_lo);
 			dest_lo = _mm_mullo_epi16(dest_lo, mask_lo);
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
@@ -297,16 +297,16 @@ import CPUblit.composing.common;
 				maskV |= _mm_slli_epi32(maskV, 8);
 				maskV |= _mm_slli_epi32(maskV, 16); //[A,A,A,A]
 			}
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
 			__m128i dest_lo = _mm_unpacklo_epi8(destV, SSE2_NULLVECT);
 			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
-			src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_lo);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
+			src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_lo);
 
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
 			src_lo = _mm_mullo_epi16(src_lo, mask0_lo);
 			dest_lo = _mm_mullo_epi16(dest_lo, mask_lo);
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
@@ -333,25 +333,25 @@ import CPUblit.composing.common;
 				maskV |= _mm_slli_epi32(maskV, 16);//[A,A,A,A]
 			} else static assert (0, "Alpha mask must be either 8 or 32 bits!");
 
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
-			__m128i src_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpackhi_epi8(srcV, SSE2_NULLVECT));
 			__m128i dest_lo = _mm_unpacklo_epi8(destV, SSE2_NULLVECT);
 			__m128i dest_hi = _mm_unpackhi_epi8(destV, SSE2_NULLVECT);
 			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
 			src_hi = _mm_srli_epi16(_mm_mullo_epi16(src_hi,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_hi)), 8);
-			src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_lo);
-			src_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_hi);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_hi)), 8);
+			src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_lo);
+			src_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_hi);
 
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
 			__m128i mask_hi = _mm_unpackhi_epi8(maskV, SSE2_NULLVECT);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			__m128i mask0_hi = _mm_adds_epu16(mask_hi, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
-			mask_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_hi);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			__m128i mask0_hi = _mm_adds_epu16(mask_hi, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
+			mask_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_hi);
 			src_lo = _mm_mullo_epi16(src_lo, mask0_lo);
 			src_hi = _mm_mullo_epi16(src_hi, mask0_hi);
 			dest_lo = _mm_mullo_epi16(dest_lo, mask_lo);
@@ -377,16 +377,16 @@ import CPUblit.composing.common;
 				maskV |= _mm_slli_epi32(maskV, 16);//[A,A,A,A]
 			}
 
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
 			__m128i dest_lo = _mm_unpacklo_epi8(destV, SSE2_NULLVECT);
 			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
-			src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_lo);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
+			src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_lo);
 
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
 			src_lo = _mm_mullo_epi16(src_lo, mask0_lo);
 			dest_lo = _mm_mullo_epi16(dest_lo, mask_lo);
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
@@ -408,16 +408,16 @@ import CPUblit.composing.common;
 				maskV |= _mm_slli_epi32(maskV, 16);//[A,A,A,A]
 			}
 
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
 			__m128i dest_lo = _mm_unpacklo_epi8(destV, SSE2_NULLVECT);
 			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
-			src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_lo);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
+			src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_lo);
 
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
 			src_lo = _mm_mullo_epi16(src_lo, mask0_lo);
 			dest_lo = _mm_mullo_epi16(dest_lo, mask_lo);
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
@@ -443,25 +443,25 @@ import CPUblit.composing.common;
 				maskV |= _mm_slli_epi32(maskV, 16);//[A,A,A,A]
 			} else static assert (0, "Alpha mask must be either 8 or 32 bits!");
 
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
-			__m128i src_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpackhi_epi8(srcV, SSE2_NULLVECT));
 			__m128i dest_lo = _mm_unpacklo_epi8(destV, SSE2_NULLVECT);
 			__m128i dest_hi = _mm_unpackhi_epi8(destV, SSE2_NULLVECT);
 			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
 			src_hi = _mm_srli_epi16(_mm_mullo_epi16(src_hi,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_hi)), 8);
-			src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_lo);
-			src_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_hi);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_hi)), 8);
+			src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_lo);
+			src_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_hi);
 
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
 			__m128i mask_hi = _mm_unpackhi_epi8(maskV, SSE2_NULLVECT);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			__m128i mask0_hi = _mm_adds_epu16(mask_hi, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
-			mask_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_hi);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			__m128i mask0_hi = _mm_adds_epu16(mask_hi, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
+			mask_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_hi);
 			src_lo = _mm_mullo_epi16(src_lo, mask0_lo);
 			src_hi = _mm_mullo_epi16(src_hi, mask0_hi);
 			dest_lo = _mm_mullo_epi16(dest_lo, mask_lo);
@@ -488,16 +488,16 @@ import CPUblit.composing.common;
 				maskV |= _mm_slli_epi32(maskV, 16);//[A,A,A,A]
 			}
 
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
 			__m128i dest_lo = _mm_unpacklo_epi8(destV, SSE2_NULLVECT);
 			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
-			src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_lo);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
+			src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_lo);
 
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
 			src_lo = _mm_mullo_epi16(src_lo, mask0_lo);
 			dest_lo = _mm_mullo_epi16(dest_lo, mask_lo);
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
@@ -520,16 +520,16 @@ import CPUblit.composing.common;
 				maskV |= _mm_slli_epi32(maskV, 16);//[A,A,A,A]
 			}
 
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
 			__m128i dest_lo = _mm_unpacklo_epi8(destV, SSE2_NULLVECT);
 			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
-			src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_lo);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
+			src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_lo);
 
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
 			src_lo = _mm_mullo_epi16(src_lo, mask0_lo);
 			dest_lo = _mm_mullo_epi16(dest_lo, mask_lo);
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
@@ -552,26 +552,26 @@ import CPUblit.composing.common;
 			masterV |= _mm_slli_epi32(masterV, 16);
 		} else
 			static assert(0, "Value must be either 8 or 32 bits!");
-		__m128i master_256 = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+		__m128i master_256 = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 				_mm_unpacklo_epi8(masterV, SSE2_NULLVECT));
 		__m128i master_1 = _mm_adds_epu16(_mm_unpacklo_epi8(masterV,
-				SSE2_NULLVECT), ALPHABLEND_SSE2_CONST1);
+				SSE2_NULLVECT), cast(__m128i)ALPHABLEND_SSE2_CONST1);
 		while (length >= 4) {
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*) src);
 			__m128i destV = _mm_loadu_si128(cast(__m128i*) dest);
 
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
-			__m128i src_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpackhi_epi8(srcV, SSE2_NULLVECT));
 			__m128i dest_lo = _mm_unpacklo_epi8(destV, SSE2_NULLVECT);
 			__m128i dest_hi = _mm_unpackhi_epi8(destV, SSE2_NULLVECT);
 			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
 			src_hi = _mm_srli_epi16(_mm_mullo_epi16(src_hi,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_hi)), 8);
-			src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_lo);
-			src_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_hi);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_hi)), 8);
+			src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_lo);
+			src_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_hi);
 
 			src_lo = _mm_mullo_epi16(src_lo, master_1);
 			src_hi = _mm_mullo_epi16(src_hi, master_1);
@@ -588,12 +588,12 @@ import CPUblit.composing.common;
 			__m128i srcV = _mm_loadl_epi64(cast(__m128i*) src);
 			__m128i destV = _mm_loadl_epi64(cast(__m128i*) dest);
 
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
 			__m128i dest_lo = _mm_unpacklo_epi8(destV, SSE2_NULLVECT);
 			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
-			src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_lo);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
+			src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_lo);
 
 			src_lo = _mm_mullo_epi16(src_lo, master_1);
 			dest_lo = _mm_mullo_epi16(dest_lo, master_256);
@@ -607,12 +607,12 @@ import CPUblit.composing.common;
 			__m128i srcV = _mm_loadu_si32(src);
 			__m128i destV = _mm_loadu_si32(dest);
 
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
 			__m128i dest_lo = _mm_unpacklo_epi8(destV, SSE2_NULLVECT);
 			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
-			src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_lo);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
+			src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_lo);
 
 			src_lo = _mm_mullo_epi16(src_lo, master_1);
 			dest_lo = _mm_mullo_epi16(dest_lo, master_256);
@@ -635,26 +635,26 @@ import CPUblit.composing.common;
 			masterV |= _mm_slli_epi32(masterV, 16);
 		} else
 			static assert(0, "Value must be either 8 or 32 bits!");
-		__m128i master_256 = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+		__m128i master_256 = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 				_mm_unpacklo_epi8(masterV, SSE2_NULLVECT));
 		__m128i master_1 = _mm_adds_epu16(_mm_unpacklo_epi8(masterV,
-				SSE2_NULLVECT), ALPHABLEND_SSE2_CONST1);
+				SSE2_NULLVECT), cast(__m128i)ALPHABLEND_SSE2_CONST1);
 		while (length >= 4) {
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*) src);
 			__m128i destV = _mm_loadu_si128(cast(__m128i*) dest);
 
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
-			__m128i src_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpackhi_epi8(srcV, SSE2_NULLVECT));
 			__m128i dest_lo = _mm_unpacklo_epi8(destV, SSE2_NULLVECT);
 			__m128i dest_hi = _mm_unpackhi_epi8(destV, SSE2_NULLVECT);
 			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
 			src_hi = _mm_srli_epi16(_mm_mullo_epi16(src_hi,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_hi)), 8);
-			src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_lo);
-			src_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_hi);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_hi)), 8);
+			src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_lo);
+			src_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_hi);
 
 			src_lo = _mm_mullo_epi16(src_lo, master_1);
 			src_hi = _mm_mullo_epi16(src_hi, master_1);
@@ -672,12 +672,12 @@ import CPUblit.composing.common;
 			__m128i srcV = _mm_loadl_epi64(cast(__m128i*) src);
 			__m128i destV = _mm_loadl_epi64(cast(__m128i*) dest);
 
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
 			__m128i dest_lo = _mm_unpacklo_epi8(destV, SSE2_NULLVECT);
 			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
-			src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_lo);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
+			src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_lo);
 
 			src_lo = _mm_mullo_epi16(src_lo, master_1);
 			dest_lo = _mm_mullo_epi16(dest_lo, master_256);
@@ -692,12 +692,12 @@ import CPUblit.composing.common;
 			__m128i srcV = _mm_loadu_si32(src);
 			__m128i destV = _mm_loadu_si32(dest);
 
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
 			__m128i dest_lo = _mm_unpacklo_epi8(destV, SSE2_NULLVECT);
 			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
-			src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_lo);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
+			src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_lo);
 
 			src_lo = _mm_mullo_epi16(src_lo, master_1);
 			dest_lo = _mm_mullo_epi16(dest_lo, master_256);
@@ -721,7 +721,7 @@ import CPUblit.composing.common;
 			masterV |= _mm_slli_epi32(masterV, 16);
 		} else
 			static assert(0, "Value must be either 8 or 32 bits!");
-		masterV = _mm_adds_epu16(_mm_unpacklo_epi8(masterV, SSE2_NULLVECT), ALPHABLEND_SSE2_CONST1);
+		masterV = _mm_adds_epu16(_mm_unpacklo_epi8(masterV, SSE2_NULLVECT), cast(__m128i)ALPHABLEND_SSE2_CONST1);
 		while (length >= 4) {
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*) src);
 			__m128i destV = _mm_loadu_si128(cast(__m128i*) dest);
@@ -733,27 +733,27 @@ import CPUblit.composing.common;
 				maskV |= _mm_slli_epi32(maskV, 8);
 				maskV |= _mm_slli_epi32(maskV, 16); //[A,A,A,A]
 			}
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
-			__m128i src_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpackhi_epi8(srcV, SSE2_NULLVECT));
 			__m128i dest_lo = _mm_unpacklo_epi8(destV, SSE2_NULLVECT);
 			__m128i dest_hi = _mm_unpackhi_epi8(destV, SSE2_NULLVECT);
 			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
 			src_hi = _mm_srli_epi16(_mm_mullo_epi16(src_hi,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_hi)), 8);
-			src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_lo);
-			src_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_hi);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_hi)), 8);
+			src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_lo);
+			src_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_hi);
 
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
 			__m128i mask_hi = _mm_unpackhi_epi8(maskV, SSE2_NULLVECT);
 			mask_lo = _mm_srli_epi16(_mm_mullo_epi16(mask_lo, masterV), 8);
 			mask_hi = _mm_srli_epi16(_mm_mullo_epi16(mask_hi, masterV), 8);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			__m128i mask0_hi = _mm_adds_epu16(mask_hi, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
-			mask_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_hi);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			__m128i mask0_hi = _mm_adds_epu16(mask_hi, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
+			mask_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_hi);
 			src_lo = _mm_mullo_epi16(src_lo, mask0_lo);
 			src_hi = _mm_mullo_epi16(src_hi, mask0_hi);
 			dest_lo = _mm_mullo_epi16(dest_lo, mask_lo);
@@ -776,17 +776,17 @@ import CPUblit.composing.common;
 				maskV |= _mm_slli_epi32(maskV, 8);
 				maskV |= _mm_slli_epi32(maskV, 16); //[A,A,A,A]
 			}
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
 			__m128i dest_lo = _mm_unpacklo_epi8(destV, SSE2_NULLVECT);
 			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
-			src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_lo);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
+			src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_lo);
 
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
 			mask_lo = _mm_srli_epi16(_mm_mullo_epi16(mask_lo, masterV), 8);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
 			src_lo = _mm_mullo_epi16(src_lo, mask0_lo);
 			dest_lo = _mm_mullo_epi16(dest_lo, mask_lo);
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
@@ -806,17 +806,17 @@ import CPUblit.composing.common;
 				maskV |= _mm_slli_epi32(maskV, 8);
 				maskV |= _mm_slli_epi32(maskV, 16); //[A,A,A,A]
 			}
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
 			__m128i dest_lo = _mm_unpacklo_epi8(destV, SSE2_NULLVECT);
 			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
-			src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_lo);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
+			src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_lo);
 
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
 			mask_lo = _mm_srli_epi16(_mm_mullo_epi16(mask_lo, masterV), 8);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
 			src_lo = _mm_mullo_epi16(src_lo, mask0_lo);
 			dest_lo = _mm_mullo_epi16(dest_lo, mask_lo);
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
@@ -838,7 +838,7 @@ import CPUblit.composing.common;
 			masterV |= _mm_slli_epi32(masterV, 16);
 		} else
 			static assert(0, "Value must be either 8 or 32 bits!");
-		masterV = _mm_adds_epu16(_mm_unpacklo_epi8(masterV, SSE2_NULLVECT), ALPHABLEND_SSE2_CONST1);
+		masterV = _mm_adds_epu16(_mm_unpacklo_epi8(masterV, SSE2_NULLVECT), cast(__m128i)ALPHABLEND_SSE2_CONST1);
 		while (length >= 4) {
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*) src);
 			__m128i destV = _mm_loadu_si128(cast(__m128i*) dest);
@@ -850,27 +850,27 @@ import CPUblit.composing.common;
 				maskV |= _mm_slli_epi32(maskV, 8);
 				maskV |= _mm_slli_epi32(maskV, 16); //[A,A,A,A]
 			}
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
-			__m128i src_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpackhi_epi8(srcV, SSE2_NULLVECT));
 			__m128i dest_lo = _mm_unpacklo_epi8(destV, SSE2_NULLVECT);
 			__m128i dest_hi = _mm_unpackhi_epi8(destV, SSE2_NULLVECT);
 			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
 			src_hi = _mm_srli_epi16(_mm_mullo_epi16(src_hi,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_hi)), 8);
-			src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_lo);
-			src_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_hi);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_hi)), 8);
+			src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_lo);
+			src_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_hi);
 
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
 			__m128i mask_hi = _mm_unpackhi_epi8(maskV, SSE2_NULLVECT);
 			mask_lo = _mm_srli_epi16(_mm_mullo_epi16(mask_lo, masterV), 8);
 			mask_hi = _mm_srli_epi16(_mm_mullo_epi16(mask_hi, masterV), 8);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			__m128i mask0_hi = _mm_adds_epu16(mask_hi, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
-			mask_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_hi);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			__m128i mask0_hi = _mm_adds_epu16(mask_hi, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
+			mask_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_hi);
 			src_lo = _mm_mullo_epi16(src_lo, mask0_lo);
 			src_hi = _mm_mullo_epi16(src_hi, mask0_hi);
 			dest_lo = _mm_mullo_epi16(dest_lo, mask_lo);
@@ -894,17 +894,17 @@ import CPUblit.composing.common;
 				maskV |= _mm_slli_epi32(maskV, 8);
 				maskV |= _mm_slli_epi32(maskV, 16); //[A,A,A,A]
 			}
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
 			__m128i dest_lo = _mm_unpacklo_epi8(destV, SSE2_NULLVECT);
 			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
-			src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_lo);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
+			src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_lo);
 
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
 			mask_lo = _mm_srli_epi16(_mm_mullo_epi16(mask_lo, masterV), 8);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
 			src_lo = _mm_mullo_epi16(src_lo, mask0_lo);
 			dest_lo = _mm_mullo_epi16(dest_lo, mask_lo);
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
@@ -925,17 +925,17 @@ import CPUblit.composing.common;
 				maskV |= _mm_slli_epi32(maskV, 8);
 				maskV |= _mm_slli_epi32(maskV, 16); //[A,A,A,A]
 			}
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
 			__m128i dest_lo = _mm_unpacklo_epi8(destV, SSE2_NULLVECT);
 			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
-			src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_lo);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
+			src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_lo);
 
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
 			mask_lo = _mm_srli_epi16(_mm_mullo_epi16(mask_lo, masterV), 8);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
 			src_lo = _mm_mullo_epi16(src_lo, mask0_lo);
 			dest_lo = _mm_mullo_epi16(dest_lo, mask_lo);
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
@@ -958,7 +958,7 @@ import CPUblit.composing.common;
 			masterV |= _mm_slli_epi32(masterV, 16);
 		} else
 			static assert(0, "Value must be either 8 or 32 bits!");
-		masterV = _mm_adds_epu16(_mm_unpacklo_epi8(masterV,	SSE2_NULLVECT), ALPHABLEND_SSE2_CONST1);
+		masterV = _mm_adds_epu16(_mm_unpacklo_epi8(masterV,	SSE2_NULLVECT), cast(__m128i)ALPHABLEND_SSE2_CONST1);
 		while (length >= 4) {
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*) src);
 			__m128i destV = _mm_loadu_si128(cast(__m128i*) dest);
@@ -974,27 +974,27 @@ import CPUblit.composing.common;
 				maskV |= _mm_slli_epi32(maskV, 16);//[A,A,A,A]
 			} else static assert (0, "Alpha mask must be either 8 or 32 bits!");
 
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
-			__m128i src_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpackhi_epi8(srcV, SSE2_NULLVECT));
 			__m128i dest_lo = _mm_unpacklo_epi8(destV, SSE2_NULLVECT);
 			__m128i dest_hi = _mm_unpackhi_epi8(destV, SSE2_NULLVECT);
 			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
 			src_hi = _mm_srli_epi16(_mm_mullo_epi16(src_hi,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_hi)), 8);
-			src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_lo);
-			src_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_hi);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_hi)), 8);
+			src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_lo);
+			src_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_hi);
 
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
 			__m128i mask_hi = _mm_unpackhi_epi8(maskV, SSE2_NULLVECT);
 			mask_lo = _mm_srli_epi16(_mm_mullo_epi16(mask_lo, masterV), 8);
 			mask_hi = _mm_srli_epi16(_mm_mullo_epi16(mask_hi, masterV), 8);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			__m128i mask0_hi = _mm_adds_epu16(mask_hi, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
-			mask_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_hi);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			__m128i mask0_hi = _mm_adds_epu16(mask_hi, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
+			mask_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_hi);
 			src_lo = _mm_mullo_epi16(src_lo, mask0_lo);
 			src_hi = _mm_mullo_epi16(src_hi, mask0_hi);
 			dest_lo = _mm_mullo_epi16(dest_lo, mask_lo);
@@ -1020,17 +1020,17 @@ import CPUblit.composing.common;
 				maskV |= _mm_slli_epi32(maskV, 16);//[A,A,A,A]
 			}
 
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
 			__m128i dest_lo = _mm_unpacklo_epi8(destV, SSE2_NULLVECT);
 			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
-			src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_lo);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
+			src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_lo);
 
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
 			mask_lo = _mm_srli_epi16(_mm_mullo_epi16(mask_lo, masterV), 8);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
 			src_lo = _mm_mullo_epi16(src_lo, mask0_lo);
 			dest_lo = _mm_mullo_epi16(dest_lo, mask_lo);
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
@@ -1052,17 +1052,17 @@ import CPUblit.composing.common;
 				maskV |= _mm_slli_epi32(maskV, 16);//[A,A,A,A]
 			}
 
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
 			__m128i dest_lo = _mm_unpacklo_epi8(destV, SSE2_NULLVECT);
 			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
-			src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_lo);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
+			src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_lo);
 
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
 			mask_lo = _mm_srli_epi16(_mm_mullo_epi16(mask_lo, masterV), 8);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
 			src_lo = _mm_mullo_epi16(src_lo, mask0_lo);
 			dest_lo = _mm_mullo_epi16(dest_lo, mask_lo);
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
@@ -1084,7 +1084,7 @@ import CPUblit.composing.common;
 			masterV |= _mm_slli_epi32(masterV, 16);
 		} else
 			static assert(0, "Value must be either 8 or 32 bits!");
-		masterV = _mm_adds_epu16(_mm_unpacklo_epi8(masterV,	SSE2_NULLVECT), ALPHABLEND_SSE2_CONST1);
+		masterV = _mm_adds_epu16(_mm_unpacklo_epi8(masterV,	SSE2_NULLVECT), cast(__m128i)ALPHABLEND_SSE2_CONST1);
 		while (length >= 4) {
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*) src);
 			__m128i destV = _mm_loadu_si128(cast(__m128i*) dest);
@@ -1100,27 +1100,27 @@ import CPUblit.composing.common;
 				maskV |= _mm_slli_epi32(maskV, 16);//[A,A,A,A]
 			} else static assert (0, "Alpha mask must be either 8 or 32 bits!");
 
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
-			__m128i src_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpackhi_epi8(srcV, SSE2_NULLVECT));
 			__m128i dest_lo = _mm_unpacklo_epi8(destV, SSE2_NULLVECT);
 			__m128i dest_hi = _mm_unpackhi_epi8(destV, SSE2_NULLVECT);
 			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
 			src_hi = _mm_srli_epi16(_mm_mullo_epi16(src_hi,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_hi)), 8);
-			src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_lo);
-			src_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_hi);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_hi)), 8);
+			src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_lo);
+			src_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_hi);
 
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
 			__m128i mask_hi = _mm_unpackhi_epi8(maskV, SSE2_NULLVECT);
 			mask_lo = _mm_srli_epi16(_mm_mullo_epi16(mask_lo, masterV), 8);
 			mask_hi = _mm_srli_epi16(_mm_mullo_epi16(mask_hi, masterV), 8);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			__m128i mask0_hi = _mm_adds_epu16(mask_hi, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
-			mask_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_hi);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			__m128i mask0_hi = _mm_adds_epu16(mask_hi, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
+			mask_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_hi);
 			src_lo = _mm_mullo_epi16(src_lo, mask0_lo);
 			src_hi = _mm_mullo_epi16(src_hi, mask0_hi);
 			dest_lo = _mm_mullo_epi16(dest_lo, mask_lo);
@@ -1147,17 +1147,17 @@ import CPUblit.composing.common;
 				maskV |= _mm_slli_epi32(maskV, 16);//[A,A,A,A]
 			}
 
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
 			__m128i dest_lo = _mm_unpacklo_epi8(destV, SSE2_NULLVECT);
 			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
-			src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_lo);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
+			src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_lo);
 
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
 			mask_lo = _mm_srli_epi16(_mm_mullo_epi16(mask_lo, masterV), 8);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
 			src_lo = _mm_mullo_epi16(src_lo, mask0_lo);
 			dest_lo = _mm_mullo_epi16(dest_lo, mask_lo);
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
@@ -1180,17 +1180,17 @@ import CPUblit.composing.common;
 				maskV |= _mm_slli_epi32(maskV, 16);//[A,A,A,A]
 			}
 
-			__m128i src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256,
+			__m128i src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256,
 					_mm_unpacklo_epi8(srcV, SSE2_NULLVECT));
 			__m128i dest_lo = _mm_unpacklo_epi8(destV, SSE2_NULLVECT);
 			src_lo = _mm_srli_epi16(_mm_mullo_epi16(src_lo,
-					_mm_subs_epu16(ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
-			src_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST255, src_lo);
+					_mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, dest_lo)), 8);
+			src_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST255, src_lo);
 
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
 			mask_lo = _mm_srli_epi16(_mm_mullo_epi16(mask_lo, masterV), 8);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
 			src_lo = _mm_mullo_epi16(src_lo, mask0_lo);
 			dest_lo = _mm_mullo_epi16(dest_lo, mask_lo);
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);

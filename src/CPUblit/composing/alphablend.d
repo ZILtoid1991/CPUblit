@@ -44,10 +44,10 @@ public void alphaBlend(uint* src, uint* dest, size_t length) {
 			}
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
 			__m128i mask_hi = _mm_unpackhi_epi8(maskV, SSE2_NULLVECT);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			__m128i mask0_hi = _mm_adds_epu16(mask_hi, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
-			mask_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_hi);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			__m128i mask0_hi = _mm_adds_epu16(mask_hi, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
+			mask_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_hi);
 			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
 			__m128i src_hi = _mm_mullo_epi16(_mm_unpackhi_epi8(srcV, SSE2_NULLVECT), mask0_hi);
 			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
@@ -71,8 +71,8 @@ public void alphaBlend(uint* src, uint* dest, size_t length) {
 				maskV |= _mm_slli_epi32(maskV, 16);//[A,A,A,A]
 			}
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
 			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
 			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
@@ -93,8 +93,8 @@ public void alphaBlend(uint* src, uint* dest, size_t length) {
 				maskV |= _mm_slli_epi32(maskV, 16);//[A,A,A,A]
 			}
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
 			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
 			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
@@ -134,10 +134,10 @@ public void alphaBlend(uint* src, uint* dest, uint* dest0, size_t length) {
 			}
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
 			__m128i mask_hi = _mm_unpackhi_epi8(maskV, SSE2_NULLVECT);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			__m128i mask0_hi = _mm_adds_epu16(mask_hi, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
-			mask_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_hi);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			__m128i mask0_hi = _mm_adds_epu16(mask_hi, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
+			mask_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_hi);
 			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
 			__m128i src_hi = _mm_mullo_epi16(_mm_unpackhi_epi8(srcV, SSE2_NULLVECT), mask0_hi);
 			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
@@ -162,8 +162,8 @@ public void alphaBlend(uint* src, uint* dest, uint* dest0, size_t length) {
 				maskV |= _mm_slli_epi32(maskV, 16);//[A,A,A,A]
 			}
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
 			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
 			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
@@ -185,8 +185,8 @@ public void alphaBlend(uint* src, uint* dest, uint* dest0, size_t length) {
 				maskV |= _mm_slli_epi32(maskV, 16);//[A,A,A,A]
 			}
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
 			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
 			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
@@ -230,10 +230,10 @@ public void alphaBlend(M)(uint* src, uint* dest, size_t length, M* mask) {
 			} else static assert (0, "Alpha mask must be either 8 or 32 bits!");
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
 			__m128i mask_hi = _mm_unpackhi_epi8(maskV, SSE2_NULLVECT);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			__m128i mask0_hi = _mm_adds_epu16(mask_hi, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
-			mask_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_hi);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			__m128i mask0_hi = _mm_adds_epu16(mask_hi, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
+			mask_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_hi);
 			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
 			__m128i src_hi = _mm_mullo_epi16(_mm_unpackhi_epi8(srcV, SSE2_NULLVECT), mask0_hi);
 			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
@@ -259,8 +259,8 @@ public void alphaBlend(M)(uint* src, uint* dest, size_t length, M* mask) {
 				maskV |= _mm_slli_epi32(maskV, 16);//[A,A,A,A]
 			}
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
 			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
 			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
@@ -282,8 +282,8 @@ public void alphaBlend(M)(uint* src, uint* dest, size_t length, M* mask) {
 				maskV |= _mm_slli_epi32(maskV, 16);//[A,A,A,A]
 			}
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
 			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
 			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
@@ -333,10 +333,10 @@ public void alphaBlend(M)(uint* src, uint* dest, uint* dest0, size_t length, M* 
 			} else static assert (0, "Alpha mask must be either 8 or 32 bits!");
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
 			__m128i mask_hi = _mm_unpackhi_epi8(maskV, SSE2_NULLVECT);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			__m128i mask0_hi = _mm_adds_epu16(mask_hi, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
-			mask_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_hi);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			__m128i mask0_hi = _mm_adds_epu16(mask_hi, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
+			mask_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_hi);
 			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
 			__m128i src_hi = _mm_mullo_epi16(_mm_unpackhi_epi8(srcV, SSE2_NULLVECT), mask0_hi);
 			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
@@ -363,8 +363,8 @@ public void alphaBlend(M)(uint* src, uint* dest, uint* dest0, size_t length, M* 
 				maskV |= _mm_slli_epi32(maskV, 16);//[A,A,A,A]
 			}
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
 			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
 			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
@@ -387,8 +387,8 @@ public void alphaBlend(M)(uint* src, uint* dest, uint* dest0, size_t length, M* 
 				maskV |= _mm_slli_epi32(maskV, 16);//[A,A,A,A]
 			}
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
 			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
 			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
@@ -437,10 +437,10 @@ public void alphaBlendFV(V)(uint* src, uint* dest, size_t length, V value) {
 		} else static assert (0, "Alpha mask must be either 8 or 32 bits!");
 		__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
 		//__m128i mask_hi = _mm_unpackhi_epi8(maskV, SSE2_NULLVECT);
-		__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-		//__m128i mask0_hi = _mm_adds_epu16(mask_hi, ALPHABLEND_SSE2_CONST1);
-		mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
-		//mask_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_hi);
+		__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+		//__m128i mask0_hi = _mm_adds_epu16(mask_hi, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+		mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
+		//mask_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_hi);
 		while(length >= 4){
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
 			__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
@@ -519,10 +519,10 @@ public void alphaBlendFV(V)(uint* src, uint* dest, uint* dest0, size_t length, V
 		} else static assert (0, "Value must be either 8 or 32 bits!");
 		__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
 		//__m128i mask_hi = _mm_unpackhi_epi8(maskV, SSE2_NULLVECT);
-		__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-		//__m128i mask0_hi = _mm_adds_epu16(mask_hi, ALPHABLEND_SSE2_CONST1);
-		mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
-		//mask_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_hi);
+		__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+		//__m128i mask0_hi = _mm_adds_epu16(mask_hi, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+		mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
+		//mask_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_hi);
 		while(length >= 4){
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
 			__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
@@ -601,8 +601,8 @@ public void alphaBlendMV(V)(uint* src, uint* dest, size_t length, V value) {
 			masterV |= _mm_slli_epi32(masterV, 8);
 			masterV |= _mm_slli_epi32(masterV, 16);
 		} else static assert (0, "Value must be either 8 or 32 bits!");
-		masterV = _mm_adds_epu16(_mm_unpacklo_epi8(masterV, SSE2_NULLVECT), ALPHABLEND_SSE2_CONST1);
-		//__m128i masterV = _mm_adds_epu16(_mm_unpackhi_epi8(masterV, SSE2_NULLVECT), ALPHABLEND_SSE2_CONST1);
+		masterV = _mm_adds_epu16(_mm_unpacklo_epi8(masterV, SSE2_NULLVECT), cast(__m128i)ALPHABLEND_SSE2_CONST1);
+		//__m128i masterV = _mm_adds_epu16(_mm_unpackhi_epi8(masterV, SSE2_NULLVECT), cast(__m128i)ALPHABLEND_SSE2_CONST1);
 		while(length >= 4){
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
 			__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
@@ -618,10 +618,10 @@ public void alphaBlendMV(V)(uint* src, uint* dest, size_t length, V value) {
 			__m128i mask_hi = _mm_unpackhi_epi8(maskV, SSE2_NULLVECT);
 			mask_lo = _mm_srli_epi16(_mm_mullo_epi16(mask_lo, masterV), 8);
 			mask_hi = _mm_srli_epi16(_mm_mullo_epi16(mask_hi, masterV), 8);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			__m128i mask0_hi = _mm_adds_epu16(mask_hi, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
-			mask_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_hi);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			__m128i mask0_hi = _mm_adds_epu16(mask_hi, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
+			mask_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_hi);
 			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
 			__m128i src_hi = _mm_mullo_epi16(_mm_unpackhi_epi8(srcV, SSE2_NULLVECT), mask0_hi);
 			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
@@ -646,8 +646,8 @@ public void alphaBlendMV(V)(uint* src, uint* dest, size_t length, V value) {
 			}
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
 			mask_lo = _mm_srli_epi16(_mm_mullo_epi16(mask_lo, masterV), 8);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
 			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
 			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
@@ -669,8 +669,8 @@ public void alphaBlendMV(V)(uint* src, uint* dest, size_t length, V value) {
 			}
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
 			mask_lo = _mm_srli_epi16(_mm_mullo_epi16(mask_lo, masterV), 8);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
 			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
 			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
@@ -714,7 +714,7 @@ public void alphaBlendMV(V)(uint* src, uint* dest, uint* dest0, size_t length, V
 			masterV |= _mm_slli_epi32(masterV, 8);
 			masterV |= _mm_slli_epi32(masterV, 16);
 		} else static assert (0, "Value must be either 8 or 32 bits!");
-		masterV = _mm_adds_epu16(_mm_unpacklo_epi8(masterV, SSE2_NULLVECT), ALPHABLEND_SSE2_CONST1);
+		masterV = _mm_adds_epu16(_mm_unpacklo_epi8(masterV, SSE2_NULLVECT), cast(__m128i)ALPHABLEND_SSE2_CONST1);
 		while(length >= 4){
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
 			__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
@@ -730,10 +730,10 @@ public void alphaBlendMV(V)(uint* src, uint* dest, uint* dest0, size_t length, V
 			__m128i mask_hi = _mm_unpackhi_epi8(maskV, SSE2_NULLVECT);
 			mask_lo = _mm_srli_epi16(_mm_mullo_epi16(mask_lo, masterV), 8);
 			mask_hi = _mm_srli_epi16(_mm_mullo_epi16(mask_hi, masterV), 8);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			__m128i mask0_hi = _mm_adds_epu16(mask_hi, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
-			mask_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_hi);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			__m128i mask0_hi = _mm_adds_epu16(mask_hi, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
+			mask_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_hi);
 			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
 			__m128i src_hi = _mm_mullo_epi16(_mm_unpackhi_epi8(srcV, SSE2_NULLVECT), mask0_hi);
 			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
@@ -759,8 +759,8 @@ public void alphaBlendMV(V)(uint* src, uint* dest, uint* dest0, size_t length, V
 			}
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
 			mask_lo = _mm_srli_epi16(_mm_mullo_epi16(mask_lo, masterV), 8);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
 			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
 			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
@@ -783,8 +783,8 @@ public void alphaBlendMV(V)(uint* src, uint* dest, uint* dest0, size_t length, V
 			}
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
 			mask_lo = _mm_srli_epi16(_mm_mullo_epi16(mask_lo, masterV), 8);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
 			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
 			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
@@ -828,7 +828,7 @@ public void alphaBlendMV(V,M)(uint* src, uint* dest, size_t length, M* mask, V v
 			masterV |= _mm_slli_epi32(masterV, 8);
 			masterV |= _mm_slli_epi32(masterV, 16);
 		} else static assert (0, "Value must be either 8 or 32 bits!");
-		masterV = _mm_adds_epu16(_mm_unpacklo_epi8(masterV, SSE2_NULLVECT), ALPHABLEND_SSE2_CONST1);
+		masterV = _mm_adds_epu16(_mm_unpacklo_epi8(masterV, SSE2_NULLVECT), cast(__m128i)ALPHABLEND_SSE2_CONST1);
 		while(length >= 4){
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
 			__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
@@ -847,10 +847,10 @@ public void alphaBlendMV(V,M)(uint* src, uint* dest, size_t length, M* mask, V v
 			__m128i mask_hi = _mm_unpackhi_epi8(maskV, SSE2_NULLVECT);
 			mask_lo = _mm_srli_epi16(_mm_mullo_epi16(mask_lo, masterV), 8);
 			mask_hi = _mm_srli_epi16(_mm_mullo_epi16(mask_hi, masterV), 8);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			__m128i mask0_hi = _mm_adds_epu16(mask_hi, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
-			mask_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_hi);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			__m128i mask0_hi = _mm_adds_epu16(mask_hi, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
+			mask_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_hi);
 			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
 			__m128i src_hi = _mm_mullo_epi16(_mm_unpackhi_epi8(srcV, SSE2_NULLVECT), mask0_hi);
 			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
@@ -876,8 +876,8 @@ public void alphaBlendMV(V,M)(uint* src, uint* dest, size_t length, M* mask, V v
 			}
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
 			mask_lo = _mm_srli_epi16(_mm_mullo_epi16(mask_lo, masterV), 8);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
 			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
 			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
@@ -899,8 +899,8 @@ public void alphaBlendMV(V,M)(uint* src, uint* dest, size_t length, M* mask, V v
 			}
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
 			mask_lo = _mm_srli_epi16(_mm_mullo_epi16(mask_lo, masterV), 8);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
 			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
 			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
@@ -944,7 +944,7 @@ public void alphaBlendMV(V,M)(uint* src, uint* dest, uint* dest0, size_t length,
 			masterV |= _mm_slli_epi32(masterV, 8);
 			masterV |= _mm_slli_epi32(masterV, 16);
 		} else static assert (0, "Value must be either 8 or 32 bits!");
-		masterV = _mm_adds_epu16(_mm_unpacklo_epi8(masterV, SSE2_NULLVECT), ALPHABLEND_SSE2_CONST1);
+		masterV = _mm_adds_epu16(_mm_unpacklo_epi8(masterV, SSE2_NULLVECT), cast(__m128i)ALPHABLEND_SSE2_CONST1);
 		while(length >= 4){
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
 			__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
@@ -963,10 +963,10 @@ public void alphaBlendMV(V,M)(uint* src, uint* dest, uint* dest0, size_t length,
 			__m128i mask_hi = _mm_unpackhi_epi8(maskV, SSE2_NULLVECT);
 			mask_lo = _mm_srli_epi16(_mm_mullo_epi16(mask_lo, masterV), 8);
 			mask_hi = _mm_srli_epi16(_mm_mullo_epi16(mask_hi, masterV), 8);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			__m128i mask0_hi = _mm_adds_epu16(mask_hi, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
-			mask_hi = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_hi);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			__m128i mask0_hi = _mm_adds_epu16(mask_hi, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
+			mask_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_hi);
 			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
 			__m128i src_hi = _mm_mullo_epi16(_mm_unpackhi_epi8(srcV, SSE2_NULLVECT), mask0_hi);
 			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
@@ -993,8 +993,8 @@ public void alphaBlendMV(V,M)(uint* src, uint* dest, uint* dest0, size_t length,
 			}
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
 			mask_lo = _mm_srli_epi16(_mm_mullo_epi16(mask_lo, masterV), 8);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
 			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
 			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
@@ -1017,8 +1017,8 @@ public void alphaBlendMV(V,M)(uint* src, uint* dest, uint* dest0, size_t length,
 			}
 			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
 			mask_lo = _mm_srli_epi16(_mm_mullo_epi16(mask_lo, masterV), 8);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(ALPHABLEND_SSE2_CONST256, mask_lo);
+			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
 			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
 			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);

@@ -9,17 +9,17 @@ import CPUblit.composing.common;
 public void textBlitter(T)(T* src, T* dest, size_t length, T color) @nogc pure nothrow {
 	static if(USE_INTEL_INTRINSICS){
 		static if(T.stringof == "ubyte"){
-			__vector(ubyte[16]) colorV;
+			byte16 colorV;
 			static enum MAINLOOP_LENGTH = 16;
 			static enum HALFLOAD_LENGTH = 8;
 			static enum QUTRLOAD_LENGTH = 4;
 		}else static if(T.stringof == "ushort"){
-			__vector(ushort[8]) colorV;
+			short8 colorV;
 			static enum MAINLOOP_LENGTH = 8;
 			static enum HALFLOAD_LENGTH = 4;
 			static enum QUTRLOAD_LENGTH = 2;
 		}else static if(T.stringof == "uint"){
-			__vector(uint[4]) colorV;
+			int4 colorV;
 			static enum MAINLOOP_LENGTH = 4;
 			static enum HALFLOAD_LENGTH = 2;
 			static enum QUTRLOAD_LENGTH = 1;
@@ -105,17 +105,17 @@ public void textBlitter(T)(T* src, T* dest, size_t length, T color) @nogc pure n
 public void textBlitter(T)(T* src, T* dest, T* dest0, size_t length, T color) @nogc pure nothrow {
 	static if(USE_INTEL_INTRINSICS){
 		static if(T.stringof == "ubyte"){
-			__vector(ubyte[16]) colorV;
+			byte16 colorV;
 			static enum MAINLOOP_LENGTH = 16;
 			static enum HALFLOAD_LENGTH = 8;
 			static enum QUTRLOAD_LENGTH = 4;
 		}else static if(T.stringof == "ushort"){
-			__vector(ushort[8]) colorV;
+			short8 colorV;
 			static enum MAINLOOP_LENGTH = 8;
 			static enum HALFLOAD_LENGTH = 4;
 			static enum QUTRLOAD_LENGTH = 2;
 		}else static if(T.stringof == "uint"){
-			__vector(uint[4]) colorV;
+			int4 colorV;
 			static enum MAINLOOP_LENGTH = 4;
 			static enum HALFLOAD_LENGTH = 2;
 			static enum QUTRLOAD_LENGTH = 1;
@@ -205,43 +205,43 @@ public void textBlitter(T)(T* src, T* dest, T* dest0, size_t length, T color) @n
 public @nogc void xorBlitter(T)(T* dest, T* dest0, size_t length, T color){
 	static if(USE_INTEL_INTRINSICS){
 		static if(T.stringof == "ubyte"){
-			__vector(ubyte[16]) colorV;
+			byte16 colorV;
 			static enum MAINLOOP_LENGTH = 16;
 			static enum HALFLOAD_LENGTH = 8;
 			static enum QUTRLOAD_LENGTH = 4;
 		}else static if(T.stringof == "ushort"){
-			__vector(ushort[8]) colorV;
+			short8 colorV;
 			static enum MAINLOOP_LENGTH = 8;
 			static enum HALFLOAD_LENGTH = 4;
 			static enum QUTRLOAD_LENGTH = 2;
 		}else static if(T.stringof == "uint"){
-			__vector(uint[4]) colorV;
+			int4 colorV;
 			static enum MAINLOOP_LENGTH = 4;
 			static enum HALFLOAD_LENGTH = 2;
 			static enum QUTRLOAD_LENGTH = 1;
 		}else static assert(0, "Template parameter '"~ T.stringof ~"' not supported!");
-		for (int i ; i < colorV.length ; i++){
+		for (int i ; i < MAINLOOP_LENGTH ; i++){
 			colorV[i] = color;
 		}
 		while(length >= MAINLOOP_LENGTH){
 			__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
-			destV = _mm_xor_si128(destV, colorV);
+			destV = _mm_xor_si128(destV, cast(__m128i)colorV);
 			_mm_storeu_si128(cast(__m128i*)dest0, destV);
 			dest += MAINLOOP_LENGTH;
 			dest0 += MAINLOOP_LENGTH;
 			length -= MAINLOOP_LENGTH;
 		}
 		if(length >= HALFLOAD_LENGTH){
-			__m128i destV = _mm_loadl_epi64(cast(__m64*)dest);
-			destV = _mm_xor_si128(destV, colorV);
-			_mm_storel_epi64(cast(__m64*)dest0, destV);
+			__m128i destV = _mm_loadl_epi64(cast(__m128i*)dest);
+			destV = _mm_xor_si128(destV, cast(__m128i)colorV);
+			_mm_storel_epi64(cast(__m128i*)dest0, destV);
 			dest += HALFLOAD_LENGTH;
 			dest0 += HALFLOAD_LENGTH;
 			length -= HALFLOAD_LENGTH;
 		}
 		if(length >= QUTRLOAD_LENGTH){
 			__m128i destV = _mm_cvtsi32_si128((*cast(int*)dest));
-			destV = _mm_xor_si128(destV, colorV);
+			destV = _mm_xor_si128(destV, cast(__m128i)colorV);
 			_mm_storeu_si32(dest0, destV);
 			static if(T.stringof != "uint"){
 				dest += QUTRLOAD_LENGTH;
@@ -275,41 +275,41 @@ public @nogc void xorBlitter(T)(T* dest, T* dest0, size_t length, T color){
  */
 public void xorBlitter(T)(T* dest, size_t length, T color) @nogc pure nothrow {
 	static if(T.stringof == "ubyte"){
-		__vector(ubyte[16]) colorV;
+		byte16 colorV;
 		static enum MAINLOOP_LENGTH = 16;
 		static enum HALFLOAD_LENGTH = 8;
 		static enum QUTRLOAD_LENGTH = 4;
 	}else static if(T.stringof == "ushort"){
-		__vector(ushort[8]) colorV;
+		short8 colorV;
 		static enum MAINLOOP_LENGTH = 8;
 		static enum HALFLOAD_LENGTH = 4;
 		static enum QUTRLOAD_LENGTH = 2;
 	}else static if(T.stringof == "uint"){
-		__vector(uint[4]) colorV;
+		int4 colorV;
 		static enum MAINLOOP_LENGTH = 4;
 		static enum HALFLOAD_LENGTH = 2;
 		static enum QUTRLOAD_LENGTH = 1;
 	}else static assert(0, "Template parameter '"~ T.stringof ~"' not supported!");
-	for (int i ; i < colorV.length ; i++){
+	for (int i ; i < MAINLOOP_LENGTH ; i++){
 		colorV[i] = color;
 	}
 	while(length >= MAINLOOP_LENGTH){
 		__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
-		destV = _mm_xor_si128(destV, colorV);
+		destV = _mm_xor_si128(destV, cast(__m128i)colorV);
 		_mm_storeu_si128(cast(__m128i*)dest, destV);
 		dest += MAINLOOP_LENGTH;
 		length -= MAINLOOP_LENGTH;
 	}
 	if(length >= HALFLOAD_LENGTH){
-		__m128i destV = _mm_loadl_epi64(cast(__m64*)dest);
-		destV = _mm_xor_si128(destV, colorV);
-		_mm_storel_epi64(cast(__m64*)dest, destV);
+		__m128i destV = _mm_loadl_epi64(cast(__m128i*)dest);
+		destV = _mm_xor_si128(destV, cast(__m128i)colorV);
+		_mm_storel_epi64(cast(__m128i*)dest, destV);
 		dest += HALFLOAD_LENGTH;
 		length -= HALFLOAD_LENGTH;
 	}
 	if(length >= QUTRLOAD_LENGTH){
 		__m128i destV = _mm_cvtsi32_si128((*cast(int*)dest));
-		destV = _mm_xor_si128(destV, colorV);
+		destV = _mm_xor_si128(destV, cast(__m128i)colorV);
 		_mm_storeu_si32(dest, destV);
 		static if(T.stringof != "uint"){
 			dest += QUTRLOAD_LENGTH;
@@ -349,17 +349,17 @@ public void xorBlitter(T)(T* src, T* dest, size_t length) @nogc pure nothrow {
 	while(length >= MAINLOOP_LENGTH){
 		__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
 		__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
-		destV = _mm_xor_si128(destV, srcV);
+		destV = _mm_xor_si128(destV, cast(__m128i)srcV);
 		_mm_storeu_si128(cast(__m128i*)dest, destV);
 		dest += MAINLOOP_LENGTH;
 		src += MAINLOOP_LENGTH;
 		length -= MAINLOOP_LENGTH;
 	}
 	if(length >= HALFLOAD_LENGTH){
-		__m128i srcV = _mm_loadl_epi64(cast(__m64*)src);
-		__m128i destV = _mm_loadl_epi64(cast(__m64*)dest);
+		__m128i srcV = _mm_loadl_epi64(cast(__m128i*)src);
+		__m128i destV = _mm_loadl_epi64(cast(__m128i*)dest);
 		destV = _mm_xor_si128(destV, srcV);
-		_mm_storel_epi64(cast(__m64*)dest, destV);
+		_mm_storel_epi64(cast(__m128i*)dest, destV);
 		dest += HALFLOAD_LENGTH;
 		src += HALFLOAD_LENGTH;
 		length -= HALFLOAD_LENGTH;
@@ -367,7 +367,7 @@ public void xorBlitter(T)(T* src, T* dest, size_t length) @nogc pure nothrow {
 	if(length >= QUTRLOAD_LENGTH){
 		__m128i srcV = _mm_cvtsi32_si128((*cast(int*)src));
 		__m128i destV = _mm_cvtsi32_si128((*cast(int*)dest));
-		destV = _mm_xor_si128(destV, srcV);
+		destV = _mm_xor_si128(destV, cast(__m128i)srcV);
 		_mm_storeu_si32(dest, destV);
 		static if(T.stringof != "uint"){
 			dest += QUTRLOAD_LENGTH;
@@ -408,7 +408,7 @@ public void xorBlitter(T)(T* src, T* dest, T* dest0, size_t length) @nogc pure n
 	while(length >= MAINLOOP_LENGTH){
 		__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
 		__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
-		destV = _mm_xor_si128(destV, srcV);
+		destV = _mm_xor_si128(destV, cast(__m128i)srcV);
 		_mm_storeu_si128(cast(__m128i*)dest0, destV);
 		dest += MAINLOOP_LENGTH;
 		dest0 += MAINLOOP_LENGTH;
@@ -416,10 +416,10 @@ public void xorBlitter(T)(T* src, T* dest, T* dest0, size_t length) @nogc pure n
 		length -= MAINLOOP_LENGTH;
 	}
 	if(length >= HALFLOAD_LENGTH){
-		__m128i srcV = _mm_loadl_epi64(cast(__m64*)src);
-		__m128i destV = _mm_loadl_epi64(cast(__m64*)dest);
+		__m128i srcV = _mm_loadl_epi64(cast(__m128i*)src);
+		__m128i destV = _mm_loadl_epi64(cast(__m128i*)dest);
 		destV = _mm_xor_si128(destV, srcV);
-		_mm_storel_epi64(cast(__m64*)dest0, destV);
+		_mm_storel_epi64(cast(__m128i*)dest0, destV);
 		dest += HALFLOAD_LENGTH;
 		dest0 += HALFLOAD_LENGTH;
 		src += HALFLOAD_LENGTH;
