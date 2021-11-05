@@ -42,13 +42,18 @@ public void horizontalScaleNearest(T)(T* src, T* dest, sizediff_t length, int tr
  *   pixels. Default value is zero.
  */
 public void horizontalScaleNearest(ArrayType)(ArrayType src, ArrayType dest, sizediff_t length, int trfmParam, 
-		size_t offset = 0) @nogc pure nothrow {
-	if(trfmParam < 0){
-		offset += (src.length<<10) - 1024 - offset;
-	}
-	for (int i ; i < length ; i++) {
-		dest[i] = src[offset>>>10];
-		offset += trfmParam;
+		sizediff_t offset = 0) @nogc pure nothrow {
+	if(trfmParam < 0) {
+		trfmParam *= -1;
+		for (sizediff_t i ; i < length ; i++) {
+			dest[i] = src[src.length - (offset>>>10) - 1];
+			offset += trfmParam;
+		}
+	} else {
+		for (sizediff_t i ; i < length ; i++) {
+			dest[i] = src[offset>>>10];
+			offset += trfmParam;
+		}
 	}
 }
 /+/** 
@@ -92,15 +97,18 @@ public void horizontalScaleNearestAndCLU(T, U)(T* src, U* dest, U* palette, size
  *   pixels. Default value is zero.
  */
 public void horizontalScaleNearestAndCLU(ArrayType, U)(ArrayType src, U* dest, U* palette, sizediff_t length, 
-		int trfmParam, size_t offset = 0) @nogc pure nothrow {
-	if(trfmParam < 0){
-		offset += (src.length<<10) - 1024 - offset;
-	}
-	while (length > 0) {
-		*dest = palette[src[offset>>>10]];
-		offset += trfmParam;
-		length--;
-		dest++;
+		int trfmParam, sizediff_t offset = 0) @nogc pure nothrow {
+	if(trfmParam < 0) {
+		trfmParam *= -1;
+		for (sizediff_t i ; i < length ; i++) {
+			dest[i] = palette[src[src.length - (offset>>>10) - 1]];
+			offset += trfmParam;
+		}
+	} else {
+		for (sizediff_t i ; i < length ; i++) {
+			dest[i] = palette[src[offset>>>10]];
+			offset += trfmParam;
+		}
 	}
 }
 /**
