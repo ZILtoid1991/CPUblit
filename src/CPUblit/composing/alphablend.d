@@ -30,77 +30,76 @@ import CPUblit.composing.common;
  * 2 operator alpha-blending function.
  */
 public void alphaBlend(uint* src, uint* dest, size_t length) {
-	static if(USE_INTEL_INTRINSICS){
-		while (length >= 4) {
-			__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
-			__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
-			__m128i maskV = srcV & cast(__m128i)ALPHABLEND_SSE2_AMASK;
-			version (cpublit_revalpha) {
-				maskV |= _mm_srli_epi32(maskV, 8);
-				maskV |= _mm_srli_epi32(maskV, 16);//[A,A,A,A]
-			} else {
-				maskV |= _mm_slli_epi32(maskV, 8);
-				maskV |= _mm_slli_epi32(maskV, 16);//[A,A,A,A]
-			}
-			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
-			__m128i mask_hi = _mm_unpackhi_epi8(maskV, SSE2_NULLVECT);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
-			__m128i mask0_hi = _mm_adds_epu16(mask_hi, cast(__m128i)ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
-			mask_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_hi);
-			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
-			__m128i src_hi = _mm_mullo_epi16(_mm_unpackhi_epi8(srcV, SSE2_NULLVECT), mask0_hi);
-			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
-			__m128i dest_hi = _mm_mullo_epi16(_mm_unpackhi_epi8(destV, SSE2_NULLVECT), mask_hi);
-			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
-			src_hi = _mm_srli_epi16(_mm_adds_epu16(src_hi, dest_hi), 8);
-			_mm_storeu_si128(cast(__m128i*)dest, _mm_packus_epi16(src_lo, src_hi));
-			src += 4;
-			dest += 4;
-			length -= 4;
+	while (length >= 4) {
+		__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
+		__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
+		__m128i maskV = srcV & cast(__m128i)ALPHABLEND_SSE2_AMASK;
+		version (cpublit_revalpha) {
+			maskV |= _mm_srli_epi32(maskV, 8);
+			maskV |= _mm_srli_epi32(maskV, 16);//[A,A,A,A]
+		} else {
+			maskV |= _mm_slli_epi32(maskV, 8);
+			maskV |= _mm_slli_epi32(maskV, 16);//[A,A,A,A]
 		}
-		if (length >= 2) {
-			__m128i srcV = _mm_loadl_epi64(cast(__m128i*)src);
-			__m128i destV = _mm_loadl_epi64(cast(__m128i*)dest);
-			__m128i maskV = srcV & cast(__m128i)ALPHABLEND_SSE2_AMASK;
-			version (cpublit_revalpha) {
-				maskV |= _mm_srli_epi32(maskV, 8);
-				maskV |= _mm_srli_epi32(maskV, 16);//[A,A,A,A]
-			} else {
-				maskV |= _mm_slli_epi32(maskV, 8);
-				maskV |= _mm_slli_epi32(maskV, 16);//[A,A,A,A]
-			}
-			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
-			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
-			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
-			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
-			_mm_storel_epi64(cast(__m128i*)dest, _mm_packus_epi16(src_lo, SSE2_NULLVECT));
-			src += 2;
-			dest += 2;
-			length -= 2;
+		__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
+		__m128i mask_hi = _mm_unpackhi_epi8(maskV, SSE2_NULLVECT);
+		__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+		__m128i mask0_hi = _mm_adds_epu16(mask_hi, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+		mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
+		mask_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_hi);
+		__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
+		__m128i src_hi = _mm_mullo_epi16(_mm_unpackhi_epi8(srcV, SSE2_NULLVECT), mask0_hi);
+		__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
+		__m128i dest_hi = _mm_mullo_epi16(_mm_unpackhi_epi8(destV, SSE2_NULLVECT), mask_hi);
+		src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
+		src_hi = _mm_srli_epi16(_mm_adds_epu16(src_hi, dest_hi), 8);
+		_mm_storeu_si128(cast(__m128i*)dest, _mm_packus_epi16(src_lo, src_hi));
+		src += 4;
+		dest += 4;
+		length -= 4;
+	}
+	if (length >= 2) {
+		__m128i srcV = _mm_loadl_epi64(cast(__m128i*)src);
+		__m128i destV = _mm_loadl_epi64(cast(__m128i*)dest);
+		__m128i maskV = srcV & cast(__m128i)ALPHABLEND_SSE2_AMASK;
+		version (cpublit_revalpha) {
+			maskV |= _mm_srli_epi32(maskV, 8);
+			maskV |= _mm_srli_epi32(maskV, 16);//[A,A,A,A]
+		} else {
+			maskV |= _mm_slli_epi32(maskV, 8);
+			maskV |= _mm_slli_epi32(maskV, 16);//[A,A,A,A]
 		}
-		if (length) {
-			__m128i srcV = _mm_loadu_si32(src);
-			__m128i destV = _mm_loadu_si32(dest);
-			__m128i maskV = srcV & cast(__m128i)ALPHABLEND_SSE2_AMASK;
-			version (cpublit_revalpha) {
-				maskV |= _mm_srli_epi32(maskV, 8);
-				maskV |= _mm_srli_epi32(maskV, 16);//[A,A,A,A]
-			} else {
-				maskV |= _mm_slli_epi32(maskV, 8);
-				maskV |= _mm_slli_epi32(maskV, 16);//[A,A,A,A]
-			}
-			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
-			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
-			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
-			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
-			_mm_storeu_si32(dest, _mm_packus_epi16(src_lo, SSE2_NULLVECT));
+		__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
+		__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+		mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
+		__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
+		__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
+		src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
+		_mm_storel_epi64(cast(__m128i*)dest, _mm_packus_epi16(src_lo, SSE2_NULLVECT));
+		src += 2;
+		dest += 2;
+		length -= 2;
+	}
+	if (length) {
+		__m128i srcV = _mm_loadu_si32(src);
+		__m128i destV = _mm_loadu_si32(dest);
+		__m128i maskV = srcV & cast(__m128i)ALPHABLEND_SSE2_AMASK;
+		version (cpublit_revalpha) {
+			maskV |= _mm_srli_epi32(maskV, 8);
+			maskV |= _mm_srli_epi32(maskV, 16);//[A,A,A,A]
+		} else {
+			maskV |= _mm_slli_epi32(maskV, 8);
+			maskV |= _mm_slli_epi32(maskV, 16);//[A,A,A,A]
 		}
-	} else {
+		__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
+		__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+		mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
+		__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
+		__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
+		src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
+		_mm_storeu_si32(dest, _mm_packus_epi16(src_lo, SSE2_NULLVECT));
+	}
+	/* } else {
 		while (length) {
 			Color32Bit lsrc = *cast(Color32Bit*)src, ldest = *cast(Color32Bit*)dest;
 			const int src1 = 1 + lsrc.a;
@@ -114,85 +113,85 @@ public void alphaBlend(uint* src, uint* dest, size_t length) {
 			//dest0++;
 			length--;
 		}
-	}
+	} */
 }
 /**
  * 3 operator alpha-blending function.
  */
 public void alphaBlend(uint* src, uint* dest, uint* dest0, size_t length) {
-	static if (USE_INTEL_INTRINSICS) { 
-		while (length >= 4) {
-			__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
-			__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
-			__m128i maskV = srcV & cast(__m128i)ALPHABLEND_SSE2_AMASK;
-			version (cpublit_revalpha) {
-				maskV |= _mm_srli_epi32(maskV, 8);
-				maskV |= _mm_srli_epi32(maskV, 16);//[A,A,A,A]
-			} else {
-				maskV |= _mm_slli_epi32(maskV, 8);
-				maskV |= _mm_slli_epi32(maskV, 16);//[A,A,A,A]
-			}
-			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
-			__m128i mask_hi = _mm_unpackhi_epi8(maskV, SSE2_NULLVECT);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
-			__m128i mask0_hi = _mm_adds_epu16(mask_hi, cast(__m128i)ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
-			mask_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_hi);
-			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
-			__m128i src_hi = _mm_mullo_epi16(_mm_unpackhi_epi8(srcV, SSE2_NULLVECT), mask0_hi);
-			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
-			__m128i dest_hi = _mm_mullo_epi16(_mm_unpackhi_epi8(destV, SSE2_NULLVECT), mask_hi);
-			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
-			src_hi = _mm_srli_epi16(_mm_adds_epu16(src_hi, dest_hi), 8);
-			_mm_storeu_si128(cast(__m128i*)dest0, _mm_packus_epi16(src_lo, src_hi));
-			src += 4;
-			dest += 4;
-			dest0 += 4;
-			length -= 4;
+	/* static if (USE_INTEL_INTRINSICS) {  */
+	while (length >= 4) {
+		__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
+		__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
+		__m128i maskV = srcV & cast(__m128i)ALPHABLEND_SSE2_AMASK;
+		version (cpublit_revalpha) {
+			maskV |= _mm_srli_epi32(maskV, 8);
+			maskV |= _mm_srli_epi32(maskV, 16);//[A,A,A,A]
+		} else {
+			maskV |= _mm_slli_epi32(maskV, 8);
+			maskV |= _mm_slli_epi32(maskV, 16);//[A,A,A,A]
 		}
-		if (length >= 2) {
-			__m128i srcV = _mm_loadl_epi64(cast(__m128i*)src);
-			__m128i destV = _mm_loadl_epi64(cast(__m128i*)dest);
-			__m128i maskV = srcV & cast(__m128i)ALPHABLEND_SSE2_AMASK;
-			version (cpublit_revalpha) {
-				maskV |= _mm_srli_epi32(maskV, 8);
-				maskV |= _mm_srli_epi32(maskV, 16);//[A,A,A,A]
-			} else {
-				maskV |= _mm_slli_epi32(maskV, 8);
-				maskV |= _mm_slli_epi32(maskV, 16);//[A,A,A,A]
-			}
-			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
-			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
-			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
-			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
-			_mm_storel_epi64(cast(__m128i*)dest0, _mm_packus_epi16(src_lo, SSE2_NULLVECT));
-			src += 2;
-			dest += 2;
-			dest0 += 2;
-			length -= 2;
+		__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
+		__m128i mask_hi = _mm_unpackhi_epi8(maskV, SSE2_NULLVECT);
+		__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+		__m128i mask0_hi = _mm_adds_epu16(mask_hi, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+		mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
+		mask_hi = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_hi);
+		__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
+		__m128i src_hi = _mm_mullo_epi16(_mm_unpackhi_epi8(srcV, SSE2_NULLVECT), mask0_hi);
+		__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
+		__m128i dest_hi = _mm_mullo_epi16(_mm_unpackhi_epi8(destV, SSE2_NULLVECT), mask_hi);
+		src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
+		src_hi = _mm_srli_epi16(_mm_adds_epu16(src_hi, dest_hi), 8);
+		_mm_storeu_si128(cast(__m128i*)dest0, _mm_packus_epi16(src_lo, src_hi));
+		src += 4;
+		dest += 4;
+		dest0 += 4;
+		length -= 4;
+	}
+	if (length >= 2) {
+		__m128i srcV = _mm_loadl_epi64(cast(__m128i*)src);
+		__m128i destV = _mm_loadl_epi64(cast(__m128i*)dest);
+		__m128i maskV = srcV & cast(__m128i)ALPHABLEND_SSE2_AMASK;
+		version (cpublit_revalpha) {
+			maskV |= _mm_srli_epi32(maskV, 8);
+			maskV |= _mm_srli_epi32(maskV, 16);//[A,A,A,A]
+		} else {
+			maskV |= _mm_slli_epi32(maskV, 8);
+			maskV |= _mm_slli_epi32(maskV, 16);//[A,A,A,A]
 		}
-		if (length) {
-			__m128i srcV = _mm_loadu_si32(src);
-			__m128i destV = _mm_loadu_si32(dest);
-			__m128i maskV = srcV & cast(__m128i)ALPHABLEND_SSE2_AMASK;
-			version (cpublit_revalpha) {
-				maskV |= _mm_srli_epi32(maskV, 8);
-				maskV |= _mm_srli_epi32(maskV, 16);//[A,A,A,A]
-			} else {
-				maskV |= _mm_slli_epi32(maskV, 8);
-				maskV |= _mm_slli_epi32(maskV, 16);//[A,A,A,A]
-			}
-			__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
-			__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
-			mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
-			__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
-			__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
-			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
-			_mm_storeu_si32(dest0, _mm_packus_epi16(src_lo, SSE2_NULLVECT));
+		__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
+		__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+		mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
+		__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
+		__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
+		src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
+		_mm_storel_epi64(cast(__m128i*)dest0, _mm_packus_epi16(src_lo, SSE2_NULLVECT));
+		src += 2;
+		dest += 2;
+		dest0 += 2;
+		length -= 2;
+	}
+	if (length) {
+		__m128i srcV = _mm_loadu_si32(src);
+		__m128i destV = _mm_loadu_si32(dest);
+		__m128i maskV = srcV & cast(__m128i)ALPHABLEND_SSE2_AMASK;
+		version (cpublit_revalpha) {
+			maskV |= _mm_srli_epi32(maskV, 8);
+			maskV |= _mm_srli_epi32(maskV, 16);//[A,A,A,A]
+		} else {
+			maskV |= _mm_slli_epi32(maskV, 8);
+			maskV |= _mm_slli_epi32(maskV, 16);//[A,A,A,A]
 		}
-	} else {
+		__m128i mask_lo = _mm_unpacklo_epi8(maskV, SSE2_NULLVECT);
+		__m128i mask0_lo = _mm_adds_epu16(mask_lo, cast(__m128i)ALPHABLEND_SSE2_CONST1);
+		mask_lo = _mm_subs_epu16(cast(__m128i)ALPHABLEND_SSE2_CONST256, mask_lo);
+		__m128i src_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(srcV, SSE2_NULLVECT), mask0_lo);
+		__m128i dest_lo = _mm_mullo_epi16(_mm_unpacklo_epi8(destV, SSE2_NULLVECT), mask_lo);
+		src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
+		_mm_storeu_si32(dest0, _mm_packus_epi16(src_lo, SSE2_NULLVECT));
+	}
+	/* } else {
 		while (length) {
 			Color32Bit lsrc = *cast(Color32Bit*)src, ldest = *cast(Color32Bit*)dest;
 			const int src1 = 1 + lsrc.a;
@@ -206,14 +205,14 @@ public void alphaBlend(uint* src, uint* dest, uint* dest0, size_t length) {
 			dest0++;
 			length--;
 		}
-	}
+	} */
 }
 /**
  * 3 operator alpha-blending function.
  * Mask is either 8 or 32 bit per pixel.
  */
 public void alphaBlend(M)(uint* src, uint* dest, size_t length, M* mask) {
-	static if(USE_INTEL_INTRINSICS){
+	/* static if(USE_INTEL_INTRINSICS){ */
 		while(length >= 4){
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
 			__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
@@ -289,7 +288,7 @@ public void alphaBlend(M)(uint* src, uint* dest, size_t length, M* mask) {
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
 			_mm_storeu_si32(dest, _mm_packus_epi16(src_lo, SSE2_NULLVECT));
 		}
-	} else {
+	/* } else {
 		while (length) {
 			Color32Bit lsrc = *cast(Color32Bit*)src, ldest = *cast(Color32Bit*)dest;
 			static if (is(M == uint)) {
@@ -309,14 +308,14 @@ public void alphaBlend(M)(uint* src, uint* dest, size_t length, M* mask) {
 			//dest0++;
 			length--;
 		}
-	}
+	} */
 }
 /**
  * 4 operator alpha-blending function.
  * Mask is either 8 or 32 bit per pixel.
  */
 public void alphaBlend(M)(uint* src, uint* dest, uint* dest0, size_t length, M* mask) {
-	static if(USE_INTEL_INTRINSICS){
+	/* static if(USE_INTEL_INTRINSICS){ */
 		while(length >= 4){
 			__m128i srcV = _mm_loadu_si128(cast(__m128i*)src);
 			__m128i destV = _mm_loadu_si128(cast(__m128i*)dest);
@@ -394,7 +393,7 @@ public void alphaBlend(M)(uint* src, uint* dest, uint* dest0, size_t length, M* 
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
 			_mm_storeu_si32(dest0, _mm_packus_epi16(src_lo, SSE2_NULLVECT));
 		}
-	} else {
+	/* } else {
 		while (length) {
 			Color32Bit lsrc = *cast(Color32Bit*)src, ldest = *cast(Color32Bit*)dest;
 			static if (is(M == uint)) {
@@ -414,13 +413,13 @@ public void alphaBlend(M)(uint* src, uint* dest, uint* dest0, size_t length, M* 
 			dest0++;
 			length--;
 		}
-	}
+	} */
 }
 /**
  * Fix value alpha-blending, 3 operator.
  */
 public void alphaBlendFV(V)(uint* src, uint* dest, size_t length, V value) {
-	static if(USE_INTEL_INTRINSICS){
+	/* static if(USE_INTEL_INTRINSICS){ */
 		__m128i maskV;
 		static if (is(V == uint)) {
 			maskV[0] = value;
@@ -476,7 +475,7 @@ public void alphaBlendFV(V)(uint* src, uint* dest, size_t length, V value) {
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
 			_mm_storeu_si32(dest, _mm_packus_epi16(src_lo, SSE2_NULLVECT));
 		}
-	} else {
+	/* } else {
 		static if (is(V == uint)) {
 			const int src1 = 1 + value;
 			const int src256 = 256 - value;
@@ -496,13 +495,13 @@ public void alphaBlendFV(V)(uint* src, uint* dest, size_t length, V value) {
 			//dest0++;
 			length--;
 		}
-	}
+	} */
 }
 /**
  * Fix value alpha-blending, 4 operator.
  */
 public void alphaBlendFV(V)(uint* src, uint* dest, uint* dest0, size_t length, V value) {
-	static if(USE_INTEL_INTRINSICS){
+	/* static if(USE_INTEL_INTRINSICS){ */
 		__m128i maskV;
 		static if (is(V == uint)) {
 			maskV[0] = value;
@@ -558,7 +557,7 @@ public void alphaBlendFV(V)(uint* src, uint* dest, uint* dest0, size_t length, V
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
 			_mm_storeu_si32(dest, _mm_packus_epi16(src_lo, SSE2_NULLVECT));
 		}
-	} else {
+	/* } else {
 		static if (is(V == uint)) {
 			const int src1 = 1 + value;
 			const int src256 = 256 - value;
@@ -578,7 +577,7 @@ public void alphaBlendFV(V)(uint* src, uint* dest, uint* dest0, size_t length, V
 			//dest0++;
 			length--;
 		}
-	}
+	} */
 }
 /**
  * Alpha-blending with per pixel + fix master value alpha.
@@ -586,7 +585,7 @@ public void alphaBlendFV(V)(uint* src, uint* dest, uint* dest0, size_t length, V
  * 2 operator.
  */
 public void alphaBlendMV(V)(uint* src, uint* dest, size_t length, V value) {
-	static if(USE_INTEL_INTRINSICS) {
+	/* static if(USE_INTEL_INTRINSICS) { */
 		__m128i masterV;
 		static if (is(V == uint)) {
 			masterV[0] = value;
@@ -676,7 +675,7 @@ public void alphaBlendMV(V)(uint* src, uint* dest, size_t length, V value) {
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
 			_mm_storeu_si32(dest, _mm_packus_epi16(src_lo, SSE2_NULLVECT));
 		}
-	} else {
+	/* } else {
 		while (length) {
 			Color32Bit lsrc = *cast(Color32Bit*)src, ldest = *cast(Color32Bit*)dest;
 			const int a = (lsrc.a * (value + 1)) >>> 8;
@@ -691,7 +690,7 @@ public void alphaBlendMV(V)(uint* src, uint* dest, size_t length, V value) {
 			//dest0++;
 			length--;
 		}
-	}
+	} */
 }
 /**
  * Alpha-blending with per pixel + fix master value alpha.
@@ -699,7 +698,7 @@ public void alphaBlendMV(V)(uint* src, uint* dest, size_t length, V value) {
  * 3 operator.
  */
 public void alphaBlendMV(V)(uint* src, uint* dest, uint* dest0, size_t length, V value) {
-	static if(USE_INTEL_INTRINSICS) {
+	/* static if(USE_INTEL_INTRINSICS) { */
 		__m128i masterV;
 		static if (is(V == uint)) {
 			masterV[0] = value;
@@ -790,7 +789,7 @@ public void alphaBlendMV(V)(uint* src, uint* dest, uint* dest0, size_t length, V
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
 			_mm_storeu_si32(dest0, _mm_packus_epi16(src_lo, SSE2_NULLVECT));
 		}
-	} else {
+	/* } else {
 		while (length) {
 			Color32Bit lsrc = *cast(Color32Bit*)src, ldest = *cast(Color32Bit*)dest;
 			const int a = (lsrc.a * (value + 1)) >>> 8;
@@ -805,7 +804,7 @@ public void alphaBlendMV(V)(uint* src, uint* dest, uint* dest0, size_t length, V
 			dest0++;
 			length--;
 		}
-	}
+	} */
 }
 /**
  * Alpha-blending with per pixel + fix master value alpha.
@@ -813,7 +812,7 @@ public void alphaBlendMV(V)(uint* src, uint* dest, uint* dest0, size_t length, V
  * 3 operator.
  */
 public void alphaBlendMV(V,M)(uint* src, uint* dest, size_t length, M* mask, V value) {
-	static if(USE_INTEL_INTRINSICS) {
+	/* static if(USE_INTEL_INTRINSICS) { */
 		__m128i masterV;
 		static if (is(V == uint)) {
 			masterV[0] = value;
@@ -906,7 +905,7 @@ public void alphaBlendMV(V,M)(uint* src, uint* dest, size_t length, M* mask, V v
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
 			_mm_storeu_si32(dest, _mm_packus_epi16(src_lo, SSE2_NULLVECT));
 		}
-	} else {
+	/* } else {
 		while (length) {
 			Color32Bit lsrc = *cast(Color32Bit*)src, ldest = *cast(Color32Bit*)dest;
 			const int a = (lsrc.a * (value + 1)) >>> 8;
@@ -921,7 +920,7 @@ public void alphaBlendMV(V,M)(uint* src, uint* dest, size_t length, M* mask, V v
 			//dest0++;
 			length--;
 		}
-	}
+	} */
 }
 /**
  * Alpha-blending with per pixel + fix master value alpha.
@@ -929,7 +928,7 @@ public void alphaBlendMV(V,M)(uint* src, uint* dest, size_t length, M* mask, V v
  * 3 operator.
  */
 public void alphaBlendMV(V,M)(uint* src, uint* dest, uint* dest0, size_t length, M* mask, V value) {
-	static if(USE_INTEL_INTRINSICS) {
+	/* static if(USE_INTEL_INTRINSICS) { */
 		__m128i masterV;
 		static if (is(V == uint)) {
 			masterV[0] = value;
@@ -1024,7 +1023,7 @@ public void alphaBlendMV(V,M)(uint* src, uint* dest, uint* dest0, size_t length,
 			src_lo = _mm_srli_epi16(_mm_adds_epu16(src_lo, dest_lo), 8);
 			_mm_storeu_si32(dest0, _mm_packus_epi16(src_lo, SSE2_NULLVECT));
 		}
-	} else {
+	/* } else {
 		while (length) {
 			Color32Bit lsrc = *cast(Color32Bit*)src, ldest = *cast(Color32Bit*)dest;
 			const int a = (lsrc.a * (value + 1)) >>> 8;
@@ -1039,7 +1038,7 @@ public void alphaBlendMV(V,M)(uint* src, uint* dest, uint* dest0, size_t length,
 			dest0++;
 			length--;
 		}
-	}
+	} */
 }
 }
 unittest {
