@@ -1,8 +1,14 @@
 module CPUblit.draw;
 
 import CPUblit.colorspaces;
+
+/*
+ * NOTE: This module is soon to be deprecated. Use package `drawing` instead in the future!
+ */
+
 /**
  * Draws a line using a fixed point method. Is capable of drawing lines diagonally.
+ * Note: Diagonal line drawing is broken!
  */
 public void drawLine(T)(int x0, int y0, int x1, int y1, T color, T* dest, size_t destWidth) @nogc nothrow pure {
 	if(x1 < x0){
@@ -56,6 +62,7 @@ public void drawLine(T)(int x0, int y0, int x1, int y1, T color, T* dest, size_t
 }
 /**
  * Draws a line with the given pattern.
+ * Note: Diagonal line drawing is broken!
  */
 public void drawLinePattern(T)(int x0, int y0, int x1, int y1, T[] pattern, T* dest, size_t destWidth) @nogc nothrow pure {
 	if(x1 < x0){

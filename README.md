@@ -54,7 +54,6 @@ where GC allocation is not needed.
 
 # To do list
 
-* Add optimization for ARM Neon. (partly done)
 * Make a GPGPU based variant called GPUblit with either D-Compute, CUDA, and/or OpenCL.
 * Add functions for RLE compression and decompression.
 * Add higher-level functions and types.
@@ -63,4 +62,5 @@ where GC allocation is not needed.
 
 # Known issues
 
-DMD for x86-64 targets treats vector optimization features differently from LDC. This will be fixed in the near future.
+* LDC2 on ARM might not automatically create all the vector instructions on lower optimization levels. If you're
+experiencing performance issues, then try to build a release version.
