@@ -17,48 +17,50 @@ import CPUblit.drawing.common;
 public void floodFill(T)(int x0, int y0, T color, T[] dest, size_t destWidth, T transparencyIndex = T.init) 
 		@nogc @safe nothrow pure {
 	const size_t destHeight = dest.length / destWidth;
-	void _fillLine(int x0, int y0) @nogc nothrow pure {
-		if (dest[x0 + (y0 * destWidth)] != transparencyIndex) return;
-		int x = x0;
+	void _fillLine(int x1, int y1) @nogc nothrow pure {
+		if (dest[x1 + (y1 * destWidth)] != transparencyIndex) return;
+		int x = x1;
 		//Fill line to the right
-		while (x < destWidth && dest[x + (y0 * destWidth)] == transparencyIndex) {
-			dest[x + (y0 * destWidth)] = color;
+		while (x < destWidth && dest[x + (y1 * destWidth)] == transparencyIndex) {
+			dest[x + (y1 * destWidth)] = color;
 			x++;
 		}
-		x = x0 - 1;
+		x = x1 - 1;
 		//Fill line to the left
-		while (x >= 0 && dest[x + (y0 * destWidth)] == transparencyIndex) {
-			dest[x + (y0 * destWidth)] = color;
+		while (x >= 0 && dest[x + (y1 * destWidth)] == transparencyIndex) {
+			dest[x + (y1 * destWidth)] = color;
 			x--;
 		}
 		x++;
+		const int xBegin = x;
 		//Test for scanlines above
-		if (y0 > 0) {
-			while (x < destWidth && dest[x + (y0 * destWidth)] == color) {
-				if (dest[x + ((y0 - 1) * destWidth)] == transparencyIndex) {
-					_fillLine(x, y0 - 1);
+		if (y1 > 0) {
+			while (x < destWidth && dest[x + (y1 * destWidth)] == color) {
+				if (dest[x + ((y1 - 1) * destWidth)] == transparencyIndex) {
+					_fillLine(x, y1 - 1);
 				}
 				x++;
 			}
 		}
-		x--;
+		x = xBegin;
 		//Test for scanlines below
-		if (y0 + 1 < destHeight) {
-			while (x < destWidth && dest[x + (y0 * destWidth)] == color) {
-				if (dest[x + ((y0 + 1) * destWidth)] == transparencyIndex) {
-					_fillLine(x, y0 + 1);
+		if (y1 + 1 < destHeight) {
+			while (x < destWidth && dest[x + (y1 * destWidth)] == color) {
+				if (dest[x + ((y1 + 1) * destWidth)] == transparencyIndex) {
+					_fillLine(x, y1 + 1);
 				}
-				x--;
+				x++;
 			}
 		}
 	}
+	if (transparencyIndex == color) return;
 	_fillLine(x0, y0);
 }
 unittest {
 	import std.stdio;
 	ubyte[] area;
 	area.length = 64;
-	floodFill(0,0,0x0, area, 8);
+	floodFill(0,0,0x1, area, 8);
 	area = [
 		0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
 		0x0,0x0,0x3,0x3,0x3,0x3,0x0,0x0,
@@ -70,5 +72,17 @@ unittest {
 		0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
 	];
 	floodFill(3,3,0x4, area, 8);
+	printMatrix(area, 8);
+	area = [
+		0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
+		0x0,0x0,0x0,0x3,0x0,0x0,0x0,0x0,
+		0x0,0x0,0x0,0x3,0x3,0x3,0x3,0x3,
+		0x0,0x0,0x0,0x3,0x0,0x0,0x0,0x0,
+		0x0,0x0,0x0,0x3,0x0,0x0,0x0,0x0,
+		0x0,0x0,0x0,0x3,0x3,0x3,0x3,0x3,
+		0x0,0x0,0x0,0x3,0x0,0x0,0x0,0x0,
+		0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
+	];
+	floodFill(1,1,0x4, area, 8);
 	printMatrix(area, 8);
 }
