@@ -64,3 +64,7 @@ where GC allocation is not needed.
 
 * LDC2 on ARM might not automatically create all the vector instructions on lower optimization levels. If you're
 experiencing performance issues, then try to build a release version.
+* Bezier curves: I couldn't find a function yet that could help with drawing the curves pixel-by-pixel, so currently
+it draws them in segments. With enough segment number, the curve will be indistinguishable from the per-pixel approach.
+Also thanks to floating-point conversion inaccurencies, the output might look different on some CPUs, especially on the
+x86 platform.
