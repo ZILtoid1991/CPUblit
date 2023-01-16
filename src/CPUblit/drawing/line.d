@@ -126,11 +126,19 @@ public void drawRectangle(T)(int x0, int y0, int x1, int y1, T color, T[] dest, 
 	drawLine(x1,y0,x1,y1,color,dest,destWidth);
 	drawLine(x0,y1,x1,y1,color,dest,destWidth);
 }
+public void drawFilledRectangle(T)(int x0, int y0, int x1, int y1, T color, T[] dest, size_t destWidth) 
+		@trusted @nogc nothrow pure {
+	assert(x0 >= 0 && x0 < destWidth);
+	assert(x1 >= 0 && x1 < destWidth);
+	assert(y0 >= 0 && y0 < dest.length / destWidth);
+	assert(y1 >= 0 && y1 < dest.length / destWidth);
+	_drawFilledRectangle(x0, y0, x1, y1, color, dest, destWidth);
+}
 /**
  * Draws a filled rectangle.
  */
-public void drawFilledRectangle(T) (int x0, int y0, int x1, int y1, T color, T[] dest, size_t destWidth) 
-		@safe @nogc nothrow pure {
+public void _drawFilledRectangle(T) (int x0, int y0, int x1, int y1, T color, T[] dest, size_t destWidth) 
+		@system @nogc nothrow pure {
 	import core.stdc.string : memset;
 	import core.stdc.wchar_ : wmemset;
 	if (x1 < x0) {
@@ -143,18 +151,18 @@ public void drawFilledRectangle(T) (int x0, int y0, int x1, int y1, T color, T[]
 		y1 = y0;
 		y0 = k;
 	}
-	int width = x1 - x0;
-	dest += x0;
+	int width = x1 - x0 + 1;
+	//dest += x0;
 	for (int y = y0 ; y <= y1 ; y++) {
 		static if (is(T == ubyte)) {
-			memset(dest + (y * destWidth), color, width);
+			memset(dest.ptr + (y * destWidth) + x0, color, width);
 		} else static if (is(T == ushort)) {
 			T* dest0 = dest + (y * destWidth);
 			for (int x ; x < width ; x++) {
 				dest0[x] = color;
 			}
 		} else static if (is(T == uint)) {
-			wmemset(dest + (y * destWidth), color, width);
+			wmemset(dest.ptr + (y * destWidth) + x0, color, width);
 		}
 	}
 }
@@ -208,5 +216,14 @@ unittest {
 	writeln("Diagonal pattern line");
 	fillWithSingleValue(area, cast(ubyte)'-');
 	drawLinePattern(0,0,7,7,pattern,area, 8);
+	printMatrix(cast(char[])area, 8);
+
+	writeln("Empty Rectangle");
+	fillWithSingleValue(area, cast(ubyte)'-');
+	drawRectangle(2,2,5,5,'O',area,8);
+	printMatrix(cast(char[])area, 8);
+	writeln("Filled Rectangle");
+	fillWithSingleValue(area, cast(ubyte)'-');
+	drawFilledRectangle(2,2,5,5,'O',area,8);
 	printMatrix(cast(char[])area, 8);
 }
