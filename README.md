@@ -6,6 +6,8 @@ Drawing and image composing library.
 
 * Uses SSE2 or NEON where its possible for high performance.
 * Can work without garbage collection.
+* Contains various functions for drawing, e.g. flood fill, bezier curves.
+* Contains various compositing functions, e.g. alpha-blending, add, multiply.
 
 # Use
 
